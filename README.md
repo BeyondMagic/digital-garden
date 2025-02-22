@@ -1,0 +1,64 @@
+**beyondmagic.space** is a digital garden platform to be yourself, where you can grow your ideas, thoughts, and knowledge.
+
+<!-- # Summary -->
+
+## Dependencies
+
+- Server:
+    - [bun](https://jsdoc.app/);
+    - [Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript);
+    - [JSDocs](https://jsdoc.app/);
+    - [postgres](https://github.com/porsager/postgres/)
+    - [HTML5](https://developer.mozilla.org/en-US/docs/Web/HTML);
+    - [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS).
+- Database:
+    - [PGModeler](https://pgmodeler.io/);
+    - [PostgreSQL](https://www.postgresql.org/).
+
+# Features
+
+There are three types of users:
+- visitors:
+    - visitors can read the content
+- members:
+    - members can create, edit, and delete content.
+- admins:
+    - admins have full control over the platform.
+
+# To-dos
+
+- [ ] Account:
+    - [ ] Sign up;
+        - [ ] Username;
+        - [ ] Password;
+    - [ ] Sign in;
+    - [ ] Sign out;
+    - [ ] Delete account;
+    - [ ] Update information:
+        - [ ] Username;
+        - [ ] Password;
+        - [ ] Email;
+        - [ ] Profile picture;
+        - [ ] Header;
+        - [ ] Bio;
+    - [ ] Reset password;
+    - [ ] Delete pages;
+    - [ ] Membership:
+        - [ ] Write pages;
+        - [ ] Edit pages;
+        - [ ] Delete pages;
+    - [ ] Admin
+        - [ ] Domains:
+            - [ ] Subdomains:
+                - [ ] Create subdomain;
+                - [ ] Delete subdomain;
+            - [ ] Update subdomain;
+            - [ ] Delete domain;
+- [ ] Features:
+    - [ ] View user public profiles;
+    - [ ] Activity feed;
+    - [ ] Notifications;
+
+# Authors
+
+- João V. Farias beyondmagic@mail.ru 2025
