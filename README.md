@@ -9,7 +9,7 @@
     - [Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript);
     - [JSDocs](https://jsdoc.app/);
     - [postgres](https://github.com/porsager/postgres/)
-    - [HTML5](https://developer.mozilla.org/en-US/docs/Web/HTML);
+    - [HTML5](https://developer.mozilla.org/en-US/docs/Web/HTML;);
     - [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS).
 - Database:
     - [PGModeler](https://pgmodeler.io/);
@@ -19,19 +19,34 @@
 
 There are three types of users:
 - visitors:
-    - visitors can read the content
-- members:
-    - members can create, edit, and delete content.
+    - visitors can read the content;
+- authors:
+    - authors can create, edit, and delete content.
 - admins:
     - admins have full control over the platform.
 
+# Plugins
+
+## Youtube (reference extractor)
+
+Extracts information from a Youtube video.
+
+## Startpage
+
+A personal startpage to organize your digital life.
+
 # To-dos
 
+- [ ] Anonymous:
+    - [ ] View content;
+    - [ ] Save read content locally;
 - [ ] Account:
     - [ ] Sign up;
         - [ ] Username;
         - [ ] Password;
     - [ ] Sign in;
+        - [ ] Username;
+        - [ ] Password;
     - [ ] Sign out;
     - [ ] Delete account;
     - [ ] Update information:
@@ -47,17 +62,14 @@ There are three types of users:
         - [ ] Write pages;
         - [ ] Edit pages;
         - [ ] Delete pages;
-    - [ ] Admin
+    - [ ] Admin:
         - [ ] Domains:
             - [ ] Subdomains:
                 - [ ] Create subdomain;
                 - [ ] Delete subdomain;
             - [ ] Update subdomain;
             - [ ] Delete domain;
-- [ ] Features:
-    - [ ] View user public profiles;
-    - [ ] Activity feed;
-    - [ ] Notifications;
+- [ ] View user public profiles;
 
 # Authors
 
