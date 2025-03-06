@@ -8,11 +8,9 @@
     - [bun](https://jsdoc.app/);
     - [Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript);
     - [JSDocs](https://jsdoc.app/);
-    - [postgres](https://github.com/porsager/postgres/)
-    - [HTML5](https://developer.mozilla.org/en-US/docs/Web/HTML;);
-    - [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS).
+    - [postgres](https://github.com/porsager/postgres/).
 - Database:
-    - [PGModeler](https://pgmodeler.io/);
+    - [ChartDB](https://chartdb.io/);
     - [PostgreSQL](https://www.postgresql.org/).
 
 # Features
