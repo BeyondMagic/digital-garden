@@ -167,3 +167,33 @@ CREATE TABLE author_content (
 	id_content INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
 	UNIQUE(id_author, id_content)
 );
+
+CREATE TABLE module (
+	id SERIAL PRIMARY KEY,
+	repository VARCHAR(100) UNIQUE NOT NULL,
+	installed BOOLEAN NOT NULL,
+	enabled BOOLEAN NOT NULL,
+	last_checked TIMESTAMP NOT NULL
+);
+
+CREATE TABLE module_event (
+	id SERIAL PRIMARY KEY,
+	id_module INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
+	event VARCHAR(100) NOT NULL,
+	UNIQUE(id_module, event)
+);
+
+CREATE TABLE module_dependency (
+	id SERIAL PRIMARY KEY,
+	id_module_asks INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
+	id_dependency_for INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
+	id_event INTEGER NOT NULL REFERENCES module_event(id) ON DELETE CASCADE,
+	UNIQUE(id_module_asks, id_dependency_for)
+);
+
+CREATE TABLE module_domain (
+	id SERIAL PRIMARY KEY,
+	id_module INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
+	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+	UNIQUE(id_module, id_domain)
+);
