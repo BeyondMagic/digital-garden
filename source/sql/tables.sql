@@ -108,3 +108,21 @@ CREATE TABLE content_link (
 	id_to INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
 	UNIQUE(id_from, id_to)
 );
+
+CREATE TABLE garden (
+	id SERIAL PRIMARY KEY,
+	-- Root domain of the digital garden.
+	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+	-- Will serve as the logo of the digital garden.
+	id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
+	UNIQUE(id_domain, id_asset)
+)
+
+CREATE TABLE garden_information (
+	id SERIAL PRIMARY KEY,
+	id_garden INTEGER NOT NULL REFERENCES garden(id) ON DELETE CASCADE,
+	id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+	name VARCHAR(100) NOT NULL,
+	description TEXT NOT NULL,
+	UNIQUE(id_garden, id_language)
+);
