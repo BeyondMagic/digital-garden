@@ -64,3 +64,22 @@ CREATE TABLE tag_information (
 	description TEXT NOT NULL,
 	UNIQUE(id_tag, id_language)
 );
+
+CREATE TYPE TYPE_DOMAIN AS ENUM ('ROUTER', 'SUBDOMAIN');
+CREATE TYPE TYPE_STATUS AS ENUM ('PUBLIC', 'PRIVATE');
+
+CREATE TABLE domain (
+	id SERIAL PRIMARY KEY,
+	id_domain_parent INTEGER REFERENCES domain(id),
+	id_domain_redirect INTEGER REFERENCES domain(id),
+	type TYPE_DOMAIN NOT NULL,
+	name VARCHAR(100) NOT NULL,
+	status TYPE_STATUS NOT NULL
+);
+
+CREATE TABLE domain_tag (
+	id SERIAL PRIMARY KEY,
+	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+	id_tag INTEGER NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+	UNIQUE(id_domain, id_tag)
+);
