@@ -91,3 +91,20 @@ CREATE TABLE domain_asset (
 	UNIQUE(id_domain, id_asset)
 );
 
+CREATE TABLE content (
+	id SERIAL PRIMARY KEY,
+	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+	id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+	status TYPE_STATUS NOT NULL,
+	title VARCHAR(100) NOT NULL,
+	synopsis VARCHAR(250) NOT NULL,
+	body TEXT NOT NULL,
+	UNIQUE(id_domain, id_language)
+);
+
+CREATE TABLE content_link (
+	id SERIAL PRIMARY KEY,
+	id_from INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
+	id_to INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
+	UNIQUE(id_from, id_to)
+);
