@@ -126,3 +126,44 @@ CREATE TABLE garden_information (
 	description TEXT NOT NULL,
 	UNIQUE(id_garden, id_language)
 );
+
+CREATE TABLE author (
+	id SERIAL PRIMARY KEY,
+	email VARCHAR(100) UNIQUE NOT NULL,
+	name VARCHAR(100) NOT NULL,
+	password VARCHAR(100) NOT NULL,
+	pages INTEGER NOT NULL,
+	contents INTEGER NOT NULL,
+	-- The author can have a profile picture.
+	id_asset INTEGER REFERENCES asset(id)
+);
+
+CREATE TABLE author_connections (
+	id SERIAL PRIMARY KEY,
+	id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+	device VARCHAR(100) NOT NULL,
+	token VARCHAR(100) UNIQUE NOT NULL,
+	logged_at TIMESTAMP NOT NULL,
+	last_connection TIMESTAMP NOT NULL
+);
+
+CREATE TABLE author_garden (
+	id SERIAL PRIMARY KEY,
+	id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+	id_garden INTEGER NOT NULL REFERENCES garden(id) ON DELETE CASCADE,
+	UNIQUE(id_author, id_garden)
+);
+
+CREATE TABLE author_domain (
+	id SERIAL PRIMARY KEY,
+	id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+	UNIQUE(id_author, id_domain)
+);
+
+CREATE TABLE author_content (
+	id SERIAL PRIMARY KEY,
+	id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+	id_content INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
+	UNIQUE(id_author, id_content)
+);
