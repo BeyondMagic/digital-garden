@@ -8,10 +8,10 @@ CREATE TABLE language (
 -- We force this by using a procedure to add a new language and restraining the language table to not be modified directly.
 CREATE TABLE language_information (
 	id SERIAL PRIMARY KEY,
-	id_for VARCHAR REFERENCES language(id) ON DELETE CASCADE,
-	id_from VARCHAR REFERENCES language(id) ON DELETE CASCADE,
-	name VARCHAR(100),
-	description TEXT,
+	id_for VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+	id_from VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+	name VARCHAR(100) NOT NULL,
+	description TEXT NOT NULL,
 	UNIQUE(id_for, id_from)
 );
 
@@ -26,16 +26,41 @@ CREATE TABLE asset (
 -- A language must be represented by an asset.
 CREATE TABLE language_asset (
 	id SERIAL PRIMARY KEY,
-	id_language VARCHAR REFERENCES language(id) ON DELETE CASCADE,
-	id_asset INTEGER REFERENCES asset(id) ON DELETE CASCADE,
+	id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+	id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
 	UNIQUE(id_asset, id_language)
 );
 
 CREATE TABLE asset_information (
 	id SERIAL PRIMARY KEY,
-	id_asset INTEGER REFERENCES asset(id) ON DELETE CASCADE,
-	id_language VARCHAR REFERENCES language(id) ON DELETE CASCADE,
-	name VARCHAR(100),
-	description TEXT,
+	id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
+	id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+	name VARCHAR(100) NOT NULL,
+	description TEXT NOT NULL,
 	UNIQUE(id_asset, id_language)
-)
+);
+
+CREATE TABLE tag (
+	id SERIAL PRIMARY KEY,
+	-- Doesn't have to have an asset.
+	id_asset INTEGER REFERENCES asset(id)
+);
+
+-- Basically a tag that is required for another tag.
+-- For example, a tag "programming" is required for the tag "java".
+-- This means that if a tag "java" is added, a tag "programming" must be added too.
+CREATE TABLE tag_requirement (
+	id SERIAL PRIMARY KEY,
+	id_tag INTEGER NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+	id_tag_for INTEGER NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+	UNIQUE(id_tag, id_tag_for)
+);
+
+CREATE TABLE tag_information (
+	id SERIAL PRIMARY KEY,
+	id_tag INTEGER NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+	id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+	name VARCHAR(100) NOT NULL,
+	description TEXT NOT NULL,
+	UNIQUE(id_tag, id_language)
+);
