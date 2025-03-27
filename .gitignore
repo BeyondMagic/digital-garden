@@ -1,1 +1,9 @@
+# Ignore the bun-debug.log file
+/bun.lock
+/node_modules
+/**/.env
+
 /old/
+/modules/
+
+/database
