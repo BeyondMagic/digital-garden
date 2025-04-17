@@ -1,5 +1,5 @@
 import { sql } from "bun";
-import { debug } from "./util";
+import { debug } from "@/util";
 
 /**
  * Get the list of all tables in the database.

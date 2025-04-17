@@ -1,5 +1,6 @@
 import { serve } from "bun";
-import { debug } from "./util";
+import { debug } from "@/util";
+import * as database from "@/database";
 
 /**
  * @param {Request} req
