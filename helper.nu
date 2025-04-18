@@ -18,8 +18,6 @@ export def dev []: nothing -> any {
 
 # Run the database in production mode.
 export def database []: nothing -> any {
-	cd './database'
-
 	docker [
 		compose
 		up	
