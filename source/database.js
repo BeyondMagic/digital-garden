@@ -1,6 +1,6 @@
 import { sql } from "bun";
 import { debug } from "@/util";
-import sql_files from "./database/sql/files";
+import sql_files from "@/database/sql_files";
 
 /**
  * Initialise the database: columns, procedures, etc.
