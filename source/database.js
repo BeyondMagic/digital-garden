@@ -1,25 +1,25 @@
 import { sql } from "bun";
 import { debug } from "@/util";
-
-/**
- * Get the list of all tables in the database.
- * @returns {Array<string>} A list of table names in the database.
- */
-function get_tables() {
-	return sql`SELECT table_name FROM information_schema.tables WHERE table_schema='public'`
-}
+import sql_files from "./database/sql/files";
 
 /**
  * Initialise the database: columns, procedures, etc.
  * @returns {Promise<void>}
  */
 export async function init () {
-	const tables = get_tables();
 
-	if (tables.length)
+	if ((await get_tables()).length)
 	{
 		debug("Database already initialised.");
 		return;
+	}
+
+	debug("Initialising database...");
+
+	for (const [name, content] of sql_files)
+	{
+		debug(`Executing SQL file: ${name}.`);
+		await sql.unsafe(content);
 	}
 
 }

@@ -65,9 +65,6 @@ CREATE TABLE tag_information (
 	UNIQUE(id_tag, id_language)
 );
 
-CREATE TYPE TYPE_DOMAIN AS ENUM ('ROUTER', 'SUBDOMAIN');
-CREATE TYPE TYPE_STATUS AS ENUM ('PUBLIC', 'PRIVATE');
-
 CREATE TABLE domain (
 	id SERIAL PRIMARY KEY,
 	id_domain_parent INTEGER REFERENCES domain(id),
@@ -97,6 +94,7 @@ CREATE TABLE content (
 	id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
 	status TYPE_STATUS NOT NULL,
 	title VARCHAR(100) NOT NULL,
+	title_sub VARCHAR(100) NOT NULL,
 	synopsis VARCHAR(250) NOT NULL,
 	body TEXT NOT NULL,
 	UNIQUE(id_domain, id_language)
@@ -116,7 +114,7 @@ CREATE TABLE garden (
 	-- Will serve as the logo of the digital garden.
 	id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
 	UNIQUE(id_domain, id_asset)
-)
+);
 
 CREATE TABLE garden_information (
 	id SERIAL PRIMARY KEY,
@@ -132,7 +130,9 @@ CREATE TABLE author (
 	email VARCHAR(100) UNIQUE NOT NULL,
 	name VARCHAR(100) NOT NULL,
 	password VARCHAR(100) NOT NULL,
+	-- Number of domains created by the author.
 	pages INTEGER NOT NULL,
+	-- Number of contents created by the author.
 	contents INTEGER NOT NULL,
 	-- The author can have a profile picture.
 	id_asset INTEGER REFERENCES asset(id)
@@ -170,7 +170,7 @@ CREATE TABLE author_content (
 
 CREATE TABLE module (
 	id SERIAL PRIMARY KEY,
-	repository VARCHAR(100) UNIQUE NOT NULL,
+	repository VARCHAR(4096) UNIQUE NOT NULL,
 	installed BOOLEAN NOT NULL,
 	enabled BOOLEAN NOT NULL,
 	last_checked TIMESTAMP NOT NULL
