@@ -1,3 +1,5 @@
+import { sql } from "bun";
+
 /**
  * Delete the database.
  * @returns {Promise<void>} A promise that resolves when the database is deleted.
@@ -22,7 +24,7 @@ export async function delete_database() {
  * Get the list of all tables in the database.
  * @returns {Promise<Array<string>>} A promise that lazy-resolves with the list of table names in the database.
  */
-async function get_tables() {
+export async function get_tables() {
 	return await sql.unsafe(/* sql */`
 		SELECT table_name FROM information_schema.tables WHERE table_schema='public';
 	`)
