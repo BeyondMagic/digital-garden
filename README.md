@@ -5,13 +5,12 @@
 ## Dependencies
 
 - Server:
-    - [bun](https://jsdoc.app/);
-    - [Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript);
-    - [JSDocs](https://jsdoc.app/);
-    - [postgres](https://github.com/porsager/postgres/).
+	- [bun](https://jsdoc.app/);
+	- [Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript);
+	- [JSDocs](https://jsdoc.app/);
 - Database:
-    - [ChartDB](https://chartdb.io/);
-    - [PostgreSQL](https://www.postgresql.org/).
+	- [ChartDB](https://chartdb.io/);
+	- [PostgreSQL](https://www.postgresql.org/).
 
 # Features
 
