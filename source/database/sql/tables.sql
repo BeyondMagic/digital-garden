@@ -92,12 +92,13 @@ CREATE TABLE content (
 	id SERIAL PRIMARY KEY,
 	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
 	id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+	date TIMESTAMP NOT NULL,
 	status TYPE_STATUS NOT NULL,
 	title VARCHAR(100) NOT NULL,
 	title_sub VARCHAR(100) NOT NULL,
 	synopsis VARCHAR(250) NOT NULL,
 	body TEXT NOT NULL,
-	UNIQUE(id_domain, id_language)
+	UNIQUE(id_domain, id_language, date)
 );
 
 CREATE TABLE content_link (
