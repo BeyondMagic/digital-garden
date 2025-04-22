@@ -8,7 +8,7 @@ import sql_files from "@/database/sql_files";
  */
 export async function init () {
 
-	if ((await get_tables()).length)
+	if ((await query.get_tables()).length)
 	{
 		debug("Database already initialised.");
 		return;
