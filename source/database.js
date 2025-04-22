@@ -1,5 +1,6 @@
 import { sql } from "bun";
 import { debug } from "@/util";
+import * as query from "@/database/query";
 import sql_files from "@/database/sql_files";
 
 /**
