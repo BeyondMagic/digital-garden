@@ -2,6 +2,28 @@
 
 <!-- # Summary -->
 
+# System Design
+
+- Database is a PostGreSQL database;
+- Client is a web browser.
+- Server is a Bun (Javascript) run web server, with direct support to contact the database and clone/update repository in the system.
+    - Server receives a request from a client and sends to Parser;
+    - Parser sees the request, and if asked by a module, sends it to them alongside other information;
+    - Module sees the request, and sends back to the parser, continuing the cycle until the request is done parsing;
+    - Server sends back a response to the client;
+
+```txt
+Database -> Server
+
+Server:
+    Parser -> Module
+    Module -> Parser
+
+Server -> Client
+```
+
+Modules export a default loader for the Server, the Server loads it and parses its information though event/subscriber architecture.
+
 ## Dependencies
 
 - Server:
