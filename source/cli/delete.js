@@ -1,4 +1,4 @@
-import { delete_database } from "@/database/queries";
+import { delete_database } from "@/database/query";
 import { debug } from "@/util";
 
 const prompt = "Are you sure you want to delete the database? (y/n) ";
