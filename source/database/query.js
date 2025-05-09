@@ -1,6 +1,20 @@
 import { sql } from "bun";
 
 /**
+ * Creates a line in the ASSET table and returns the ID.
+ * @param {string} path - The path of the 
+ * @returns {Promise<void>} A promise that resolves when the language is inserted.
+ */
+export async function insert_asset(path) {
+	await sql`
+		INSERT INTO asset (path)
+			VALUES (${path})
+		RETURNING id;
+		;
+	`;
+}
+
+/**
  * Creates a language in the ISO 639-1 format in the database.
  * @param {string} language - The language to be inserted.
  * @returns {Promise<void>} A promise that resolves when the language is inserted.
