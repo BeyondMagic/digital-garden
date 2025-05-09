@@ -41,6 +41,12 @@ export function html (strings, ...values)
 		...values
 	).trim();
 }
+
+export function debug (...message)
+{
+	console.debug('[server]:', ...message);
+}
+
 /**
  * Retrieve the root path of the GIT repository.
  **/
