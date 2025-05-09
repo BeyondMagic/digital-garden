@@ -7,3 +7,5 @@
 /modules/
 
 /database
+
+/**/*.jsonc
