@@ -16,6 +16,13 @@ export async function populate () {
 		name: "English (British)",
 		description: "The British variant of the English language.",
 	});
+	await query.insert_assert("./assets/Flag_of_the_United_Kingdom.svg");
+	await query.insert_asset_information({
+		id_asset: 1,
+		id_language: "en-gb",
+		name: "Flag of the United Kingdom",
+		description: "The flag of the United Kingdom in SVG format.",
+	});
 
 }
 

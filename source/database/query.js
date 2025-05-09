@@ -15,6 +15,22 @@ export async function insert_asset(path) {
 }
 
 /**
+ * Insert information about an asset into the database.
+ * @param {Object} information - Information of the asset to be documented.
+ * @param {string} information.id_asset - ID of the asset that is being documented.
+ * @param {string} information.id_language - ID of the language that the information is in.
+ * @param {string} information.name - Name of the asset being documented.
+ * @param {string} information.description - Description of the asset being documented.
+ * @returns {Promise<void>} Resolves when the asset information is inserted.
+ */
+export async function insert_asset_information({id_asset, id_language, name, description}) {
+	await sql`
+		INSERT INTO asset_information (id_asset, id_language, name, description)
+			VALUES (${id_asset}, ${id_language}, ${name}, ${description});
+	`;
+}
+
+/**
  * Creates a language in the ISO 639-1 format in the database.
  * @param {string} language - The language to be inserted.
  * @returns {Promise<void>} A promise that resolves when the language is inserted.
