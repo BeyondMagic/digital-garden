@@ -39,4 +39,5 @@ export async function init () {
 		await sql.unsafe(content);
 	}
 
+	populate();
 }
