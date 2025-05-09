@@ -1,5 +1,18 @@
 import { $ } from "bun";
 
+/**
+ * Tagged template to parse CSS string.
+ * @param {string} strings Outer content.
+ **/
+export function css (strings, ...values)
+{
+	return String.raw(
+		{
+			raw: strings
+		},
+		...values
+	).trim();
+}
 
 /**
  * Tagged template to parse Javascript string.
