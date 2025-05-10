@@ -24,6 +24,9 @@ export async function populate () {
 		description: "The flag of the United Kingdom in SVG format.",
 	});
 
+	const id_asset_seedling = await query.insert_asset("./assets/tags/seedling.svg");
+	const id_tag_seedling = await query.insert_tag(id_asset_seedling);
+
 }
 
 /**

@@ -1,6 +1,19 @@
 import { sql } from "bun";
 
 /**
+ * Inserts a new tag into the database.
+ * @param {string} id_asset - The ID of the asset to be inserted.
+ * @returns {Promise<string>} A promise that resolves with the ID of the inserted tag.
+ */
+export async function insert_tag(id_asset) {
+	await sql`
+		INSERT INTO tag (id_asset)
+			VALUES (${id_asset})
+		RETURNING id;
+	`;
+}
+
+/**
  * Creates a line in the ASSET table and returns the ID.
  * @param {string} path - The path of the 
  * @returns {Promise<void>} A promise that resolves when the language is inserted.
