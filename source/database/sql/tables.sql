@@ -178,6 +178,7 @@ CREATE TABLE author_content (
 	UNIQUE(id_author, id_content)
 );
 
+/*
 CREATE TABLE module (
 	id SERIAL PRIMARY KEY,
 	repository VARCHAR(4096) UNIQUE NOT NULL,
@@ -207,3 +208,4 @@ CREATE TABLE module_domain (
 	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
 	UNIQUE(id_module, id_domain)
 );
+*/
