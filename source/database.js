@@ -9,16 +9,22 @@ import sql_files from "@/database/sql_files";
  */
 export async function populate () {
 
-	await query.insert_language("en-gb");
+	const id_asset_gb = await query.insert_asset("./assets/Flag_of_the_United_Kingdom.svg");
+
+	await query.insert_language({
+		id: "en-gb",
+		id_asset: id_asset_gb,
+	});
+
 	await query.insert_language_information({
 		id_for: "en-gb",
 		id_from: "en-gb",
 		name: "English (British)",
 		description: "The British variant of the English language.",
 	});
-	await query.insert_assert("./assets/Flag_of_the_United_Kingdom.svg");
+
 	await query.insert_asset_information({
-		id_asset: 1,
+		id_asset: id_gb_flag,
 		id_language: "en-gb",
 		name: "Flag of the United Kingdom",
 		description: "The flag of the United Kingdom in SVG format.",

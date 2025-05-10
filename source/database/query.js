@@ -15,8 +15,8 @@ export async function insert_tag(id_asset) {
 
 /**
  * Creates a line in the ASSET table and returns the ID.
- * @param {string} path - The path of the 
- * @returns {Promise<void>} A promise that resolves when the language is inserted.
+ * @param {string} path - The path of the aasset to be inserted (from repository root).
+ * @returns {Promise<string>} A promise that resolves with the ID of the asset.
  */
 export async function insert_asset(path) {
 	await sql`
@@ -45,13 +45,15 @@ export async function insert_asset_information({id_asset, id_language, name, des
 
 /**
  * Creates a language in the ISO 639-1 format in the database.
- * @param {string} language - The language to be inserted.
+ * @param {Object} information - Information of the language to be inserted.
+ * @param {string} information.language - The language to be inserted.
+ * @param {string} information.id_asset - ID of the asset that the language is associated with.
  * @returns {Promise<void>} A promise that resolves when the language is inserted.
  */
-export async function insert_language(language) {
+export async function insert_language({language, id_asset}) {
 	await sql`
-		INSERT INTO language (id)
-			VALUES (${language});
+		INSERT INTO language (id, id_asset)
+			VALUES (${language}, ${id_asset});
 	`;
 }
 
