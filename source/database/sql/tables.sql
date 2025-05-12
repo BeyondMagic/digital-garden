@@ -130,9 +130,9 @@ CREATE TABLE author (
 	name VARCHAR(100) NOT NULL,
 	password VARCHAR(100) NOT NULL,
 	-- Number of domains created by the author.
-	pages INTEGER NOT NULL,
+	pages INTEGER NOT NULL DEFAULT 0,
 	-- Number of contents created by the author.
-	contents INTEGER NOT NULL,
+	contents INTEGER NOT NULL DEFAULT 0,
 	-- The author can have a profile picture.
 	id_asset INTEGER REFERENCES asset(id)
 );
@@ -142,8 +142,8 @@ CREATE TABLE author_connections (
 	id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
 	device VARCHAR(100) NOT NULL,
 	token VARCHAR(100) UNIQUE NOT NULL,
-	logged_at TIMESTAMP NOT NULL,
-	last_connection TIMESTAMP NOT NULL
+	logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	last_connection TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE author_garden (

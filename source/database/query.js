@@ -13,6 +13,27 @@ import { sql } from "bun";
 /**
  * Insert a new content into the "content" table and return its ID.
  * @param {Object} information - Information of the content to be inserted.
+ * @param {string} information.id_asset - ID of the asset that the content is associated with.
+ * @param {string} information.email - Email of the author.
+ * @param {string} information.name - Name of the author.
+ * @param {string} information.password - Hashed password of the author.
+
+ * @returns {Promise<string>} A promise that resolves with the ID of the inserted author.
+ */
+export async function insert_author({id_asset, email, name, password}) {
+	return await sql`
+		INSERT INTO author (id_asset, email, name, password)
+			VALUES (${id_asset}, ${email}, ${name}, ${password})
+		ON CONFLICT (email) DO UPDATE
+			SET name = ${name}, password = ${password}
+			WHERE author.email = ${email}
+		RETURNING id;
+	`.values();
+}
+
+/**
+ * Insert a new content into the "content" table and return its ID.
+ * @param {Object} information - Information of the content to be inserted.
  * @param {string} information.id_garden - ID of the garden that the content is associated with.
  * @param {string} information.id_language - ID of the language that the content is in.
  * @param {string} information.name - Name of the content.

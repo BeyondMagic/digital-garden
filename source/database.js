@@ -1,5 +1,5 @@
 import { sql } from "bun";
-import { debug } from "@/util";
+import { hash, debug } from "@/util";
 import * as query from "@/database/query";
 import sql_files from "@/database/sql_files";
 
@@ -134,6 +134,13 @@ export async function populate () {
 		id_language: "en-gb",
 		name: "Digital Garden",
 		description: "A digital garden of thoughts.",
+	});
+
+	const id_author = await query.insert_author({
+		id_asset: id_asset_gb,
+		email: "root@root.com",
+		name: "Root",
+		password: await hash("root"),
 	});
 }
 
