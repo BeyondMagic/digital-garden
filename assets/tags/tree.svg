@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="150"
+   height="150"
+   version="1.1"
+   viewBox="0 0 39.688 39.687805"
+   id="svg6"
+   sodipodi:docname="tree.svg"
+   inkscape:version="1.4.1 (93de688d07, 2025-03-30)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs6" />
+  <sodipodi:namedview
+     id="namedview6"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="2.6408885"
+     inkscape:cx="58.124378"
+     inkscape:cy="134.0458"
+     inkscape:window-width="1880"
+     inkscape:window-height="1004"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6" />
+  <g
+     fill="none"
+     stroke="#2e8b57"
+     id="g6"
+     transform="matrix(0.68837837,0,0,0.68837837,6.1840603,1.1815862)">
+    <g
+       id="g2">
+      <circle
+         cx="34.846001"
+         cy="31.290001"
+         r="3.9152"
+         stroke-width="1.8521"
+         id="circle1" />
+      <circle
+         cx="4.8413"
+         cy="31.290001"
+         r="3.9152"
+         stroke-width="1.8521"
+         id="circle2" />
+      <path
+         d="m 9.2604,52.775 h 21.167"
+         stroke-width="2.6458"
+         id="path2" />
+    </g>
+    <path
+       d="M 19.844,53.834 V 15.985"
+       stroke-width="2.5838"
+       id="path3" />
+    <circle
+       cx="19.844"
+       cy="7.1851001"
+       r="5.7389998"
+       stroke-width="2.6458"
+       id="circle3" />
+    <path
+       d="m 6.6146,37.959 5.2917,5.2917 h 7.9375"
+       stroke-width="2.6458"
+       id="path4" />
+    <path
+       d="m 33.073,37.959 -5.2917,5.2917 h -7.9375"
+       stroke-width="2.6458"
+       id="path5" />
+    <circle
+       cx="31.804001"
+       cy="17.056"
+       r="3.9152"
+       stroke-width="1.3229"
+       id="circle5" />
+    <circle
+       cx="7.8839998"
+       cy="17.056"
+       r="3.9152"
+       stroke-width="1.3229"
+       id="circle6" />
+    <path
+       d="m 9.2604,23.406 10.583,2.6458 10.583,-2.6458"
+       stroke-width="2.6458"
+       id="path6" />
+  </g>
+</svg>

@@ -1,7 +1,21 @@
 import { sql } from "bun";
 
 /**
- * Insert/update new tag information into the database and returns 
+ * Insert a new tag requirement into the "tag_requirement" table.
+ * @param {Object} information - Information of the tag requirement to be inserted.
+ * @param {string} information.id_tag - ID of the tag that is being required.
+ * @param {string} information.id_tag_for - ID of the tag that requires the other tag.
+ * @returns {Promise<void>} Resolves when the tag requirement is inserted.
+ */
+export async function insert_tag_requirement({id_tag, id_tag_for}) {
+	await sql`
+		INSERT INTO tag_requirement (id_tag, id_tag_for)
+			VALUES (${id_tag}, ${id_tag_for});
+	`;
+}
+
+/**
+ * Insert/update new tag information into the "tag_information" table.
  * @param {Object} information - Information of the tag to be documented.
  * @param {string} information.id_tag - ID of the tag that is being documented.
  * @param {string} information.id_language - ID of the language that the information is in.

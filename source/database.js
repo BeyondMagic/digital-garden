@@ -32,13 +32,56 @@ export async function populate () {
 
 	const id_asset_seedling = await query.insert_asset("./assets/tags/seedling.svg");
 	const id_tag_seedling = await query.insert_tag(id_asset_seedling);
-	await insert_tag_information({
+	await query.insert_tag_information({
 		id_tag: id_tag_seedling,
 		id_language: "en-gb",
 		name: "Seedling",
-		description: "A seedling representing a new beginning, small thoughts.",
+		description: "New-born thoughts, not sorted out yet.",
 	});
 
+	const id_asset_sapling = await query.insert_asset("./assets/tags/sapling.svg");
+	const id_tag_sapling = await query.insert_tag(id_asset_sapling);
+	await query.insert_tag_information({
+		id_tag: id_tag_sapling,
+		id_language: "en-gb",
+		name: "Sapling",
+		description: "Substiantial amount of content, but much to be done, with emerging structure.",
+	});
+	await query.insert_tag_requirement({
+		id_tag: id_tag_seedling,
+		id_tag_for: id_tag_sapling,
+	});
+
+	const id_asset_tree = await query.insert_asset("./assets/tags/tree.svg");
+	const id_tag_tree = await query.insert_tag(id_asset_tree);
+	await query.insert_tag_information({
+		id_tag: id_tag_tree,
+		id_language: "en-gb",
+		name: "Tree",
+		description: "A tree of content, with a clear structure.",
+	});
+	await query.insert_tag_requirement({
+		id_tag: id_tag_sapling,
+		id_tag_for: id_tag_tree,
+	});
+
+	const id_asset_withered = await query.insert_asset("./assets/tags/withered.svg");
+	const id_tag_withered = await query.insert_tag(id_asset_withered);
+	await query.insert_tag_information({
+		id_tag: id_tag_withered,
+		id_language: "en-gb",
+		name: "Withered",
+		description: "Outdated notes kept for historical context, with warnings where needed."
+    });
+
+	const id_asset_signpost = await query.insert_asset("./assets/tags/signpost.svg");
+	const id_tag_signpost = await query.insert_tag(id_asset_signpost);
+	await query.insert_tag_information({
+		id_tag: id_tag_signpost,
+		id_language: "en-gb",
+		name: "Signpost",
+		description: "A map to allow us to navigate easily to the content we need.",
+	});
 }
 
 /**
