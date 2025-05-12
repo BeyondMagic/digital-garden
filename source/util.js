@@ -1,4 +1,14 @@
 import { $ } from "bun";
+import { randomUUID } from 'node:crypto';
+
+/**
+ * Generate a random UUID.
+ * @returns {Promise<string>} The path to the Bun executable.
+ */
+export async function random_uuid ()
+{
+	return randomUUID();
+}
 
 /**
  * Hash a string using the Bun password hashing algorithm and return it.
