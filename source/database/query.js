@@ -247,7 +247,7 @@ export async function insert_tag_information({id_tag, id_language, name, descrip
 	return await sql`
 		INSERT INTO tag_information (id_tag, id_language, name, description)
 			VALUES (${id_tag}, ${id_language}, ${name}, ${description})
-			ON CONFLICT (id_tag, id_language) DO UPDATE
+		ON CONFLICT (id_tag, id_language) DO UPDATE
 			SET name = ${name}, description = ${description}
 			WHERE tag_information.id_tag = ${id_tag} AND tag_information.id_language = ${id_language}
 		RETURNING id;

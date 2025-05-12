@@ -90,7 +90,7 @@ CREATE TABLE content (
 	id SERIAL PRIMARY KEY,
 	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
 	id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
-	-- date TIMESTAMP NOT NULL,
+	date TIMESTAMP NOT NULL,
 	status TYPE_STATUS NOT NULL,
 	title VARCHAR(100) NOT NULL,
 	title_sub VARCHAR(100) NOT NULL,
@@ -109,10 +109,9 @@ CREATE TABLE content_link (
 CREATE TABLE garden (
 	id SERIAL PRIMARY KEY,
 	-- Root domain of the digital garden.
-	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+	id_domain INTEGER NOT NULL UNIQUE REFERENCES domain(id) ON DELETE CASCADE,
 	-- Will serve as the logo of the digital garden.
-	id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
-	UNIQUE(id_domain, id_asset)
+	id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE
 );
 
 CREATE TABLE garden_information (
@@ -128,7 +127,7 @@ CREATE TABLE author (
 	id SERIAL PRIMARY KEY,
 	email VARCHAR(100) UNIQUE NOT NULL,
 	name VARCHAR(100) NOT NULL,
-	password VARCHAR(100) NOT NULL,
+	password VARCHAR(256) NOT NULL,
 	-- Number of domains created by the author.
 	pages INTEGER NOT NULL DEFAULT 0,
 	-- Number of contents created by the author.
@@ -141,7 +140,7 @@ CREATE TABLE author_connection (
 	id SERIAL PRIMARY KEY,
 	id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
 	device VARCHAR(100) NOT NULL,
-	token VARCHAR(100) UNIQUE NOT NULL,
+	token VARCHAR(256) UNIQUE NOT NULL,
 	logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	last_connection TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

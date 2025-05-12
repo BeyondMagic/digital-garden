@@ -136,8 +136,12 @@ export async function populate () {
 		description: "A digital garden of thoughts.",
 	});
 
+	const id_asset_profile = await query.insert_asset({
+		id_domain: id_root_domain,
+		path: "./assets/profile.png"
+	});
 	const id_author = await query.insert_author({
-		id_asset: id_asset_gb,
+		id_asset: id_asset_profile,
 		email: "root@root.com",
 		name: "Root",
 		password: await hash("root"),
