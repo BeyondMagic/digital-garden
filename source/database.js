@@ -142,6 +142,10 @@ export async function populate () {
 		name: "Root",
 		password: await hash("root"),
 	});
+	await query.insert_author_garden({
+		id_author: id_author,
+		id_garden: id_garden,
+	});
 }
 
 /**
