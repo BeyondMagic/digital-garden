@@ -11,6 +11,30 @@ import { sql } from "bun";
  */
 
 /**
+ * Insert a new content into the "content" table and return its ID.
+ * @param {Object} information - Information of the content to be inserted.
+ * @param {string} information.id_domain - ID of the domain that the content is associated with.
+ * @param {string} information.id_language - ID of the language that the content is in.
+ * @param {string} information.date - Date of the content.
+ * @param {string} information.status - Status of the content.
+ * @param {string} information.title - Title of the content.
+ * @param {string} information.title_sub - Subtitle of the content.
+ * @param {string} information.synopsis - Synopsis of the content.
+ * @param {string} information.body - Body of the content.
+ * @returns {Promise<string>} A promise that resolves with the ID of the inserted content.
+ */
+export async function insert_content({id_domain, id_language, date, status, title, title_sub, synopsis, body}) {
+	return await sql`
+		INSERT INTO content (id_domain, id_language, date, status, title, title_sub, synopsis, body)
+			VALUES (${id_domain}, ${id_language}, ${date}, ${status}, ${title}, ${title_sub}, ${synopsis}, ${body})
+		ON CONFLICT (id_domain, id_language) DO UPDATE
+			SET date = ${date}, status = ${status}, title = ${title}, title_sub = ${title_sub}, synopsis = ${synopsis}, body = ${body}
+			WHERE content.id_domain = ${id_domain} AND content.id_language = ${id_language}
+		RETURNING id;
+	`.values();
+}
+
+/**
  * Insert a new domain into the "domain" table and return its ID.
  * @param {Object} information - Information of the domain to be inserted.
  * @param {string | null} information.id_domain_parent - ID of the parent domain.
