@@ -24,22 +24,6 @@ CREATE TABLE language_information (
 	UNIQUE(id_for, id_from)
 );
 
--- Assets are files such as images, scripts, videos.
--- For example, every language has an image that represents it.
-CREATE TABLE asset (
-	id SERIAL PRIMARY KEY,
-	-- 4096 is the maximum length of a path in Linux (EXT4).
-	path VARCHAR(4096) UNIQUE NOT NULL
-);
-
--- A language must be represented by an asset.
-CREATE TABLE language_asset (
-	id SERIAL PRIMARY KEY,
-	id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
-	id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
-	UNIQUE(id_asset, id_language)
-);
-
 CREATE TABLE asset_information (
 	id SERIAL PRIMARY KEY,
 	id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,

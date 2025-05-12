@@ -1,6 +1,26 @@
 import { sql } from "bun";
 
 /**
+ * Insert/update new tag information into the database and returns 
+ * @param {Object} information - Information of the tag to be documented.
+ * @param {string} information.id_tag - ID of the tag that is being documented.
+ * @param {string} information.id_language - ID of the language that the information is in.
+ * @param {string} information.name - Name of the tag being documented.
+ * @param {string} information.description - Description of the tag being documented.
+ * @returns {Promise<void>} Resolves when the tag information is inserted.
+ */
+export async function insert_tag_information({id_tag, id_language, name, description}) {
+	await sql`
+		INSERT INTO tag_information (id_tag, id_language, name, description)
+			VALUES (${id_tag}, ${id_language}, ${name}, ${description})
+			ON CONFLICT (id_tag, id_language) DO UPDATE
+			SET name = ${name}, description = ${description}
+			WHERE tag_information.id_tag = ${id_tag} AND tag_information.id_language = ${id_language}
+		;
+	`;
+}
+
+/**
  * Inserts a new tag into the database.
  * @param {string} id_asset - The ID of the asset to be inserted.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted tag.
@@ -23,7 +43,6 @@ export async function insert_asset(path) {
 		INSERT INTO asset (path)
 			VALUES (${path})
 		RETURNING id;
-		;
 	`;
 }
 

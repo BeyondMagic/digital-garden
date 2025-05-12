@@ -32,6 +32,12 @@ export async function populate () {
 
 	const id_asset_seedling = await query.insert_asset("./assets/tags/seedling.svg");
 	const id_tag_seedling = await query.insert_tag(id_asset_seedling);
+	await insert_tag_information({
+		id_tag: id_tag_seedling,
+		id_language: "en-gb",
+		name: "Seedling",
+		description: "A seedling representing a new beginning, small thoughts.",
+	});
 
 }
 
