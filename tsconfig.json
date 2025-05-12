@@ -21,9 +21,15 @@
     "noUncheckedIndexedAccess": true,
 
     // Some stricter flags (disabled by default)
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
+    // "noUnusedLocals": false,
+    // "noUnusedParameters": false,
+    // "noPropertyAccessFromIndexSignature": false,
+
+    "noImplicitAny": true,          // Error on implicit 'any' types
+    "strictNullChecks": true,       // Strict null checks
+    "strictFunctionTypes": true,    // Strict function type checks
+    "strictBindCallApply": true,    // Strict 'bind/call/apply' checks
+    "checkJs": true,                // Enable type checking in JavaScript files
 
 	"paths": {
       "@/*": ["./source/*"]
