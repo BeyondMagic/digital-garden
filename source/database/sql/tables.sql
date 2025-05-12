@@ -137,7 +137,7 @@ CREATE TABLE author (
 	id_asset INTEGER REFERENCES asset(id)
 );
 
-CREATE TABLE author_connections (
+CREATE TABLE author_connection (
 	id SERIAL PRIMARY KEY,
 	id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
 	device VARCHAR(100) NOT NULL,

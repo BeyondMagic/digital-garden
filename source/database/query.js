@@ -11,6 +11,26 @@ import { sql } from "bun";
  */
 
 /**
+ * Insert a new author connection into the "author_connection" table and return its ID.
+ * @param {Object} information - Information of the author connection to be inserted.
+ * @param {string} information.id_author - ID of the author that is being connected.
+ * @param {string} information.device - Device that the author is using.
+ * @param {string} information.token - Token of the author connection.
+ * @param {Date} information.last_connection - Last connection date of the author.
+ * @returns {Promise<string>} A promise that resolves with the ID of the inserted author connection.
+ */
+export async function insert_author_connection({id_author, device, token, last_connection}) {
+	return await sql`
+		INSERT INTO author_connection (id_author, device, token, last_connection)
+			VALUES (${id_author}, ${device}, ${token}, ${last_connection})
+		ON CONFLICT (token) DO UPDATE
+			SET id_author = ${id_author}, device = ${device}, last_connection = ${last_connection}
+			WHERE author_connection.token = ${token}
+		RETURNING id;
+	`.values();
+}
+
+/**
  * Insert a new content into the "content" table and return its ID.
  * @param {Object} information - Information of the content to be inserted.
  * @param {string} information.id_asset - ID of the asset that the content is associated with.
