@@ -128,6 +128,13 @@ export async function populate () {
 		id_domain: id_root_domain,
 		id_asset: id_asset_favicon
 	});
+
+	await query.insert_garden_information({
+		id_garden: id_garden,
+		id_language: "en-gb",
+		name: "Digital Garden",
+		description: "A digital garden of thoughts.",
+	});
 }
 
 /**
