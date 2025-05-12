@@ -107,6 +107,17 @@ export async function populate () {
 		name: "Signpost",
 		description: "A map to allow us to navigate easily to the content we need.",
 	});
+
+	const id_content_root = await query.insert_content({
+		id_domain: id_root_domain,
+		id_language: "en-gb",
+		date: new Date(),
+		status: "PUBLIC",
+		title: "Digital Garden",
+		title_sub: "A digital garden of thoughts.",
+		synopsis: "This is the root content.",
+		body: "# Digital Garden\nDetailed information about the root content."
+	})
 }
 
 /**

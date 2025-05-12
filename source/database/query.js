@@ -15,8 +15,8 @@ import { sql } from "bun";
  * @param {Object} information - Information of the content to be inserted.
  * @param {string} information.id_domain - ID of the domain that the content is associated with.
  * @param {string} information.id_language - ID of the language that the content is in.
- * @param {string} information.date - Date of the content.
- * @param {string} information.status - Status of the content.
+ * @param {Date} information.date - Date of the content.
+ * @param {Status} information.status - Status of the content.
  * @param {string} information.title - Title of the content.
  * @param {string} information.title_sub - Subtitle of the content.
  * @param {string} information.synopsis - Synopsis of the content.
@@ -30,6 +30,21 @@ export async function insert_content({id_domain, id_language, date, status, titl
 		ON CONFLICT (id_domain, id_language) DO UPDATE
 			SET date = ${date}, status = ${status}, title = ${title}, title_sub = ${title_sub}, synopsis = ${synopsis}, body = ${body}
 			WHERE content.id_domain = ${id_domain} AND content.id_language = ${id_language}
+		RETURNING id;
+	`.values();
+}
+
+/**
+ * Insert a new content link into the "content_link" table and return its ID.
+ * @param {Object} information - Information of the content link to be inserted.
+ * @param {string} information.id_from - ID of the content that is linking to another content.
+ * @param {string} information.id_to - ID of the content that is being linked to.
+ * @returns {Promise<string>} A promise that resolves with the ID of the inserted content link.
+ */
+export async function insert_content_link({id_from, id_to}) {
+	return await sql`
+		INSERT INTO content_link (id_from, id_to)
+			VALUES (${id_from}, ${id_to})
 		RETURNING id;
 	`.values();
 }
