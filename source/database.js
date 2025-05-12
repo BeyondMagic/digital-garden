@@ -150,6 +150,10 @@ export async function populate () {
 		id_author: id_author,
 		id_domain: id_root_domain,
 	});
+	await query.insert_author_content({
+		id_author: id_author,
+		id_content: id_content_root,
+	});
 }
 
 /**
