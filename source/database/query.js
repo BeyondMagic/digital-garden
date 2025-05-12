@@ -18,7 +18,7 @@ import { sql } from "bun";
  * @param {Domain} information.type - Type of the domain.
  * @param {string} information.name - Name of the domain, if the first, it will be parsed as the root domain.
  * @param {Status} information.status - Status of the domain.
- */
+ **/
 export async function insert_domain({id_domain_parent, id_domain_redirect, type, name, status}) {
     return await sql`
         INSERT INTO domain (id_domain_parent, id_domain_redirect, type, name, status)
@@ -41,6 +41,21 @@ export async function insert_domain_tag({id_domain, id_tag}) {
 		RETURNING id;
 	`.values();
 }
+
+/**
+ * Insert a new domain asset into the "domain_asset" table and returns its ID.
+ * @param {Object} information - Information of the domain asset to be inserted.
+ * @param {string} information.id_domain - ID of the domain that is being associated with the asset.
+ * @param {string} information.id_asset - ID of the asset that is being associated with the domain.
+ * @returns {Promise<string>} A promise that resolves with the ID of the inserted domain asset.
+ **/
+/* export async function insert_domain_asset({id_domain, id_asset}) {
+	return await sql`
+		INSERT INTO domain_asset (id_domain, id_asset)
+			VALUES (${id_domain}, ${id_asset})
+		RETURNING id;
+	`.values();
+} */
 
 /**
  * Insert a new tag requirement into the "tag_requirement" table.

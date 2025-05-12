@@ -17,7 +17,7 @@ CREATE TABLE asset (
 	path VARCHAR(4096) UNIQUE NOT NULL,
 	-- How many times the asset has been used.
 	-- Updated by trigger after parsing the content of a domain.
-	times INTEGER NOT NULL DEFAULT 0
+	times INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE TABLE language (
@@ -79,12 +79,12 @@ CREATE TABLE domain_tag (
 	UNIQUE(id_domain, id_tag)
 );
 
-CREATE TABLE domain_asset (
+/*CREATE TABLE domain_asset (
 	id SERIAL PRIMARY KEY,
 	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
 	id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
 	UNIQUE(id_domain, id_asset)
-);
+);*/
 
 CREATE TABLE content (
 	id SERIAL PRIMARY KEY,
