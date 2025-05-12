@@ -11,6 +11,8 @@ export async function populate () {
 
 	const id_asset_gb = await query.insert_asset("./assets/Flag_of_the_United_Kingdom.svg");
 
+	debug(`ID of asset for the flag of the United Kingdom: ${id_asset_gb}.`);
+
 	await query.insert_language({
 		id: "en-gb",
 		id_asset: id_asset_gb,
@@ -24,7 +26,7 @@ export async function populate () {
 	});
 
 	await query.insert_asset_information({
-		id_asset: id_gb_flag,
+		id_asset: id_asset_gb,
 		id_language: "en-gb",
 		name: "Flag of the United Kingdom",
 		description: "The flag of the United Kingdom in SVG format.",
@@ -86,7 +88,7 @@ export async function populate () {
 	const id_root_domain = await query.insert_domain({
 		id_domain_parent: null,
 		id_domain_redirect: null,
-		type: "root",
+		type: "SUBDOMAIN",
 		name: "domain",
 		status: "PUBLIC",
 	})

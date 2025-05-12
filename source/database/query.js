@@ -20,12 +20,11 @@ import { sql } from "bun";
  * @param {Status} information.status - Status of the domain.
  */
 export async function insert_domain({id_domain_parent, id_domain_redirect, type, name, status}) {
-
-    await sql`
+    return await sql`
         INSERT INTO domain (id_domain_parent, id_domain_redirect, type, name, status)
             VALUES (${id_domain_parent}, ${id_domain_redirect}, ${type}, ${name}, ${status})
 		RETURNING id;
-    `;
+    `.values();
 }
 
 /**
@@ -36,10 +35,11 @@ export async function insert_domain({id_domain_parent, id_domain_redirect, type,
  * @returns {Promise<void>} Resolves when the tag requirement is inserted.
  */
 export async function insert_tag_requirement({id_tag, id_tag_for}) {
-	await sql`
+	return await sql`
 		INSERT INTO tag_requirement (id_tag, id_tag_for)
-			VALUES (${id_tag}, ${id_tag_for});
-	`;
+			VALUES (${id_tag}, ${id_tag_for})
+		RETURNING id;
+	`.values();
 }
 
 /**
@@ -52,14 +52,14 @@ export async function insert_tag_requirement({id_tag, id_tag_for}) {
  * @returns {Promise<void>} Resolves when the tag information is inserted.
  */
 export async function insert_tag_information({id_tag, id_language, name, description}) {
-	await sql`
+	return await sql`
 		INSERT INTO tag_information (id_tag, id_language, name, description)
 			VALUES (${id_tag}, ${id_language}, ${name}, ${description})
 			ON CONFLICT (id_tag, id_language) DO UPDATE
 			SET name = ${name}, description = ${description}
 			WHERE tag_information.id_tag = ${id_tag} AND tag_information.id_language = ${id_language}
-		;
-	`;
+		RETURNING id;
+	`.values();
 }
 
 /**
@@ -68,11 +68,11 @@ export async function insert_tag_information({id_tag, id_language, name, descrip
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted tag.
  */
 export async function insert_tag(id_asset) {
-	await sql`
+	return await sql`
 		INSERT INTO tag (id_asset)
 			VALUES (${id_asset})
 		RETURNING id;
-	`;
+	`.values();
 }
 
 /**
@@ -81,11 +81,11 @@ export async function insert_tag(id_asset) {
  * @returns {Promise<string>} A promise that resolves with the ID of the asset.
  */
 export async function insert_asset(path) {
-	await sql`
+	return await sql`
 		INSERT INTO asset (path)
 			VALUES (${path})
 		RETURNING id;
-	`;
+	`.values();
 }
 
 /**
@@ -98,24 +98,26 @@ export async function insert_asset(path) {
  * @returns {Promise<void>} Resolves when the asset information is inserted.
  */
 export async function insert_asset_information({id_asset, id_language, name, description}) {
-	await sql`
+	return await sql`
 		INSERT INTO asset_information (id_asset, id_language, name, description)
-			VALUES (${id_asset}, ${id_language}, ${name}, ${description});
-	`;
+			VALUES (${id_asset}, ${id_language}, ${name}, ${description})
+		RETURNING id;
+	`.values();
 }
 
 /**
  * Creates a language in the ISO 639-1 format in the database.
  * @param {Object} information - Information of the language to be inserted.
- * @param {string} information.language - The language to be inserted.
+ * @param {string} information.id - The language to be inserted.
  * @param {string} information.id_asset - ID of the asset that the language is associated with.
  * @returns {Promise<void>} A promise that resolves when the language is inserted.
  */
-export async function insert_language({language, id_asset}) {
-	await sql`
+export async function insert_language({id, id_asset}) {
+	return await sql`
 		INSERT INTO language (id, id_asset)
-			VALUES (${language}, ${id_asset});
-	`;
+			VALUES (${id}, ${id_asset})
+		RETURNING id;
+	`.values();
 }
 
 /**
@@ -128,10 +130,14 @@ export async function insert_language({language, id_asset}) {
  * @returns {Promise<void>} Resolves when the language information is inserted.
  */
 export async function insert_language_information({id_for, id_from, name, description}) {
-	await sql`
+	return await sql`
 		INSERT INTO language_information (id_for, id_from, name, description)
-			VALUES (${id_for}, ${id_from}, ${name}, ${description});
-	`;
+			VALUES (${id_for}, ${id_from}, ${name}, ${description})
+		ON CONFLICT (id_for, id_from) DO UPDATE
+			SET name = ${name}, description = ${description}
+			WHERE language_information.id_for = ${id_for} AND language_information.id_from = ${id_from}
+		RETURNING id;
+	`.values();
 }
 
 /**
@@ -139,7 +145,7 @@ export async function insert_language_information({id_for, id_from, name, descri
  * @returns {Promise<void>} A promise that resolves when the database is deleted.
  */
 export async function delete_database() {
-	await sql.unsafe(/* sql */`
+	return await sql.unsafe(/* sql */`
 		-- Close all connections and reset the database to the initial state.
 		ROLLBACK;
 			
