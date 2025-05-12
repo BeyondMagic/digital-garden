@@ -82,6 +82,14 @@ export async function populate () {
 		name: "Signpost",
 		description: "A map to allow us to navigate easily to the content we need.",
 	});
+
+	const id_root_domain = await query.insert_domain({
+		id_domain_parent: null,
+		id_domain_redirect: null,
+		type: "root",
+		name: "domain",
+		status: "PUBLIC",
+	})
 }
 
 /**

@@ -1,6 +1,34 @@
 import { sql } from "bun";
 
 /**
+ * The type of domain that should be parsed: "subdomain.domain/router".
+ * @typedef {'ROUTER' | 'SUBDOMAIN'} Domain
+ */
+
+/**
+ * Status of a domain or content to parse.
+ * @typedef {'PUBLIC' | 'PRIVATE' | 'ARCHIVED' | 'DELETED'} Status
+ */
+
+/**
+ * Insert a new domain into the "domain" table and return its ID.
+ * @param {Object} information - Information of the domain to be inserted.
+ * @param {string | null} information.id_domain_parent - ID of the parent domain.
+ * @param {string | null} information.id_domain_redirect - ID of the domain to redirect to.
+ * @param {Domain} information.type - Type of the domain.
+ * @param {string} information.name - Name of the domain, if the first, it will be parsed as the root domain.
+ * @param {Status} information.status - Status of the domain.
+ */
+export async function insert_domain({id_domain_parent, id_domain_redirect, type, name, status}) {
+
+    await sql`
+        INSERT INTO domain (id_domain_parent, id_domain_redirect, type, name, status)
+            VALUES (${id_domain_parent}, ${id_domain_redirect}, ${type}, ${name}, ${status})
+		RETURNING id;
+    `;
+}
+
+/**
  * Insert a new tag requirement into the "tag_requirement" table.
  * @param {Object} information - Information of the tag requirement to be inserted.
  * @param {string} information.id_tag - ID of the tag that is being required.
