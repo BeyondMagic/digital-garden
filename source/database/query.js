@@ -14,6 +14,24 @@ import { sql } from "bun";
  * Insert a new content into the "content" table and return its ID.
  * @param {Object} information - Information of the content to be inserted.
  * @param {string} information.id_domain - ID of the domain that the content is associated with.
+ * @param {string} information.id_asset - ID of the asset that the content is associated with.
+ * @returns {Promise<string>} A promise that resolves with the ID of the inserted content.
+ */
+export async function insert_garden({id_domain, id_asset}) {
+	return await sql`
+		INSERT INTO garden (id_domain, id_asset)
+			VALUES (${id_domain}, ${id_asset})
+		ON CONFLICT (id_domain) DO UPDATE
+			SET id_asset = ${id_asset}
+			WHERE garden.id_domain = ${id_domain}
+		RETURNING id;
+	`.values();
+}
+
+/**
+ * Insert a new content into the "content" table and return its ID.
+ * @param {Object} information - Information of the content to be inserted.
+ * @param {string} information.id_domain - ID of the domain that the content is associated with.
  * @param {string} information.id_language - ID of the language that the content is in.
  * @param {Date} information.date - Date of the content.
  * @param {Status} information.status - Status of the content.
