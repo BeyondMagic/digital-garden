@@ -28,6 +28,21 @@ export async function insert_domain({id_domain_parent, id_domain_redirect, type,
 }
 
 /**
+ * Insert a new domain tag into the "domain_tag" table and returns its ID.
+ * @param {Object} information - Information of the domain tag to be inserted.
+ * @param {string} information.id_domain - ID of the domain that is being tagged.
+ * @param {string} information.id_tag - ID of the tag that is being associated with the domain.
+ * @returns {Promise<string>} A promise that resolves with the ID of the inserted domain tag.
+ */
+export async function insert_domain_tag({id_domain, id_tag}) {
+	return await sql`
+		INSERT INTO domain_tag (id_domain, id_tag)
+			VALUES (${id_domain}, ${id_tag})
+		RETURNING id;
+	`.values();
+}
+
+/**
  * Insert a new tag requirement into the "tag_requirement" table.
  * @param {Object} information - Information of the tag requirement to be inserted.
  * @param {string} information.id_tag - ID of the tag that is being required.

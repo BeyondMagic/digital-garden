@@ -4,8 +4,7 @@ import * as query from "@/database/query";
 import sql_files from "@/database/sql_files";
 
 /**
- * 
- * @param {Promise<void>}
+ * Populate the database with initial data.
  */
 export async function populate () {
 
