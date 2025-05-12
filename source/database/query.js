@@ -14,9 +14,24 @@ import { sql } from "bun";
  * Insert a new author connection into the "author_connection" table and return its ID.
  * @param {Object} information - Information of the author connection to be inserted.
  * @param {string} information.id_author - ID of the author that is being connected.
+ * @param {string} information.id_domain - ID of the domain that the author is associated with.
+ * @returns {Promise<string>} A promise that resolves with the ID of the inserted author connection.
+ **/
+export async function insert_author_domain({id_author, id_domain}) {
+	return await sql`
+		INSERT INTO author_domain (id_domain, id_author)
+			VALUES (${id_domain}, ${id_author})
+		RETURNING id;
+	`.values();
+}
+
+/**
+ * Insert a new author connection into the "author_connection" table and return its ID.
+ * @param {Object} information - Information of the author connection to be inserted.
+ * @param {string} information.id_author - ID of the author that is being connected.
  * @param {string} information.id_garden - ID of the garden that the author is associated with.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted author connection.
- */
+ **/
 export async function insert_author_garden({id_author, id_garden}) {
 	return await sql`
 		INSERT INTO author_garden (id_author, id_garden)

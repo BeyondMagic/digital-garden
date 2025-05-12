@@ -146,6 +146,10 @@ export async function populate () {
 		id_author: id_author,
 		id_garden: id_garden,
 	});
+	await query.insert_author_domain({
+		id_author: id_author,
+		id_domain: id_root_domain,
+	});
 }
 
 /**
