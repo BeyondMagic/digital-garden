@@ -1,9 +1,23 @@
+CREATE TABLE domain (
+	id SERIAL PRIMARY KEY,
+	id_domain_parent INTEGER REFERENCES domain(id),
+	id_domain_redirect INTEGER REFERENCES domain(id),
+	type TYPE_DOMAIN NOT NULL,
+	name VARCHAR(100) NOT NULL,
+	status TYPE_STATUS NOT NULL
+);
+
 -- Assets are files such as images, scripts, videos.
 -- For example, every language has an image that represents it.
 CREATE TABLE asset (
 	id SERIAL PRIMARY KEY,
+	-- The domain that the asset belongs to.
+	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
 	-- 4096 is the maximum length of a path in Linux (EXT4).
-	path VARCHAR(4096) UNIQUE NOT NULL
+	path VARCHAR(4096) UNIQUE NOT NULL,
+	-- How many times the asset has been used.
+	-- Updated by trigger after parsing the content of a domain.
+	times INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE language (
@@ -56,15 +70,6 @@ CREATE TABLE tag_information (
 	name VARCHAR(100) NOT NULL,
 	description TEXT NOT NULL,
 	UNIQUE(id_tag, id_language)
-);
-
-CREATE TABLE domain (
-	id SERIAL PRIMARY KEY,
-	id_domain_parent INTEGER REFERENCES domain(id),
-	id_domain_redirect INTEGER REFERENCES domain(id),
-	type TYPE_DOMAIN NOT NULL,
-	name VARCHAR(100) NOT NULL,
-	status TYPE_STATUS NOT NULL
 );
 
 CREATE TABLE domain_tag (

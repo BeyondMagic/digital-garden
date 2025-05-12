@@ -33,7 +33,7 @@ export async function insert_domain({id_domain_parent, id_domain_redirect, type,
  * @param {string} information.id_domain - ID of the domain that is being tagged.
  * @param {string} information.id_tag - ID of the tag that is being associated with the domain.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted domain tag.
- */
+ **/
 export async function insert_domain_tag({id_domain, id_tag}) {
 	return await sql`
 		INSERT INTO domain_tag (id_domain, id_tag)
@@ -48,7 +48,7 @@ export async function insert_domain_tag({id_domain, id_tag}) {
  * @param {string} information.id_tag - ID of the tag that is being required.
  * @param {string} information.id_tag_for - ID of the tag that requires the other tag.
  * @returns {Promise<void>} Resolves when the tag requirement is inserted.
- */
+ **/
 export async function insert_tag_requirement({id_tag, id_tag_for}) {
 	return await sql`
 		INSERT INTO tag_requirement (id_tag, id_tag_for)
@@ -92,13 +92,15 @@ export async function insert_tag(id_asset) {
 
 /**
  * Creates a line in the ASSET table and returns the ID.
- * @param {string} path - The path of the aasset to be inserted (from repository root).
+ * @param {Object} information - Information of the asset to be inserted.
+ * @param {string} information.id_domain - ID of the domain that the asset is associated with.
+ * @param {string} information.path - The path of the aasset to be inserted (from repository root).
  * @returns {Promise<string>} A promise that resolves with the ID of the asset.
  */
-export async function insert_asset(path) {
+export async function insert_asset({id_domain, path}) {
 	return await sql`
-		INSERT INTO asset (path)
-			VALUES (${path})
+		INSERT INTO asset (id_domain, path)
+			VALUES (${id_domain}, ${path})
 		RETURNING id;
 	`.values();
 }

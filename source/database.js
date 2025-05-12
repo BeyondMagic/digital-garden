@@ -8,9 +8,18 @@ import sql_files from "@/database/sql_files";
  */
 export async function populate () {
 
-	const id_asset_gb = await query.insert_asset("./assets/Flag_of_the_United_Kingdom.svg");
+	const id_root_domain = await query.insert_domain({
+		id_domain_parent: null,
+		id_domain_redirect: null,
+		type: "SUBDOMAIN",
+		name: "domain",
+		status: "PUBLIC",
+	});
 
-	debug(`ID of asset for the flag of the United Kingdom: ${id_asset_gb}.`);
+	const id_asset_gb = await query.insert_asset({
+		id_domain: id_root_domain,
+		path: "./assets/Flag_of_the_United_Kingdom.svg"
+	});
 
 	await query.insert_language({
 		id: "en-gb",
@@ -31,7 +40,10 @@ export async function populate () {
 		description: "The flag of the United Kingdom in SVG format.",
 	});
 
-	const id_asset_seedling = await query.insert_asset("./assets/tags/seedling.svg");
+	const id_asset_seedling = await query.insert_asset({
+		id_domain: id_root_domain,
+		path: "./assets/tags/seedling.svg"
+	});
 	const id_tag_seedling = await query.insert_tag(id_asset_seedling);
 	await query.insert_tag_information({
 		id_tag: id_tag_seedling,
@@ -40,7 +52,10 @@ export async function populate () {
 		description: "New-born thoughts, not sorted out yet.",
 	});
 
-	const id_asset_sapling = await query.insert_asset("./assets/tags/sapling.svg");
+	const id_asset_sapling = await query.insert_asset({
+		id_domain: id_root_domain,
+		path: "./assets/tags/sapling.svg"
+	});
 	const id_tag_sapling = await query.insert_tag(id_asset_sapling);
 	await query.insert_tag_information({
 		id_tag: id_tag_sapling,
@@ -53,7 +68,10 @@ export async function populate () {
 		id_tag_for: id_tag_sapling,
 	});
 
-	const id_asset_tree = await query.insert_asset("./assets/tags/tree.svg");
+	const id_asset_tree = await query.insert_asset({
+		id_domain: id_root_domain,
+		path: "./assets/tags/tree.svg"
+	});
 	const id_tag_tree = await query.insert_tag(id_asset_tree);
 	await query.insert_tag_information({
 		id_tag: id_tag_tree,
@@ -66,7 +84,10 @@ export async function populate () {
 		id_tag_for: id_tag_tree,
 	});
 
-	const id_asset_withered = await query.insert_asset("./assets/tags/withered.svg");
+	const id_asset_withered = await query.insert_asset({
+		id_domain: id_root_domain,
+		path: "./assets/tags/withered.svg"
+	});
 	const id_tag_withered = await query.insert_tag(id_asset_withered);
 	await query.insert_tag_information({
 		id_tag: id_tag_withered,
@@ -75,7 +96,10 @@ export async function populate () {
 		description: "Outdated notes kept for historical context, with warnings where needed."
     });
 
-	const id_asset_signpost = await query.insert_asset("./assets/tags/signpost.svg");
+	const id_asset_signpost = await query.insert_asset({
+		id_domain: id_root_domain,
+		path: "./assets/tags/signpost.svg"
+	});
 	const id_tag_signpost = await query.insert_tag(id_asset_signpost);
 	await query.insert_tag_information({
 		id_tag: id_tag_signpost,
@@ -83,14 +107,6 @@ export async function populate () {
 		name: "Signpost",
 		description: "A map to allow us to navigate easily to the content we need.",
 	});
-
-	const id_root_domain = await query.insert_domain({
-		id_domain_parent: null,
-		id_domain_redirect: null,
-		type: "SUBDOMAIN",
-		name: "domain",
-		status: "PUBLIC",
-	})
 }
 
 /**
