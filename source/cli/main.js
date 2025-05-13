@@ -1,7 +1,7 @@
 import { serve } from "bun";
 import { debug } from "@/util";
 import { events, process_modules } from "@/modules";
-import * as database from "@/database";
+import * as database from "@/setup";
 
 const module_fetch = await process_modules();
 
