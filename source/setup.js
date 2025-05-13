@@ -118,10 +118,19 @@ export async function populate () {
 		synopsis: "This is the root content.",
 		body: "# Digital Garden\nDetailed information about the root content."
 	})
-
+	
 	const id_asset_favicon = await query.insert_asset({
 		id_domain: id_root_domain,		
 		path: "./assets/icons/favicon.ico"
+	});
+	await query.insert_asset({
+		id_domain: id_root_domain,		
+		path: "./assets/home.css"
+	});
+
+	await query.insert_asset({
+		id_domain: id_root_domain,
+		path: "./assets/home.js"
 	});
 
 	const id_garden = await query.insert_garden({

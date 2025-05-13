@@ -275,9 +275,17 @@ export async function insert_tag(id_asset) {
  * @returns {Promise<string>} A promise that resolves with the ID of the asset.
  */
 export async function insert_asset({id_domain, path}) {
+
+	const basename = path.split("/").pop();
+
+	if (!basename)
+		throw new Error("Invalid path: " + path);
+
+	const extension = basename.includes(".") ? basename.split(".").pop() : null;
+	
 	return await sql`
-		INSERT INTO asset (id_domain, path)
-			VALUES (${id_domain}, ${path})
+		INSERT INTO asset (id_domain, path, extension)
+			VALUES (${id_domain}, ${path}, ${extension})
 		RETURNING id;
 	`.values();
 }

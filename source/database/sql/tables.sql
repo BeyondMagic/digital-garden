@@ -17,7 +17,9 @@ CREATE TABLE asset (
 	path VARCHAR(4096) UNIQUE NOT NULL,
 	-- How many times the asset has been used.
 	-- Updated by trigger after parsing the content of a domain.
-	times INTEGER NOT NULL DEFAULT 1
+	times INTEGER NOT NULL DEFAULT 1,
+	-- Extension of the URL.
+	extension VARCHAR(100)
 );
 
 CREATE TABLE language (
