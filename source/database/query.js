@@ -11,6 +11,24 @@ import { sql } from "bun";
  */
 
 /**
+ * Select all assets from the database that belong to a specific domain.
+ * @param {string} id_domain - The ID of the domain to be selected.
+ * @returns {Promise<Array<{id: string, id_domain: string, path: string, times: string, extension: string}>>} A promise that resolves with the selected assets.
+ */
+export async function select_assets (id_domain)
+{
+	return await sql`
+		SELECT
+			*
+		FROM
+			asset
+		WHERE
+			id_domain = ${id_domain};
+		
+	`.values();
+}
+
+/**
  * Insert a new author connection into the "author_connection" table and return its ID.
  * @param {Object} information - Information of the author connection to be inserted.
  * @param {string} information.id_author - ID of the author that is being connected.
