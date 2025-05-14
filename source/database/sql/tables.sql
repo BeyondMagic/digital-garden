@@ -4,7 +4,8 @@ CREATE TABLE domain (
 	id_domain_redirect INTEGER REFERENCES domain(id),
 	type TYPE_DOMAIN NOT NULL,
 	name VARCHAR(100) NOT NULL,
-	status TYPE_STATUS NOT NULL
+	status TYPE_STATUS NOT NULL,
+	UNIQUE(name, type, id_domain_parent)
 );
 
 -- Assets are files such as images, scripts, videos.
