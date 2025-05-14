@@ -10,6 +10,16 @@ import { sql } from "bun";
  * @typedef {'PUBLIC' | 'PRIVATE' | 'ARCHIVED' | 'DELETED'} StatusType
  */
 
+/**
+ * The columns of the domain table.
+ * @typedef {Object} Domain
+ * @prop {string} id - The ID of the domain.
+ * @prop {string | null} id_domain_parent - The ID of the parent domain.
+ * @prop {string | null} id_domain_redirect - The ID of the domain to redirect to.
+ * @prop {DomainType} type - The type of the domain.
+ * @prop {string} name - The name of the domain.
+ * @prop {StatusType} status - The status of the domain.
+ */
 
 /**
  * Select recursively all domains from the database that match the given URL.
