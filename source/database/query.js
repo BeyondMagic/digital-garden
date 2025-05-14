@@ -10,6 +10,74 @@ import { sql } from "bun";
  * @typedef {'PUBLIC' | 'PRIVATE' | 'ARCHIVED' | 'DELETED'} StatusType
  */
 
+
+/**
+ * Select recursively all domains from the database that match the given URL.
+ * @example
+ * // Let's say you have the following domains in the database:
+ * // domain.com -> subdomain1 -> subdomain2 -> router1 -> router2
+ * select_domains("subdomain2.subdomain1.domain.com/router1/router2") // Returns domains: "domain.com", "subdomain1", "subdomain2", "router1", "router2"
+ * @param {string} url - The URL to be selected.
+ * @returns {Promise<Array<Domain>>} A promise that resolves with the selected domains.
+ */
+export async function select_domains (url)
+{
+	/**
+	 * @type {Array<Domain>}
+	 */
+	const [root] = await sql`
+		SELECT
+			domain.*
+		FROM
+			garden
+		INNER JOIN
+			domain ON
+				domain.id = garden.id_domain
+	`;
+
+	if (!root)
+		throw new Error("No root domain found");
+
+	const [subdomains = "", routers = ""] = url.split(root.name);
+
+	const components = [
+		...subdomains.split('.').filter(Boolean),
+		...routers.split('/').filter(Boolean)
+	];
+
+	let parent_id = root.id;
+
+	const domains = [];
+
+	for (const component of components)
+	{
+		/**
+		 * @type {Array<Domain>}
+		 */
+		const [domain] = await sql`
+			SELECT
+				*
+			FROM
+				domain
+			WHERE
+				name = ${component}
+				AND id_domain_parent = ${parent_id}
+		`;
+
+		if (!domain)
+			break;
+
+		domains.push(domain);
+
+		parent_id = domain.id;
+	}
+
+	return [
+		root,
+		...domains
+	];
+}
+
 /**
  * Select all assets from the database that belong to a specific domain.
  * @param {string} id_domain - The ID of the domain to be selected.
