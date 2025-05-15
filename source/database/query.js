@@ -14,7 +14,7 @@ import { sql } from "bun";
  * // domain.com -> subdomain1 -> subdomain2 -> router1 -> router2
  * select_domains("subdomain2.subdomain1.domain.com/router1/router2") // Returns domains: "domain.com", "subdomain1", "subdomain2", "router1", "router2"
  * @param {string} url - The URL to be selected.
- * @returns {Promise<Array<Domain>>} A promise that resolves with the selected domains.
+ * @returns {Promise<{domains: Array<Domain>, remain: Array<string>}>} A promise that resolves with the selected domains.
  */
 export async function select_domains (url)
 {
@@ -45,6 +45,11 @@ export async function select_domains (url)
 
 	const domains = [];
 
+	/**
+	 * @type {Array<string>}
+	 */
+	let remain = [];
+
 	for (const component of components)
 	{
 		/**
@@ -61,17 +66,23 @@ export async function select_domains (url)
 		`;
 
 		if (!domain)
+		{
+			remain = components.slice(domains.length);
 			break;
+		}
 
 		domains.push(domain);
 
 		parent_id = domain.id;
 	}
 
-	return [
-		root,
-		...domains
-	];
+	return {
+		domains: [
+			root,
+			...domains
+		],
+		remain
+	};
 }
 
 /**
