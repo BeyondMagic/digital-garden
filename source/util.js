@@ -2,6 +2,70 @@ import { $ } from "bun";
 import { randomUUID } from 'node:crypto';
 
 /**
+ * Get the MIME type based on the file extension.
+ * @param {string} extension - The file extension to get the MIME type for.
+ * @returns {string} The corresponding MIME type or null if not found.
+ */
+export function mime_type (extension)
+{
+	switch (extension)
+	{
+		case "js":
+		case "mjs":
+			return "application/javascript";
+		case "css":
+		case "scss":
+			return "text/css";
+		case "html":
+		case "htm":
+			return "text/html";
+		case "json":
+		case "map":
+			return "application/json";
+		case "xml":
+		case "xhtml":
+			return "application/xml";
+		case "pdf":
+			return "application/pdf";
+		case "zip":
+		case "tar":
+		case "gz":
+		case "bz2":
+		case "xz":
+			return "application/zip";
+		case "ico":
+		case "cur":
+			return "image/x-icon";
+		case "bmp":
+		case "dib":
+			return "image/bmp";
+		case "svg":
+			return "image/svg+xml";
+		case "png":
+			return "image/png";
+		case "jpg":
+		case "jpeg":
+			return "image/jpeg";
+		case "gif":
+			return "image/gif";
+		case "webp":
+			return "image/webp";
+		case "mp4":
+			return "video/mp4";
+		case "mp3":
+			return "audio/mpeg";
+		case "wav":
+			return "audio/wav";
+		case "ogg":
+			return "audio/ogg";
+		case "txt":
+		case "text":
+		default:
+			return "text/plain";
+	}
+}
+
+/**
  * Generate a random UUID.
  * @returns {Promise<string>} The path to the Bun executable.
  */
