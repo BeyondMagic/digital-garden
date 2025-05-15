@@ -97,8 +97,8 @@ export async function hash_verify (str, hash)
 
 /**
  * Tagged template to parse CSS string.
- * @param {string} strings Outer content.
- * @param {string[]} values Inner content.
+ * @param {TemplateStringsArray} strings Outer content.
+ * @param {Array<string>} values Inner content.
  * @returns {string} Parsed string.
  **/
 export function css (strings, ...values)
@@ -113,8 +113,8 @@ export function css (strings, ...values)
 
 /**
  * Tagged template to parse Javascript string.
- * @param {string} strings Outer content.
- * @param {string[]} values Inner content.
+ * @param {TemplateStringsArray} strings Outer content.
+ * @param {Array<string>} values Inner content.
  * @returns {string} Parsed string.
  **/
 export function js (strings, ...values)
@@ -129,8 +129,8 @@ export function js (strings, ...values)
 
 /**
  * Tagged template to parse HTML string.
- * @param {string} strings Outer content.
- * @param {string[]} values Inner content.
+ * @param {TemplateStringsArray} strings Outer content.
+ * @param {Array<string>} values Inner content.
  * @returns {string} Parsed string.
  **/
 export function html (strings, ...values)
@@ -144,7 +144,7 @@ export function html (strings, ...values)
 }
 /**
  * Tagged template to parse JSON string.
- * @param {string[]} messages Information to file.
+ * @param {Array<any>} messages Information to file.
  * @returns {void}
  */
 export function debug (...messages)
