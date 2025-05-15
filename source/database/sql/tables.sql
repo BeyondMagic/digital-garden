@@ -82,12 +82,12 @@ CREATE TABLE domain_tag (
 	UNIQUE(id_domain, id_tag)
 );
 
-/*CREATE TABLE domain_asset (
+CREATE TABLE domain_asset (
 	id SERIAL PRIMARY KEY,
 	id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
 	id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
 	UNIQUE(id_domain, id_asset)
-);*/
+);
 
 CREATE TABLE content (
 	id SERIAL PRIMARY KEY,
