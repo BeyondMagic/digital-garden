@@ -6,6 +6,8 @@ import sql_files from "@/database/sql_files";
 /**
  * Populate the database with initial data.
  */
+export async function populate ()
+{
 	const domain = process.env.DOMAIN || "localhost";
 
 	const id_root_domain = await query.insert_domain({
@@ -18,7 +20,7 @@ import sql_files from "@/database/sql_files";
 
 	const id_asset_gb = await query.insert_asset({
 		id_domain: id_root_domain,
-		path: "./assets/Flag_of_the_United_Kingdom.svg"
+		path: "Flag_of_the_United_Kingdom.svg"
 	});
 
 	await query.insert_language({
@@ -42,7 +44,7 @@ import sql_files from "@/database/sql_files";
 
 	const id_asset_seedling = await query.insert_asset({
 		id_domain: id_root_domain,
-		path: "./assets/tags/seedling.svg"
+		path: "tags/seedling.svg"
 	});
 	const id_tag_seedling = await query.insert_tag(id_asset_seedling);
 	await query.insert_tag_information({
@@ -54,7 +56,7 @@ import sql_files from "@/database/sql_files";
 
 	const id_asset_sapling = await query.insert_asset({
 		id_domain: id_root_domain,
-		path: "./assets/tags/sapling.svg"
+		path: "tags/sapling.svg"
 	});
 	const id_tag_sapling = await query.insert_tag(id_asset_sapling);
 	await query.insert_tag_information({
@@ -70,7 +72,7 @@ import sql_files from "@/database/sql_files";
 
 	const id_asset_tree = await query.insert_asset({
 		id_domain: id_root_domain,
-		path: "./assets/tags/tree.svg"
+		path: "tags/tree.svg"
 	});
 	const id_tag_tree = await query.insert_tag(id_asset_tree);
 	await query.insert_tag_information({
@@ -86,7 +88,7 @@ import sql_files from "@/database/sql_files";
 
 	const id_asset_withered = await query.insert_asset({
 		id_domain: id_root_domain,
-		path: "./assets/tags/withered.svg"
+		path: "tags/withered.svg"
 	});
 	const id_tag_withered = await query.insert_tag(id_asset_withered);
 	await query.insert_tag_information({
@@ -98,7 +100,7 @@ import sql_files from "@/database/sql_files";
 
 	const id_asset_signpost = await query.insert_asset({
 		id_domain: id_root_domain,
-		path: "./assets/tags/signpost.svg"
+		path: "tags/signpost.svg"
 	});
 	const id_tag_signpost = await query.insert_tag(id_asset_signpost);
 	await query.insert_tag_information({
@@ -121,22 +123,27 @@ import sql_files from "@/database/sql_files";
 	
 	const id_asset_favicon = await query.insert_asset({
 		id_domain: id_root_domain,		
-		path: "./assets/icons/favicon.ico"
+		path: "favicon.svg"
 	});
 	await query.insert_asset({
 		id_domain: id_root_domain,		
-		path: "./assets/home.css"
+		path: "home.css"
 	});
 
 	await query.insert_asset({
 		id_domain: id_root_domain,
-		path: "./assets/home.js"
+		path: "home.js"
 	});
 
 	const id_garden = await query.insert_garden({
 		id_domain: id_root_domain,
 		id_asset: id_asset_favicon
 	});
+	await query.insert_domain_asset({
+		id_domain: id_root_domain,
+		id_asset: id_asset_favicon,
+	})
+	
 
 	await query.insert_garden_information({
 		id_garden: id_garden,
@@ -147,7 +154,7 @@ import sql_files from "@/database/sql_files";
 
 	const id_asset_profile = await query.insert_asset({
 		id_domain: id_root_domain,
-		path: "./assets/profile.png"
+		path: "profile.png"
 	});
 	const id_author = await query.insert_author({
 		id_asset: id_asset_profile,
@@ -167,7 +174,42 @@ import sql_files from "@/database/sql_files";
 		id_author: id_author,
 		id_content: id_content_root,
 	});
-}
+
+	await query.insert_domain({
+		id_domain_parent: id_root_domain,
+		id_domain_redirect: null,
+		type: "ROUTER",
+		name: "contact",
+		status: "PUBLIC",
+	});
+
+	const id_domain_graph = await query.insert_domain({
+		id_domain_parent: id_root_domain,
+		id_domain_redirect: null,
+		type: "SUBDOMAIN",
+		name: "graph",
+		status: "PUBLIC",
+	});
+
+	const id_asset_graph_css = await query.insert_asset({
+		id_domain: id_domain_graph,
+		path: "graph/graph.css"
+	});
+
+	await query.insert_domain_asset({
+		id_domain: id_domain_graph,
+		id_asset: id_asset_graph_css,
+	});
+
+	const id_asset_graph_js = await query.insert_asset({
+		id_domain: id_domain_graph,
+		path: "graph/graph.js"
+	});
+
+	await query.insert_domain_asset({
+		id_domain: id_domain_graph,
+		id_asset: id_asset_graph_js,
+	});}
 
 /**
  * Initialise the database: columns, procedures, etc.
