@@ -1,4 +1,7 @@
 export-env {
+
+	# The domain of the website it will be running on.
+	$env.DOMAIN = "localhost:3001"
 	
 	$env.POSTGRES_USER = 'postgres'
 	$env.POSTGRES_PASSWORD = '123456'

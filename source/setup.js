@@ -6,13 +6,13 @@ import sql_files from "@/database/sql_files";
 /**
  * Populate the database with initial data.
  */
-export async function populate () {
+	const domain = process.env.DOMAIN || "localhost";
 
 	const id_root_domain = await query.insert_domain({
 		id_domain_parent: null,
 		id_domain_redirect: null,
 		type: "SUBDOMAIN",
-		name: "domain",
+		name: domain,
 		status: "PUBLIC",
 	});
 
