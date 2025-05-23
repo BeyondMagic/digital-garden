@@ -12,9 +12,18 @@ const glob = new Glob("modules/**/module.js");
  **/
 export const events = new Map();
 
-// The core event of the application below:
-events.set("request", "server");
-debug(`Event "request" published by "server".`);
+/**
+ * Log the event published by a module.
+ * @param {string} event 
+ * @param {string} module 
+ */
+function publish(event, module)
+{
+	events.set("request", "server");
+	debug(`Event "${event}" published by "${module}".`);
+}
+
+publish("request", "server");
 
 /**
  * @type {Map<Object, string>}
@@ -43,8 +52,7 @@ export async function process_modules()
 			if (events.has(name))
 				throw new Error(`Event "${name}" is already published by ${events.get(name)}.`);
 
-			events.set(name, module.name);
-			debug(`Event "${name}" published by "${module.name}".`);
+			publish(name, module.name);
 		}
 	}
 
