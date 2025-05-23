@@ -8,15 +8,12 @@ import { sql } from "bun";
  */
 
 /**
- * Select recursively all domains from the database that match the given URL.
- * @example
- * // Let's say you have the following domains in the database:
- * // domain.com -> subdomain1 -> subdomain2 -> router1 -> router2
- * select_domains("subdomain2.subdomain1.domain.com/router1/router2") // Returns domains: "domain.com", "subdomain1", "subdomain2", "router1", "router2"
- * @param {string} url - The URL to be selected.
- * @returns {Promise<{domains: Array<Domain>, remain: Array<string>}>} A promise that resolves with the selected domains.
+
+/**
+ * Select the root domain from the database.
+ * @returns {Promise<Domain>} - A promise that resolves with the root domain.
  */
-export async function select_domains (url)
+export async function select_domain_root ()
 {
 	/**
 	 * @type {Array<Domain>}
@@ -33,6 +30,22 @@ export async function select_domains (url)
 
 	if (!root)
 		throw new Error("No root domain found");
+
+	return root;
+}
+
+/**
+ * Select recursively all domains from the database that match the given URL.
+ * @example
+ * // Let's say you have the following domains in the database:
+ * // domain.com -> subdomain1 -> subdomain2 -> router1 -> router2
+ * select_domains("subdomain2.subdomain1.domain.com/router1/router2") // Returns domains: "domain.com", "subdomain1", "subdomain2", "router1", "router2"
+ * @param {string} url - The URL to be selected.
+ * @returns {Promise<{domains: Array<Domain>, remain: Array<string>}>} A promise that resolves with the selected domains.
+ */
+export async function select_domains (url)
+{
+	const root = await select_domain_root();
 
 	const [subdomains = "", routers = ""] = url.split(root.name);
 
