@@ -117,6 +117,24 @@ export async function select_assets (id_domain)
 }
 
 /**
+ * Insert a new request into the "request" table and return its ID.
+ * @param {Object} information - Information of the request to be inserted.
+ * @param {string} information.id_content - ID of the content that the request is associated with.
+ * @param {string} information.ip - IP address of the request.
+ * @param {string} information.device - Device that the request is made from.
+ * @param {Date} information.time - Time of the request.
+ * @returns {Promise<void>} A promise that resolves when the request is inserted.
+ */
+export async function insert_request({ id_content, ip, device, time })
+{
+	return await sql`
+		INSERT INTO request (id_content, ip, device, time)
+			VALUES (${id_content}, ${ip}, ${device}, ${time})
+		RETURNING id;
+	`.values();
+}
+
+/**
  * Insert a new author connection into the "author_connection" table and return its ID.
  * @param {Object} information - Information of the author connection to be inserted.
  * @param {string} information.id_author - ID of the author that is being connected.
