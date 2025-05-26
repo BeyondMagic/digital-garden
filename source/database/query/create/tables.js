@@ -22,6 +22,10 @@ export async function domain ()
 /**
  * Assets are files such as images, scripts, videos.
  * For example, every language has an image that represents it.
+ * - id_domain: The domain that the asset belongs to.
+ * - path: The path to the asset (4096 is the maximum length of a path in Linux).
+ * - times: How many times the asset has been used.
+ * - extension: The extension of the URL (e.g. .png, .jpg, .js, etc.).
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
 export async function asset ()
