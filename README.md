@@ -90,4 +90,4 @@ A personal startpage to organize your digital life.
 
 # Authors
 
-- João V. Farias beyondmagic@mail.ru 2025
+- João V. Farias <[beyondmagic@mail.ru](mailto:beyondmagic@mail.ru)> 2025
