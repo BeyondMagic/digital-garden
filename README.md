@@ -36,13 +36,11 @@ Modules export a default loader for the Server, the Server loads it and parses i
 
 # Features
 
-There are three types of users:
+There are two types of users:
 - visitors:
     - visitors can read the content;
 - authors:
-    - authors can create, edit, and delete content.
-- admins:
-    - admins have full control over the platform.
+    - authors can create, edit, and delete content that they have access over.
 
 # Plugins
 
