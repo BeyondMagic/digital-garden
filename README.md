@@ -2,6 +2,44 @@
 
 <!-- # Summary -->
 
+# Installation
+
+## DNS
+
+You will need a Wildcard DNS Record:
+   - Create a wildcard DNS record for your domain that points to your server's IP address.
+   - This will allow you to access any subdomain of your domain, such as `*.domain.com`.
+   1. Example using `nsupdate`:
+	```bash
+	nsupdate -k /etc/bind/rndc.key
+	server
+	localhost
+	update add *.domain.com 3600 A <your_server_ip>
+	send
+	```
+	2. DNS entry:
+	```txt
+	*.domain.com. 3600 IN A <your_server_ip>
+	```
+
+## SSH
+
+You will need a Wildcard SSL Certificate:
+   - Use a service like [Let's Encrypt](https://letsencrypt.org/) to obtain a wildcard SSL certificate for your domain.
+   - Follow the instructions provided by your SSL provider to install the certificate on your server.
+   1. Example as a root user:
+	```bash
+	# certbot certonly --manual --preferred-challenges=dns -d "*.domain.com"
+	```
+
+## Development
+
+To install the necessary dependencies, run the following command:
+
+```bash
+bun install
+```
+
 # System Design
 
 - Database is a PostGreSQL database;
