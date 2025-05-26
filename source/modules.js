@@ -4,11 +4,19 @@ import { Glob } from "bun";
 const glob = new Glob("modules/**/module.js");
 
 /**
+ * @typedef {import("@/database/types").Module} Module
+ * @typedef {import("@/database/types").ModuleRender} ModuleRender
+ * @typedef {import("@/database/types").Domain} Domain
+ * @typedef {import("@/database/types").Asset} Asset
+ * @typedef {{request: Request, domains: Array<Domain>, assets: Array<Asset>}} EventRequest
+ */
+
+/**
  * List of events
  * - that have been published (if set with a string),
  * - or were subscribed by a module (if set with an object).
  *
- * @type {Map<string, Object | string>}
+ * @type {Map<string, string | ModuleRender>}
  **/
 export const events = new Map();
 
@@ -26,14 +34,15 @@ function publish(event, module)
 publish("request", "server");
 
 /**
- * @type {Map<Object, string>}
+ * @type {Map<string, Module>}
  **/
 const modules = new Map();
 
 /**
  * Process each repository.
+ * @returns {Promise<void>}
  **/
-export async function process_modules()
+export async function process_modules ()
 {
 	// Processing all events to be published.
 	for await (const file of glob.scan("."))
@@ -72,14 +81,4 @@ export async function process_modules()
 			debug(`Event "${name}" published by "${publisher}" is subscribed by "${module.name}".`)
 		}
 	}
-
-	// Part 2: must run after the part 1.
-	const core_render = events.get("request");
-
-	if (!core_render || typeof core_render !== "function")
-		throw new Error("Must have a core module that process requests.");
-
-	return core_render;
 }
-
-// process_modules();

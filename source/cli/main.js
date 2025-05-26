@@ -1,86 +1,60 @@
-import { serve } from "bun";
-import { debug, mime_type } from "@/util";
-import { process_modules } from "@/modules";
-import { sql } from "bun";
+ import { serve } from "bun";
+import { debug } from "@/util";
+import { events } from "@/modules";
 import * as database from "@/setup";
-import * as query from "@/database/query";
 
-const module_fetch = await process_modules();
+/**
+ * @typedef {import("@/database/types").ModuleRender} ModuleRender
+ */
+
+/**
+ * Get the module fetch function.
+ * @returns {ModuleRender} - The fetch function of the core module.
+ */
+function get_module_fetch ()
+{
+	const func = events.get("request");
+
+	if (!func || typeof func === "string")
+		throw new Error("Must have a core module that process requests.");
+
+	return func;
+}
+
+
+const module_fetch = get_module_fetch();
 
 let ith = 0;
 
+
 /**
- * @param {Request} req
- * @returns {Promise<Response>}
+ * Fetch function to handle incoming requests.
+ * @param {Request} req - The request object from the client.
+ * @returns {Promise<Response>} - The response object to be sent back to the client.
  */
 async function fetch(req)
 {
-	debug("----------------------");
-	debug(`Request: ${++ith}`);
+	debug("----------------------|----------------------");
 
-	// Remove "http://" or "https://" from the URL
-	const url = req.url.replace(/https?:\/\//, "");
+	const regex = new RegExp(`^https?://|${database.domain}:${database.port}`);
+	const url = req.url.replace(regex, "");
 
-	debug(`[${ith}] URL: `, url);
+	debug(`[${++ith}] URL: "${url}"`);
 
-	const result = await query.select_domains(url);
-	
-	const remain_path = result.remain.join("/");
+	debug("----------------------|----------------------");
 
-	if (remain_path)
-	{
-		const last_domain = result.domains[result.domains.length - 1];
-
-		if (!last_domain)
-		{
-			debug(`[${ith}] No domain found for ${url}`);
-			return new Response("Domain not found", { status: 404 });
-		}
-
-		debug(`[${ith}] Last Domain: `, last_domain);
-
-		debug(`[${ith}] Remaining Path: "${remain_path}"`);
-
-		/**
-		 * @type {Array<import("@/database/types").Asset>}
-		 */
-		const [asset] = await sql`
-            SELECT
-				asset.*
-            FROM
-				asset
-            WHERE
-				asset.path = ${remain_path}
-            AND
-                asset.id_domain = ${last_domain.id}
-        `;
-
-		if (asset)
-		{
-			const path = `./assets/${asset.path}`;
-			const data = await Bun.file(path).bytes();
-
-			const type = mime_type(asset.extension);
-			return new Response(data, {
-				headers: {
-					"Content-Type": type,
-					"Content-Length": data.byteLength.toString(),
-					"Cache-Control": "max-age=31536000",
-				}
-			});
-		}
-	}
-
-	debug("----------------------");
-
-	return module_fetch(req, "request");
+	return module_fetch({
+		request: req,
+		// domains: result.domains,
+		// assets: assets,
+	}, "request");
 }
 
 database.init();
 
 const server = serve({
-	port: 3001,
-	hostname: "0.0.0.0",
+	port: database.port,
+	hostname: database.domain,
 	fetch,
 	development: true,
 });

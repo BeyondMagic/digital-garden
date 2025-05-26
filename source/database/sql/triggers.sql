@@ -1,1 +1,0 @@
--- Before a language is inserted, verify if it it's in the appropriate format: 'x...x-x...x'

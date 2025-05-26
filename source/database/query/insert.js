@@ -1,120 +1,9 @@
 import { sql } from "bun";
 
 /**
- * @typedef {import("@/database/types").Domain} Domain
  * @typedef {import("@/database/types").DomainType} DomainType
  * @typedef {import("@/database/types").StatusType} StatusType
- * @typedef {import("@/database/types").Asset} Asset
  */
-
-/**
-
-/**
- * Select the root domain from the database.
- * @returns {Promise<Domain>} - A promise that resolves with the root domain.
- */
-export async function select_domain_root ()
-{
-	/**
-	 * @type {Array<Domain>}
-	 */
-	const [root] = await sql`
-		SELECT
-			domain.*
-		FROM
-			garden
-		INNER JOIN
-			domain ON
-				domain.id = garden.id_domain
-	`;
-
-	if (!root)
-		throw new Error("No root domain found");
-
-	return root;
-}
-
-/**
- * Select recursively all domains from the database that match the given URL.
- * @example
- * // Let's say you have the following domains in the database:
- * // domain.com -> subdomain1 -> subdomain2 -> router1 -> router2
- * select_domains("subdomain2.subdomain1.domain.com/router1/router2") // Returns domains: "domain.com", "subdomain1", "subdomain2", "router1", "router2"
- * @param {string} url - The URL to be selected.
- * @returns {Promise<{domains: Array<Domain>, remain: Array<string>}>} A promise that resolves with the selected domains.
- */
-export async function select_domains (url)
-{
-	const root = await select_domain_root();
-
-	const [subdomains = "", routers = ""] = url.split(root.name);
-
-	const components = [
-		...subdomains.split('.').filter(Boolean),
-		...routers.split('/').filter(Boolean)
-	];
-
-	let parent_id = root.id;
-
-	const domains = [];
-
-	/**
-	 * @type {Array<string>}
-	 */
-	let remain = [];
-
-	for (const component of components)
-	{
-		/**
-		 * @type {Array<Domain>}
-		 */
-		const [domain] = await sql`
-			SELECT
-				*
-			FROM
-				domain
-			WHERE
-				name = ${component}
-				AND id_domain_parent = ${parent_id}
-		`;
-
-		if (!domain)
-		{
-			remain = components.slice(domains.length);
-			break;
-		}
-
-		domains.push(domain);
-
-		parent_id = domain.id;
-	}
-
-	return {
-		domains: [
-			root,
-			...domains
-		],
-		remain
-	};
-}
-
-/**
- * Select all assets from the database that belong to a specific domain.
- * @param {string} id_domain - The ID of the domain to be selected.
- * @returns {Promise<Array<{id: string, id_domain: string, path: string, times: string, extension: string}>>} A promise that resolves with the selected assets.
- */
-export async function select_assets (id_domain)
-{
-	return await sql`
-		SELECT
-			*
-		FROM
-			asset
-		WHERE
-			id_domain = ${id_domain};
-		
-	`.values();
-}
 
 /**
  * Insert a new request into the "request" table and return its ID.
@@ -125,7 +14,7 @@ export async function select_assets (id_domain)
  * @param {Date} information.time - Time of the request.
  * @returns {Promise<void>} A promise that resolves when the request is inserted.
  */
-export async function insert_request({ id_content, ip, device, time })
+export async function request ({ id_content, ip, device, time })
 {
 	return await sql`
 		INSERT INTO request (id_content, ip, device, time)
@@ -141,7 +30,8 @@ export async function insert_request({ id_content, ip, device, time })
  * @param {string} information.id_content - ID of the content that the author is associated with.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted author connection.
  **/
-export async function insert_author_content({ id_author, id_content }) {
+export async function author_content ({ id_author, id_content })
+{
 	return await sql`
 		INSERT INTO author_content (id_author, id_content)
 			VALUES (${id_author}, ${id_content})
@@ -158,7 +48,8 @@ export async function insert_author_content({ id_author, id_content }) {
  * @param {string} information.id_domain - ID of the domain that the author is associated with.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted author connection.
  **/
-export async function insert_author_domain({ id_author, id_domain }) {
+export async function author_domain ({ id_author, id_domain })
+{
 	return await sql`
 		INSERT INTO author_domain (id_domain, id_author)
 			VALUES (${id_domain}, ${id_author})
@@ -175,7 +66,8 @@ export async function insert_author_domain({ id_author, id_domain }) {
  * @param {string} information.id_garden - ID of the garden that the author is associated with.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted author connection.
  **/
-export async function insert_author_garden({ id_author, id_garden }) {
+export async function author_garden ({ id_author, id_garden })
+{
 	return await sql`
 		INSERT INTO author_garden (id_author, id_garden)
 			VALUES (${id_author}, ${id_garden})
@@ -194,7 +86,8 @@ export async function insert_author_garden({ id_author, id_garden }) {
  * @param {Date} information.last_connection - Last connection date of the author.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted author connection.
  */
-export async function insert_author_connection({ id_author, device, token, last_connection }) {
+export async function author_connection ({ id_author, device, token, last_connection })
+{
 	return await sql`
 		INSERT INTO author_connection (id_author, device, token, last_connection)
 			VALUES (${id_author}, ${device}, ${token}, ${last_connection})
@@ -214,7 +107,8 @@ export async function insert_author_connection({ id_author, device, token, last_
  * @param {string} information.password - Hashed password of the author.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted author.
  */
-export async function insert_author({ id_asset, email, name, password }) {
+export async function author ({ id_asset, email, name, password })
+{
 	return await sql`
 		INSERT INTO author (id_asset, email, name, password)
 			VALUES (${id_asset}, ${email}, ${name}, ${password})
@@ -233,7 +127,8 @@ export async function insert_author({ id_asset, email, name, password }) {
  * @param {string} information.name - Name of the content.
  * @param {string} information.description - Description of the content.
  */
-export async function insert_garden_information({ id_garden, id_language, name, description }) {
+export async function garden_information ({ id_garden, id_language, name, description })
+{
 	return await sql`
 		INSERT INTO garden_information (id_garden, id_language, name, description)
 			VALUES (${id_garden}, ${id_language}, ${name}, ${description})
@@ -251,7 +146,8 @@ export async function insert_garden_information({ id_garden, id_language, name, 
  * @param {string} information.id_asset - ID of the asset that the content is associated with.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted content.
  */
-export async function insert_garden({ id_domain, id_asset }){
+export async function garden ({ id_domain, id_asset })
+{
 	return await sql`
 		INSERT INTO garden (id_domain, id_asset)
 			VALUES (${id_domain}, ${id_asset})
@@ -275,7 +171,7 @@ export async function insert_garden({ id_domain, id_asset }){
  * @param {string} information.body - Body of the content.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted content.
  */
-export async function insert_content({ id_domain, id_language, date, status, title, title_sub, synopsis, body })
+export async function content ({ id_domain, id_language, date, status, title, title_sub, synopsis, body })
 {
 	return await sql`
 		INSERT INTO content (id_domain, id_language, date, status, title, title_sub, synopsis, body)
@@ -294,7 +190,8 @@ export async function insert_content({ id_domain, id_language, date, status, tit
  * @param {string} information.id_to - ID of the content that is being linked to.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted content link.
  */
-export async function insert_content_link({ id_from, id_to }) {
+export async function content_link ({ id_from, id_to })
+{
 	return await sql`
 		INSERT INTO content_link (id_from, id_to)
 			VALUES (${id_from}, ${id_to})
@@ -313,7 +210,8 @@ export async function insert_content_link({ id_from, id_to }) {
  * @param {string} information.name - Name of the domain, if the first, it will be parsed as the root domain.
  * @param {StatusType} information.status - Status of the domain.
  **/
-export async function insert_domain({ id_domain_parent, id_domain_redirect, type, name, status }) {
+export async function domain ({ id_domain_parent, id_domain_redirect, type, name, status })
+{
 	return await sql`
 		INSERT INTO DOMAIN (id_domain_parent, id_domain_redirect, TYPE, name, status)
 			VALUES (${id_domain_parent}, ${id_domain_redirect}, ${type}, ${name}, ${status})
@@ -330,7 +228,8 @@ export async function insert_domain({ id_domain_parent, id_domain_redirect, type
  * @param {string} information.id_tag - ID of the tag that is being associated with the domain.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted domain tag.
  **/
-export async function insert_domain_tag({ id_domain, id_tag }) {
+export async function domain_tag ({ id_domain, id_tag })
+{
 	return await sql`
 		INSERT INTO domain_tag (id_domain, id_tag)
 			VALUES (${id_domain}, ${id_tag})
@@ -347,7 +246,8 @@ export async function insert_domain_tag({ id_domain, id_tag }) {
  * @param {string} information.id_asset - ID of the asset that is being associated with the domain.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted domain asset.
  **/
-export async function insert_domain_asset({ id_domain, id_asset }) {
+export async function domain_asset ({ id_domain, id_asset })
+{
 	return await sql`
 		INSERT INTO domain_asset (id_domain, id_asset)
 			VALUES (${id_domain}, ${id_asset})
@@ -364,7 +264,8 @@ export async function insert_domain_asset({ id_domain, id_asset }) {
  * @param {string} information.id_tag_for - ID of the tag that requires the other tag.
  * @returns {Promise<void>} Resolves when the tag requirement is inserted.
  **/
-export async function insert_tag_requirement({ id_tag, id_tag_for }) {
+export async function tag_requirement ({ id_tag, id_tag_for })
+{
 	return await sql`
 		INSERT INTO tag_requirement (id_tag, id_tag_for)
 			VALUES (${id_tag}, ${id_tag_for})
@@ -383,7 +284,8 @@ export async function insert_tag_requirement({ id_tag, id_tag_for }) {
  * @param {string} information.description - Description of the tag being documented.
  * @returns {Promise<void>} Resolves when the tag information is inserted.
  */
-export async function insert_tag_information({ id_tag, id_language, name, description }) {
+export async function tag_information ({ id_tag, id_language, name, description })
+{
 	return await sql`
 		INSERT INTO tag_information (id_tag, id_language, name, description)
 			VALUES (${id_tag}, ${id_language}, ${name}, ${description})
@@ -399,7 +301,8 @@ export async function insert_tag_information({ id_tag, id_language, name, descri
  * @param {string} id_asset - The ID of the asset to be inserted.
  * @returns {Promise<string>} A promise that resolves with the ID of the inserted tag.
  */
-export async function insert_tag(id_asset) {
+export async function tag (id_asset)
+{
 	return await sql`
 		INSERT INTO tag (id_asset)
 			VALUES (${id_asset})
@@ -416,8 +319,8 @@ export async function insert_tag(id_asset) {
  * @param {string} information.path - The path of the aasset to be inserted (from repository root).
  * @returns {Promise<string>} A promise that resolves with the ID of the asset.
  */
-export async function insert_asset({ id_domain, path }) {
-
+export async function asset ({ id_domain, path })
+{
 	const basename = path.split("/").pop();
 
 	if (!basename)
@@ -443,7 +346,8 @@ export async function insert_asset({ id_domain, path }) {
  * @param {string} information.description - Description of the asset being documented.
  * @returns {Promise<void>} Resolves when the asset information is inserted.
  */
-export async function insert_asset_information({ id_asset, id_language, name, description }) {
+export async function asset_information ({ id_asset, id_language, name, description })
+{
 	return await sql`
 		INSERT INTO asset_information (id_asset, id_language, name, description)
 			VALUES (${id_asset}, ${id_language}, ${name}, ${description})
@@ -460,7 +364,8 @@ export async function insert_asset_information({ id_asset, id_language, name, de
  * @param {string} information.id_asset - ID of the asset that the language is associated with.
  * @returns {Promise<void>} A promise that resolves when the language is inserted.
  */
-export async function insert_language({ id, id_asset }) {
+export async function language ({ id, id_asset })
+{
 	return await sql`
 		INSERT INTO
 		LANGUAGE (id, id_asset)
@@ -480,7 +385,8 @@ export async function insert_language({ id, id_asset }) {
  * @param {string} information.description - Description of the language being documented.
  * @returns {Promise<void>} Resolves when the language information is inserted.
  */
-export async function insert_language_information({ id_for, id_from, name, description }) {
+export async function language_information ({ id_for, id_from, name, description })
+{
 	return await sql`
 		INSERT INTO language_information (id_for, id_from, name, description)
 			VALUES (${id_for}, ${id_from}, ${name}, ${description})
@@ -489,34 +395,4 @@ export async function insert_language_information({ id_for, id_from, name, descr
 			WHERE language_information.id_for = ${id_for} AND language_information.id_from = ${id_from}
 		RETURNING id;
 	`.values();
-}
-
-/**
- * Delete the database.
- * @returns {Promise<void>} A promise that resolves when the database is deleted.
- */
-export async function delete_database() {
-	return await sql.unsafe(/* sql */`
-		-- Close all connections and reset the database to the initial state.
-		ROLLBACK;
-			
-		SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'rpg' AND pid <> pg_backend_pid();
-			
-		DROP SCHEMA public CASCADE;
-		CREATE SCHEMA public;
-		SET search_path TO public;
-			
-		GRANT ALL ON SCHEMA public TO public;
-		GRANT ALL ON SCHEMA public TO postgres;
-	`);
-}
-
-/**
- * Get the list of all tables in the database.
- * @returns {Promise<Array<string>>} A promise that lazy-resolves with the list of table names in the database.
- */
-export async function get_tables() {
-	return await sql.unsafe(/* sql */`
-		SELECT table_name FROM information_schema.tables WHERE table_schema='public';
-	`)
 }
