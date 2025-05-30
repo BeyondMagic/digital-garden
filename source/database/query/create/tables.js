@@ -33,14 +33,9 @@ export async function asset ()
 	await sql`
 		CREATE TABLE asset (
 			id SERIAL PRIMARY KEY,
-			-- The domain that the asset belongs to.
 			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
-			-- 4096 is the maximum length of a path in Linux (EXT4).
 			path VARCHAR(4096) UNIQUE NOT NULL,
-			-- How many times the asset has been used.
-			-- Updated by trigger after parsing the content of a domain.
 			times INTEGER NOT NULL DEFAULT 1,
-			-- Extension of the URL.
 			extension VARCHAR(100)
 		);
 	`;
