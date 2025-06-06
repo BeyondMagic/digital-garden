@@ -4,7 +4,7 @@ import { sql } from "bun";
  * Creates the `add_language` function in the database to add a new language.
  * @returns {Promise<void>} A promise that resolves when the function is created.
  */
-export async function add_language ()
+async function add_language ()
 {
 	return await sql`
 		CREATE OR REPLACE FUNCTION add_language(
@@ -38,7 +38,7 @@ export async function add_language ()
  * Creates the `add_garden` function in the database to add a new garden.
  * @returns {Promise<void>} A promise that resolves when the function is created.
  **/
-export async function add_garden ()
+/*async function add_garden ()
 {
 	return await sql`
 		CREATE OR REPLACE FUNCTION add_garden(
@@ -67,4 +67,9 @@ export async function add_garden ()
 		END;
 	$$;
 `;
+}*/
+
+export default {
+	add_language,
+	// add_garden,
 }

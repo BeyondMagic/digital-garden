@@ -4,7 +4,7 @@ import { sql } from "bun";
  * Create the domain table.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function domain ()
+async function domain ()
 {
 	await sql`
 		CREATE TABLE domain (
@@ -28,7 +28,7 @@ export async function domain ()
  * - extension: The extension of the URL (e.g. .png, .jpg, .js, etc.).
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function asset ()
+async function asset ()
 {
 	await sql`
 		CREATE TABLE asset (
@@ -46,7 +46,7 @@ export async function asset ()
  * For example, English, Spanish, French, etc.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function language ()
+async function language ()
 {
 	await sql`
 		CREATE TABLE language (
@@ -61,7 +61,7 @@ export async function language ()
  * For example, the name of the language in the language itself.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function language_information ()
+async function language_information ()
 {
 	await sql`
 		CREATE TABLE language_information (
@@ -80,7 +80,7 @@ export async function language_information ()
  * For example, the name of the asset in the language itself.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function asset_information ()
+async function asset_information ()
 {
 	await sql`
 		CREATE TABLE asset_information (
@@ -100,7 +100,7 @@ export async function asset_information ()
  * The tag can be used to filter content by tag.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function tag ()
+async function tag ()
 {
 	await sql`
 		CREATE TABLE tag (
@@ -117,7 +117,7 @@ export async function tag ()
  * This means that if a tag "java" is added, a tag "programming" must be added too.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function tag_requirement ()
+async function tag_requirement ()
 {
 	await sql`
 		CREATE TABLE tag_requirement (
@@ -134,7 +134,7 @@ export async function tag_requirement ()
  * For example, the name of the tag in the language itself.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function tag_information ()
+async function tag_information ()
 {
 	await sql`
 		CREATE TABLE tag_information (
@@ -154,7 +154,7 @@ export async function tag_information ()
  * The tag can be used to filter domains by tag.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function domain_tag ()
+async function domain_tag ()
 {
 	await sql`
 		CREATE TABLE domain_tag (
@@ -171,7 +171,7 @@ export async function domain_tag ()
  * For example, the asset "logo.png" can be used to store the logo of the domain.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function domain_asset ()
+async function domain_asset ()
 {
 	await sql`
 		CREATE TABLE domain_asset (
@@ -189,7 +189,7 @@ export async function domain_asset ()
  * The content can be filtered by domain and language.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function content ()
+async function content ()
 {
 	await sql`
 		CREATE TABLE content (
@@ -211,7 +211,7 @@ export async function content ()
  * The content link table is used to store the links between content.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function content_link ()
+async function content_link ()
 {
 	await sql`
 		CREATE TABLE content_link (
@@ -229,7 +229,7 @@ export async function content_link ()
  * - id_asset: The logo of the digital garden.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function garden ()
+async function garden ()
 {
 	await sql`
 		CREATE TABLE garden (
@@ -247,7 +247,7 @@ export async function garden ()
  * For example, the name of the garden in the language itself.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function garden_information ()
+async function garden_information ()
 {
 	await sql`
 		CREATE TABLE garden_information (
@@ -268,7 +268,7 @@ export async function garden_information ()
  * - contents: The number of contents created by the author.
  * - id_asset: The profile picture of the author.
  **/
-export async function author ()
+async function author ()
 {
 	await sql`
 		CREATE TABLE author (
@@ -288,7 +288,7 @@ export async function author ()
  * For example, the author can connect to the system using a device and a token.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function author_connection ()
+async function author_connection ()
 {
 	await sql`
 		CREATE TABLE author_connection (
@@ -307,7 +307,7 @@ export async function author_connection ()
  * For example, the author can create a garden and add it to the system.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function author_garden ()
+async function author_garden ()
 {
 	await sql`
 		CREATE TABLE author_garden (
@@ -324,7 +324,7 @@ export async function author_garden ()
  * For example, the author can create a domain and add it to the system.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function author_domain ()
+async function author_domain ()
 {
 	await sql`
 		CREATE TABLE author_domain (
@@ -341,7 +341,7 @@ export async function author_domain ()
  * For example, the author can create a content and add it to the system.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  */
-export async function author_content ()
+async function author_content ()
 {
 	await sql`
 		CREATE TABLE author_content (
@@ -358,7 +358,7 @@ export async function author_content ()
  * For example, the module "rpg" can be used to store the information about the rpg module.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function module ()
+async function module ()
 {
 	await sql`
 		CREATE TABLE module (
@@ -376,7 +376,7 @@ export async function module ()
  * For example, the event "install" can be used to store the information about the install event.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-export async function module_event ()
+async function module_event ()
 {
 	await sql`
 		CREATE TABLE module_event (
@@ -386,4 +386,28 @@ export async function module_event ()
 			UNIQUE(id_module, event)
 		);
 	`;
+}
+
+export default {
+	domain,
+	asset,
+	language,
+	language_information,
+	asset_information,
+	tag,
+	tag_requirement,
+	tag_information,
+	domain_tag,
+	domain_asset,
+	content,
+	content_link,
+	garden,
+	garden_information,
+	author,
+	author_connection,
+	author_garden,
+	author_domain,
+	author_content,
+	module,
+	module_event
 }

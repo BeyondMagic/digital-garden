@@ -1,4 +1,4 @@
-import * as query from "@/database/query";
+import query from "@/database/query";
 import { debug } from "@/util";
 
 const prompt = "Are you sure you want to delete the database? (y/n) ";
@@ -10,7 +10,7 @@ for await (const line of console) {
 	switch (answer) {
 		case "y":
 			debug("Deleting database...");
-			await query.delete.database();
+			await query.remove.database();
 			debug("Database deleted.");
 			break;
 		case "n":

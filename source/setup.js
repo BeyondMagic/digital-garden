@@ -1,6 +1,6 @@
 
 import { hash, debug } from "@/util";
-import * as query from "@/database/query";
+import query from "@/database/query";
 
 const base = {
 	domain: "localhost",
@@ -223,9 +223,9 @@ export async function populate ()
  */
 export async function init ()
 {
-	const tables = await query.select.tables();
+	const current_tables = await query.select.tables();
 
-	if (tables.length)
+	if (current_tables.length)
 	{
 		debug("Database already initialised.");
 		return;
@@ -233,10 +233,25 @@ export async function init ()
 
 	debug("Initialising database...");
 
-	query.create.types.domain();
-	query.create.types.status();
-	query.create.functions.add_garden();
-	query.create.functions.add_language();
+	const {
+		types,
+		tables,
+		functions
+	} = query.create;
+
+	for (const create of Object.values(types)) {
+		debug(`Initializing: ${create.name}`);
+		await create();
+	}
+
+	for (const create of Object.values(tables)) {
+		debug(`Initializing: ${create.name}`);
+		await create();
+	}
+	for (const create of Object.values(functions)) {
+		debug(`Initializing: ${create.name}`);
+		await create();
+	}
 
 	populate();
 }

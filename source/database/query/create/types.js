@@ -5,7 +5,7 @@ import { sql } from "bun";
  * - TYPE_DOMAIN: The type of domain.
  * @returns {Promise<void>} A promise that resolves when the types are created.
  **/
-export async function domain ()
+async function domain ()
 {
 	await sql`
 		CREATE TYPE TYPE_DOMAIN AS ENUM ('ROUTER', 'SUBDOMAIN');
@@ -17,9 +17,14 @@ export async function domain ()
  * - TYPE_STATUS: The status of the domain/content.
  * @returns {Promise<void>} A promise that resolves when the types are created.
  */
-export async function status ()
+async function status ()
 {
 	await sql`
 		CREATE TYPE TYPE_STATUS AS ENUM ('PUBLIC', 'PRIVATE', 'ARCHIVED', 'DELETED');
 	`;
+}
+
+export default {
+	domain,
+	status,
 }

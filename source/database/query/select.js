@@ -9,7 +9,7 @@ import { sql } from "bun";
  * Get the list of all tables in the database.
  * @returns {Promise<Array<string>>} A promise that lazy-resolves with the list of table names in the database.
  */
-export async function tables ()
+async function tables ()
 {
 	return await sql`
 		SELECT table_name FROM information_schema.tables WHERE table_schema='public';
@@ -23,7 +23,7 @@ export async function tables ()
  * @param {string} information.path - The path of the asset to be selected (from repository root).
  * @returns {Promise<Array<Asset>>} - A promise that resolves with the selected assets.
  */
-export async function asset ({id_domain, path})
+async function asset ({id_domain, path})
 {
 	return await sql`
         SELECT
@@ -42,7 +42,7 @@ export async function asset ({id_domain, path})
  * @param {string} id_domain - The ID of the domain to be selected.
  * @returns {Promise<Array<{id: string, id_domain: string, path: string, times: string, extension: string}>>} A promise that resolves with the selected assets.
  */
-export async function assets (id_domain)
+async function assets (id_domain)
 {
 	return await sql`
 		SELECT
@@ -54,3 +54,9 @@ export async function assets (id_domain)
 		
 	`.values();
 }
+
+export default {
+	tables,
+	asset,
+	assets,
+};
