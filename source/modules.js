@@ -42,7 +42,7 @@ const modules = new Map();
  * Process each repository.
  * @returns {Promise<void>}
  **/
-export async function process_modules ()
+export async function process ()
 {
 	// Processing all events to be published.
 	for await (const file of glob.scan("."))

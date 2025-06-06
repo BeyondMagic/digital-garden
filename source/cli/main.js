@@ -1,6 +1,6 @@
  import { serve } from "bun";
 import { debug } from "@/util";
-import { events } from "@/modules";
+import * as modules from "@/modules";
 import * as database from "@/setup";
 
 /**
@@ -13,7 +13,7 @@ import * as database from "@/setup";
  */
 function get_module_fetch ()
 {
-	const func = events.get("request");
+	const func = modules.events.get("request");
 
 	if (!func || typeof func === "string")
 		throw new Error("Must have a core module that process requests.");
@@ -21,7 +21,7 @@ function get_module_fetch ()
 	return func;
 }
 
-
+await modules.process();
 const module_fetch = get_module_fetch();
 
 let ith = 0;
