@@ -8,7 +8,6 @@ const glob = new Glob("modules/**/module.js");
  * @typedef {import("@/database/types").ModuleRender} ModuleRender
  * @typedef {import("@/database/types").Domain} Domain
  * @typedef {import("@/database/types").Asset} Asset
- * @typedef {{request: Request, domains: Array<Domain>, assets: Array<Asset>}} EventRequest
  */
 
 /**
@@ -18,7 +17,7 @@ const glob = new Glob("modules/**/module.js");
  *
  * @type {Map<string, string | ModuleRender>}
  **/
-export const events = new Map();
+const events = new Map();
 
 /**
  * Log the event published by a module.
@@ -42,7 +41,7 @@ const modules = new Map();
  * Process each repository.
  * @returns {Promise<void>}
  **/
-export async function process ()
+async function process ()
 {
 	// Processing all events to be published.
 	for await (const file of glob.scan("."))
@@ -82,3 +81,24 @@ export async function process ()
 		}
 	}
 }
+
+/**
+ * Grab a named event‐handler and assert it’s a function.
+ * @param {string} name
+ * @returns {ModuleRender}
+ */
+function fetch_handler (name)
+{
+	const fn = events.get(name);
+
+	if (typeof fn !== "function")
+		throw new Error(`Event "${name}" handler missing or invalid.`);
+
+	return fn;
+}
+
+export default {
+	events,
+	process,
+	fetch_handler,
+};

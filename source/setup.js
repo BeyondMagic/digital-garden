@@ -7,19 +7,19 @@ const base = {
 	port: "3001",
 };
 const domain_unparsed = process.env.DOMAIN || base.domain + ":" + base.port;
-export const [domain = base.domain, port = base.port] = domain_unparsed.split(":");
+const [domain = base.domain, port = base.port] = domain_unparsed.split(":");
 
 /**
  * Populate the database with initial data.
  * @returns {Promise<void>} - A promise that resolves when the database is populated.
  */
-export async function populate ()
+async function populate ()
 {
 	const id_root_domain = await query.insert.domain({
 		id_domain_parent: null,
 		id_domain_redirect: null,
 		type: "SUBDOMAIN",
-		name: domain,
+		name: domain_unparsed,
 		status: "PUBLIC",
 	});
 
@@ -221,7 +221,7 @@ export async function populate ()
  * Initialise the database: columns, procedures, etc.
  * @returns {Promise<void>}
  */
-export async function init ()
+async function init ()
 {
 	const current_tables = await query.select.tables();
 
@@ -239,19 +239,27 @@ export async function init ()
 		functions
 	} = query.create;
 
+	debug(`Initializing types:`);
 	for (const create of Object.values(types)) {
-		debug(`Initializing: ${create.name}`);
+		debug(`\ttypes.${create.name}`);
 		await create();
 	}
 
+	debug(`Initializing tables:`);
 	for (const create of Object.values(tables)) {
-		debug(`Initializing: ${create.name}`);
+		debug(`\ttables.${create.name}`);
 		await create();
 	}
 	for (const create of Object.values(functions)) {
-		debug(`Initializing: ${create.name}`);
+		debug(`\tfunctions.${create.name}`);
 		await create();
 	}
 
 	populate();
 }
+
+export default {
+	domain,
+	port,
+	init,
+};

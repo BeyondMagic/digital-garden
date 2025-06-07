@@ -162,3 +162,15 @@ async function git_root()
 }
 
 export const root = (await git_root()).trim();
+
+export default {
+	mime_type,
+	random_uuid,
+	hash,
+	hash_verify,
+	css,
+	js,
+	html,
+	debug,
+	root
+}

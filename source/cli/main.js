@@ -1,31 +1,21 @@
- import { serve } from "bun";
+import { serve } from "bun";
 import { debug } from "@/util";
-import * as modules from "@/modules";
-import * as database from "@/setup";
-
-/**
- * @typedef {import("@/database/types").ModuleRender} ModuleRender
- */
-
-/**
- * Get the module fetch function.
- * @returns {ModuleRender} - The fetch function of the core module.
- */
-function get_module_fetch ()
-{
-	const func = modules.events.get("request");
-
-	if (!func || typeof func === "string")
-		throw new Error("Must have a core module that process requests.");
-
-	return func;
-}
+import modules from "@/modules";
+import setup from "@/setup";
+import wrapper from "@/database/wrapper";
 
 await modules.process();
-const module_fetch = get_module_fetch();
+const module_fetch = modules.fetch_handler("request");
 
 let ith = 0;
 
+/**
+ * Regular expression that matches:
+ * - URLs starting with `http://` or `https://`
+ * - The domain and port defined in the setup
+ * - Trailing slashes at the end of the URL
+ */
+const domain_regex = new RegExp(`^https?://|/+$`, 'g');
 
 /**
  * Fetch function to handle incoming requests.
@@ -35,26 +25,23 @@ let ith = 0;
 async function fetch(req)
 {
 	debug("----------------------|----------------------");
-
-	const regex = new RegExp(`^https?://|${database.domain}:${database.port}`);
-	const url = req.url.replace(regex, "");
-
+	const url = req.url.replace(domain_regex, "");
 	debug(`[${++ith}] URL: "${url}"`);
-
 	debug("----------------------|----------------------");
+
+	const result = await wrapper.process_domain_hierarchy(url);
 
 	return module_fetch({
 		request: req,
-		// domains: result.domains,
-		// assets: assets,
+		...result,
 	}, "request");
 }
 
-database.init();
+setup.init();
 
 const server = serve({
-	port: database.port,
-	hostname: database.domain,
+	port: setup.port,
+	hostname: setup.domain,
 	fetch,
 	development: true,
 });

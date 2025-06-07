@@ -3,7 +3,7 @@ import { sql } from "bun";
 /**
  * @typedef {import("@/database/types").Domain} Domain
  * @typedef {import("@/database/types").Asset} Asset
- */
+ **/
 
 /**
  * Get the list of all tables in the database.

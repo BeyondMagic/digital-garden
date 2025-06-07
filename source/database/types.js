@@ -28,4 +28,6 @@
  * @returns {Promise<any>} - Response for the event.
  *
  * @typedef {{name: string, events: {subscribers: Array<string>, publishers: Array<string>}, render: ModuleRender}} Module
+ * 
+ * @typedef {{domains: Array<Domain>, asset: Asset | null, remain: Array<string>}} SelectedDomains
  */
