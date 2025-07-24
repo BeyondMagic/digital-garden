@@ -34,9 +34,10 @@ async function asset ()
 		CREATE TABLE asset (
 			id SERIAL PRIMARY KEY,
 			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
-			path VARCHAR(4096) UNIQUE NOT NULL,
+			path VARCHAR(4096) NOT NULL,
 			times INTEGER NOT NULL DEFAULT 1,
-			extension VARCHAR(100)
+			extension VARCHAR(100),
+			UNIQUE(id_domain, path)
 		);
 	`;
 }

@@ -1,7 +1,7 @@
 import { serve } from "bun";
 import { debug } from "@/util";
 import modules from "@/modules";
-import setup from "@/setup";
+import { domain, port, init } from "@/setup";
 import wrapper from "@/database/wrapper";
 
 await modules.process();
@@ -37,11 +37,11 @@ async function fetch(req)
 	}, "request");
 }
 
-setup.init();
+await init();
 
 const server = serve({
-	port: setup.port,
-	hostname: setup.domain,
+	port: port,
+	hostname: domain,
 	fetch,
 	development: true,
 });

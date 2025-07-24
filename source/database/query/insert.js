@@ -316,24 +316,24 @@ async function tag (id_asset)
  * Creates a line in the ASSET table and returns the ID.
  * @param {Object} information - Information of the asset to be inserted.
  * @param {string} information.id_domain - ID of the domain that the asset is associated with.
- * @param {string} information.path - The path of the aasset to be inserted (from repository root).
+ * @param {string} information.name - The name of the asset to be inserted (cannot contain slashes).
  * @returns {Promise<string>} A promise that resolves with the ID of the asset.
  */
-async function asset ({ id_domain, path })
+async function asset ({ id_domain, name })
 {
-	const basename = path.split("/").pop();
+	// If name includes a slash, it is considered a path by any system, so throw an error.
+	if (name.includes("/"))
+		throw new Error(`Asset name "${name}" cannot contain slashes.`);
 
-	if (!basename)
-		throw new Error("Invalid path: " + path);
-
-	const extension = basename.includes(".") ? basename.split(".").pop() : null;
+	const extension = name.includes(".") ? name.split(".").pop() : null;
 
 	return await sql`
-		INSERT INTO asset (id_domain, path, EXTENSION)
-			VALUES (${id_domain}, ${path}, ${extension})
+		INSERT INTO
+			asset (id_domain, path, extension)
+		VALUES
+			(${id_domain}, ${name}, ${extension})
 		RETURNING
 			id;
-		
 	`.values();
 }
 

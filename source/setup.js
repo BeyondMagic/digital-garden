@@ -1,122 +1,124 @@
 
-import { hash, debug } from "@/util";
+import { domain, port, hash, debug } from "@/util";  
 import query from "@/database/query";
+import { sql } from "bun";
 
-const base = {
-	domain: "localhost",
-	port: "3001",
-};
-const domain_unparsed = process.env.DOMAIN || base.domain + ":" + base.port;
-const [domain = base.domain, port = base.port] = domain_unparsed.split(":");
+/**
+ * Helper function to create assets that may have paths with slashes
+ * @param {Object} params
+ * @param {string} params.id_domain - Domain ID
+ * @param {string} params.path - Full path of the asset (can contain slashes)
+ * @returns {Promise<string>} Asset ID
+ */
+async function create_asset_with_path({ id_domain, path }) {
+	const extension = path.includes(".") ? path.split(".").pop() : null;
+	
+	return await sql`
+		INSERT INTO
+			asset (id_domain, path, extension)
+		VALUES
+			(${id_domain}, ${path}, ${extension})
+		RETURNING
+			id;
+	`.values();
+}
 
 /**
  * Populate the database with initial data.
  * @returns {Promise<void>} - A promise that resolves when the database is populated.
  */
-async function populate ()
-{
-	const id_root_domain = await query.insert.domain({
+async function populate() {
+	// Destructure insert methods for cleaner code
+	const {
+		domain: create_domain,
+		asset: create_asset,
+		language: create_language,
+		language_information: create_lang_info,
+		asset_information: create_asset_info,
+		tag: create_tag,
+		tag_information: create_tag_info,
+		tag_requirement: create_tag_req,
+		content: create_content,
+		garden: create_garden,
+		garden_information: create_garden_info,
+		domain_asset: link_domain_asset,
+		author: create_author,
+		author_garden: link_author_garden,
+		author_domain: link_author_domain,
+		author_content: link_author_content
+	} = query.insert;
+
+	// 1) Create root domain
+	const root_domain_id = await create_domain({
 		id_domain_parent: null,
 		id_domain_redirect: null,
 		type: "SUBDOMAIN",
-		name: domain_unparsed,
+		name: `${domain}:${port}`,
 		status: "PUBLIC",
 	});
 
-	const id_asset_gb = await query.insert.asset({
-		id_domain: id_root_domain,
-		path: "Flag_of_the_United_Kingdom.svg"
+	// 2) Create language with flag asset
+	const gb_asset_id = await create_asset({
+		id_domain: root_domain_id,
+		name: "Flag_of_the_United_Kingdom.svg"
 	});
 
-	await query.insert.language({
-		id: "en-gb",
-		id_asset: id_asset_gb,
-	});
-
-	await query.insert.language_information({
+	await create_language({ id: "en-gb", id_asset: gb_asset_id });
+	await create_lang_info({
 		id_for: "en-gb",
 		id_from: "en-gb",
 		name: "English (British)",
 		description: "The British variant of the English language.",
 	});
-
-	await query.insert.asset_information({
-		id_asset: id_asset_gb,
+	await create_asset_info({
+		id_asset: gb_asset_id,
 		id_language: "en-gb",
 		name: "Flag of the United Kingdom",
 		description: "The flag of the United Kingdom in SVG format.",
 	});
 
-	const id_asset_seedling = await query.insert.asset({
-		id_domain: id_root_domain,
-		path: "tags/seedling.svg"
-	});
-	const id_tag_seedling = await query.insert.tag(id_asset_seedling);
-	await query.insert.tag_information({
-		id_tag: id_tag_seedling,
-		id_language: "en-gb",
-		name: "Seedling",
-		description: "New-born thoughts, not sorted out yet.",
-	});
+	// 3) Create tags with requirements chain
+	const tags = [
+		{ key: "seedling", name: "Seedling", desc: "New-born thoughts, not sorted out yet.", requires: [] },
+		{ key: "sapling", name: "Sapling", desc: "Substantial amount of content, but much to be done, with emerging structure.", requires: ["seedling"] },
+		{ key: "tree", name: "Tree", desc: "A tree of content, with a clear structure.", requires: ["sapling"] },
+		{ key: "withered", name: "Withered", desc: "Outdated notes kept for historical context, with warnings where needed.", requires: [] },
+		{ key: "signpost", name: "Signpost", desc: "A map to allow us to navigate easily to the content we need.", requires: [] }
+	];
 
-	const id_asset_sapling = await query.insert.asset({
-		id_domain: id_root_domain,
-		path: "tags/sapling.svg"
-	});
-	const id_tag_sapling = await query.insert.tag(id_asset_sapling);
-	await query.insert.tag_information({
-		id_tag: id_tag_sapling,
-		id_language: "en-gb",
-		name: "Sapling",
-		description: "Substiantial amount of content, but much to be done, with emerging structure.",
-	});
-	await query.insert.tag_requirement({
-		id_tag: id_tag_seedling,
-		id_tag_for: id_tag_sapling,
-	});
+	/** @type {Record<string, string>} */
+	const tag_ids = {};
+	for (const tag of tags) {
+		const asset_id = await create_asset_with_path({
+			id_domain: root_domain_id,
+			path: `tags/${tag.key}.svg`
+		});
+		const tag_id = await create_tag(asset_id);
+		tag_ids[tag.key] = tag_id;
 
-	const id_asset_tree = await query.insert.asset({
-		id_domain: id_root_domain,
-		path: "tags/tree.svg"
-	});
-	const id_tag_tree = await query.insert.tag(id_asset_tree);
-	await query.insert.tag_information({
-		id_tag: id_tag_tree,
-		id_language: "en-gb",
-		name: "Tree",
-		description: "A tree of content, with a clear structure.",
-	});
-	await query.insert.tag_requirement({
-		id_tag: id_tag_sapling,
-		id_tag_for: id_tag_tree,
-	});
+		await create_tag_info({
+			id_tag: tag_id,
+			id_language: "en-gb",
+			name: tag.name,
+			description: tag.desc,
+		});
 
-	const id_asset_withered = await query.insert.asset({
-		id_domain: id_root_domain,
-		path: "tags/withered.svg"
-	});
-	const id_tag_withered = await query.insert.tag(id_asset_withered);
-	await query.insert.tag_information({
-		id_tag: id_tag_withered,
-		id_language: "en-gb",
-		name: "Withered",
-		description: "Outdated notes kept for historical context, with warnings where needed."
-    });
+		// Create requirements
+		for (const req_key of tag.requires) {
+			const required_tag_id = tag_ids[req_key];
+			if (!required_tag_id) {
+				throw new Error(`Required tag '${req_key}' not found for tag '${tag.key}'`);
+			}
+			await create_tag_req({
+				id_tag: required_tag_id,
+				id_tag_for: tag_id,
+			});
+		}
+	}
 
-	const id_asset_signpost = await query.insert.asset({
-		id_domain: id_root_domain,
-		path: "tags/signpost.svg"
-	});
-	const id_tag_signpost = await query.insert.tag(id_asset_signpost);
-	await query.insert.tag_information({
-		id_tag: id_tag_signpost,
-		id_language: "en-gb",
-		name: "Signpost",
-		description: "A map to allow us to navigate easily to the content we need.",
-	});
-
-	const id_content_root = await query.insert.content({
-		id_domain: id_root_domain,
+	// 4) Create root content
+	const content_root_id = await create_content({
+		id_domain: root_domain_id,
 		id_language: "en-gb",
 		date: new Date(),
 		status: "PUBLIC",
@@ -124,142 +126,130 @@ async function populate ()
 		title_sub: "A digital garden of thoughts.",
 		synopsis: "This is the root content.",
 		body: "# Digital Garden\nDetailed information about the root content."
-	})
+	});
+
+	// 5) Create home assets
+	const home_assets = ["favicon.svg", "home.css", "home.js"];
+	/** @type {Record<string, string>} */
+	const asset_ids = {};
 	
-	const id_asset_favicon = await query.insert.asset({
-		id_domain: id_root_domain,		
-		path: "favicon.svg"
-	});
-	await query.insert.asset({
-		id_domain: id_root_domain,		
-		path: "home.css"
-	});
+	for (const asset_name of home_assets) {
+		asset_ids[asset_name] = await create_asset({
+			id_domain: root_domain_id,
+			name: asset_name
+		});
+	}
 
-	await query.insert.asset({
-		id_domain: id_root_domain,
-		path: "home.js"
-	});
-
-	const id_garden = await query.insert.garden({
-		id_domain: id_root_domain,
-		id_asset: id_asset_favicon
-	});
-	await query.insert.domain_asset({
-		id_domain: id_root_domain,
-		id_asset: id_asset_favicon,
-	})
+	// 6) Create garden with favicon
+	const favicon_asset_id = asset_ids["favicon.svg"];
+	if (!favicon_asset_id) {
+		throw new Error("Favicon asset not found");
+	}
 	
+	const garden_id = await create_garden({
+		id_domain: root_domain_id,
+		id_asset: favicon_asset_id
+	});
 
-	await query.insert.garden_information({
-		id_garden: id_garden,
+	await link_domain_asset({
+		id_domain: root_domain_id,
+		id_asset: favicon_asset_id,
+	});
+	await create_garden_info({
+		id_garden: garden_id,
 		id_language: "en-gb",
 		name: "Digital Garden",
 		description: "A digital garden of thoughts.",
 	});
 
-	const id_asset_profile = await query.insert.asset({
-		id_domain: id_root_domain,
-		path: "profile.png"
+	// 7) Create root author
+	const profile_asset_id = await create_asset({
+		id_domain: root_domain_id,
+		name: "profile.png"
 	});
-	const id_author = await query.insert.author({
-		id_asset: id_asset_profile,
+	
+	const author_id = await create_author({
+		id_asset: profile_asset_id,
 		email: "root@root.com",
 		name: "Root",
 		password: await hash("root"),
 	});
-	await query.insert.author_garden({
-		id_author: id_author,
-		id_garden: id_garden,
-	});
-	await query.insert.author_domain({
-		id_author: id_author,
-		id_domain: id_root_domain,
-	});
-	await query.insert.author_content({
-		id_author: id_author,
-		id_content: id_content_root,
-	});
 
-	await query.insert.domain({
-		id_domain_parent: id_root_domain,
+	await link_author_garden({ id_author: author_id, id_garden: garden_id });
+	await link_author_domain({ id_author: author_id, id_domain: root_domain_id });
+	await link_author_content({ id_author: author_id, id_content: content_root_id });
+
+	// 8) Create additional domains
+	await create_domain({
+		id_domain_parent: root_domain_id,
 		id_domain_redirect: null,
 		type: "ROUTER",
 		name: "contact",
 		status: "PUBLIC",
 	});
 
-	const id_domain_graph = await query.insert.domain({
-		id_domain_parent: id_root_domain,
+	const graph_domain_id = await create_domain({
+		id_domain_parent: root_domain_id,
 		id_domain_redirect: null,
 		type: "SUBDOMAIN",
 		name: "graph",
 		status: "PUBLIC",
 	});
 
-	const id_asset_graph_css = await query.insert.asset({
-		id_domain: id_domain_graph,
-		path: "graph/graph.css"
-	});
-
-	await query.insert.domain_asset({
-		id_domain: id_domain_graph,
-		id_asset: id_asset_graph_css,
-	});
-
-	const id_asset_graph_js = await query.insert.asset({
-		id_domain: id_domain_graph,
-		path: "graph/graph.js"
-	});
-
-	await query.insert.domain_asset({
-		id_domain: id_domain_graph,
-		id_asset: id_asset_graph_js,
-	});
+	// 9) Create graph assets
+	const graph_assets = ["graph/graph.css", "graph/graph.js"];
+	for (const asset_path of graph_assets) {
+		const asset_id = await create_asset_with_path({
+			id_domain: graph_domain_id,
+			path: asset_path
+		});
+		await link_domain_asset({
+			id_domain: graph_domain_id,
+			id_asset: asset_id,
+		});
+	}
 }
 
 /**
  * Initialise the database: columns, procedures, etc.
  * @returns {Promise<void>}
  */
-async function init ()
-{
+async function init() {
 	const current_tables = await query.select.tables();
 
-	if (current_tables.length)
-	{
+	if (current_tables.length) {
 		debug("Database already initialised.");
 		return;
 	}
 
 	debug("Initialising database...");
 
-	const {
-		types,
-		tables,
-		functions
-	} = query.create;
+	const { types, tables, functions } = query.create;
 
-	debug(`Initializing types:`);
+	// Create types first
+	debug("Initializing types:");
 	for (const create of Object.values(types)) {
 		debug(`\ttypes.${create.name}`);
 		await create();
 	}
 
-	debug(`Initializing tables:`);
+	// Create tables second
+	debug("Initializing tables:");
 	for (const create of Object.values(tables)) {
 		debug(`\ttables.${create.name}`);
 		await create();
 	}
+
+	// Create functions third
+	debug("Initializing functions:");
 	for (const create of Object.values(functions)) {
 		debug(`\tfunctions.${create.name}`);
 		await create();
 	}
 
-	populate();
+	// Finally populate with initial data
+	debug("Populating database with initial data...");
+	await populate();
 }
 
-export default {
-	domain,
-	port,
-	init,
-};
+export { domain, port, init };

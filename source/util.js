@@ -163,6 +163,22 @@ async function git_root()
 
 export const root = (await git_root()).trim();
 
+if (!process.env.DOMAIN)
+	throw new Error("Environment variable DOMAIN is not set.");
+
+export const [
+	domain,
+	port,
+] = process.env.DOMAIN.split(":");
+
+if (!domain || !port)
+	throw new Error("Environment variable DOMAIN must be in the format 'domain:port'.");
+
+if (!process.env.CDN)
+	throw new Error("Environment variable CDN is not set.");
+
+export const cdn = process.env.CDN;
+
 export default {
 	mime_type,
 	random_uuid,
@@ -172,5 +188,8 @@ export default {
 	js,
 	html,
 	debug,
-	root
+	root,
+	domain,
+	port,
+	cdn,
 }

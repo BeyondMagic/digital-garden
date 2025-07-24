@@ -1,10 +1,107 @@
+import { mkdir } from "node:fs/promises";
 import { sql } from "bun";
+import util from "@/util";
+import query from "./query";
 
 /**
  * @typedef {import("@/database/types").Domain} Domain
  * @typedef {import("@/database/types").Asset} Asset
  * @typedef {import("@/database/types").SelectedDomains} SelectedDomains
  **/
+
+/**
+ * Upload a binary or text asset under `./assets/...`
+ * @param {Object} options - Options for uploading the asset.
+ * @param {Array<Domain>} options.domains – List of domain to get names and IDs, e.g. ["graph","contact"]
+ * @param {Buffer|Uint8Array|string} options.data – File contents (Buffer/Uint8Array for binary, string for text)
+ * @param {string} options.name – The filename, e.g. "instagram.svg"
+ * @returns {Promise<{path: string, id: string}>} - The full file path where it was saved and the ID of the asset in the database.
+ * @throws {Error} If no domains are provided or if the upload fails.
+ */
+async function upload_asset ({ domains, data, name })
+{
+	const domain_last = domains[domains.length - 1];
+
+	if (domains.length == 0 || !domain_last)
+		throw new Error("Must have at least one domain to upload an asset.");
+
+	const domain_names = domains.map(d => d.name).join('/');
+
+	const id_asset = await query.insert.asset({
+		id_domain: domain_last.id,
+		name,
+	})
+
+	const dir = util.cdn + domain_names;
+
+	await mkdir(dir, { recursive: true });
+
+	const target = dir + '/' + name;
+
+	await Bun.write(target, data);
+
+	return {
+		path: target,
+		id: id_asset
+	};
+}
+
+/**
+ * 
+ * @param {*} id_asset 
+ */
+async function delete_asset (id_asset)
+{
+	/**
+	 * @type {Array<Asset>}
+	 */
+	const [asset] = await sql`
+		SELECT
+			*
+		FROM
+			asset
+		WHERE
+			id = ${id_asset}
+	`;
+
+	if (!asset)
+		throw new Error(`Asset with id ${id_asset} not found`);
+
+	// Construct the full path to the asset starting from the domain of the asset.
+
+	/**
+	 * @type {string | null}
+	 */
+	let parent_id = asset.id_domain;
+
+	/**
+	 * @type {Array<Domain>}
+	 */
+	const domains = [];
+	while (parent_id)
+	{
+		/**
+		 * @type {Array<Domain>}
+		 */
+		const [domain] = await sql`
+				SELECT
+					*
+				FROM
+					domain
+				WHERE
+					id = ${parent_id}
+			`;
+
+		if (!domain)
+			throw new Error(`Domain with id ${parent_id} not found`);
+
+		domains.push(domain);
+
+		parent_id = domain.id_domain_parent;
+	}
+
+	console.log(domains);
+}
 
 /**
 * Select recursively all domains from the database that match the given URL.
@@ -123,5 +220,6 @@ async function process_domain_hierarchy (url)
 }
 
 export default {
-	process_domain_hierarchy
+	process_domain_hierarchy,
+	upload_asset
 };
