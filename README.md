@@ -54,8 +54,7 @@ bun install
 Database -> Server
 
 Server:
-    Parser -> Module
-    Module -> Parser
+    Module -> Module
 
 Server -> Client
 ```

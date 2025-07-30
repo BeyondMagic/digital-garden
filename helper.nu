@@ -41,6 +41,7 @@ export def bun [
 	args: list<string> = []
 ]: nothing -> any {
 	source ./env/env.nu
+	print $"[helper] CDN: ($env.CDN)"
 	print $"[helper] Domain: ($env.DOMAIN)"
 
 	(

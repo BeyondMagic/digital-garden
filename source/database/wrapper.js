@@ -1,6 +1,6 @@
 import { mkdir } from "node:fs/promises";
 import { sql } from "bun";
-import util from "@/util";
+import util, { debug } from "@/util";
 import query from "./query";
 
 /**
@@ -20,25 +20,33 @@ import query from "./query";
  */
 async function upload_asset ({ domains, data, name })
 {
+	debug(`[wrapper] Starting asset upload: ${name}`);
+	debug(`[wrapper] Target domains:`, domains.map(d => d.name));
+	
 	const domain_last = domains[domains.length - 1];
 
 	if (domains.length == 0 || !domain_last)
 		throw new Error("Must have at least one domain to upload an asset.");
 
 	const domain_names = domains.map(d => d.name).join('/');
+	debug(`[wrapper] Domain path: ${domain_names}`);
 
 	const id_asset = await query.insert.asset({
 		id_domain: domain_last.id,
 		name,
 	})
+	debug(`[wrapper] Created asset in database with ID: ${id_asset}`);
 
 	const dir = util.cdn + domain_names;
+	debug(`[wrapper] Creating directory: ${dir}`);
 
 	await mkdir(dir, { recursive: true });
 
 	const target = dir + '/' + name;
+	debug(`[wrapper] Writing file to: ${target}`);
 
 	await Bun.write(target, data);
+	debug(`[wrapper] Asset upload completed successfully`);
 
 	return {
 		path: target,
@@ -52,6 +60,8 @@ async function upload_asset ({ domains, data, name })
  */
 async function delete_asset (id_asset)
 {
+	debug(`[wrapper] Starting asset deletion for ID: ${id_asset}`);
+	
 	/**
 	 * @type {Array<Asset>}
 	 */
@@ -64,8 +74,12 @@ async function delete_asset (id_asset)
 			id = ${id_asset}
 	`;
 
-	if (!asset)
+	if (!asset) {
+		debug(`[wrapper] Asset with ID ${id_asset} not found`);
 		throw new Error(`Asset with id ${id_asset} not found`);
+	}
+
+	debug(`[wrapper] Found asset:`, asset);
 
 	// Construct the full path to the asset starting from the domain of the asset.
 
@@ -73,6 +87,7 @@ async function delete_asset (id_asset)
 	 * @type {string | null}
 	 */
 	let parent_id = asset.id_domain;
+	debug(`[wrapper] Building domain hierarchy from parent ID: ${parent_id}`);
 
 	/**
 	 * @type {Array<Domain>}
@@ -80,6 +95,7 @@ async function delete_asset (id_asset)
 	const domains = [];
 	while (parent_id)
 	{
+		debug(`[wrapper] Looking up domain with ID: ${parent_id}`);
 		/**
 		 * @type {Array<Domain>}
 		 */
@@ -92,15 +108,18 @@ async function delete_asset (id_asset)
 					id = ${parent_id}
 			`;
 
-		if (!domain)
+		if (!domain) {
+			debug(`[wrapper] Domain with ID ${parent_id} not found`);
 			throw new Error(`Domain with id ${parent_id} not found`);
+		}
 
+		debug(`[wrapper] Found domain:`, domain);
 		domains.push(domain);
 
 		parent_id = domain.id_domain_parent;
 	}
 
-	console.log(domains);
+	debug(`[wrapper] Complete domain hierarchy:`, domains);
 }
 
 /**
@@ -114,6 +133,8 @@ async function delete_asset (id_asset)
 **/
 async function process_domain_hierarchy (url)
 {
+	debug(`[wrapper] Processing domain hierarchy for URL: "${url}"`);
+	
 	/**
 	 * @type {Array<Domain>}
 	 */
@@ -128,10 +149,15 @@ async function process_domain_hierarchy (url)
 				domain.id = garden.id_domain
 		`;
 
-	if (!root)
+	if (!root) {
+		debug(`[wrapper] No root domain found in database`);
 		throw new Error("No root domain found");
+	}
+
+	debug(`[wrapper] Found root domain:`, root);
 
 	const [subdomains = "", routers = ""] = url.split(root.name);
+	debug(`[wrapper] URL split: subdomains="${subdomains}", routers="${routers}"`);
 
 	const components = [
 		/**
@@ -142,6 +168,7 @@ async function process_domain_hierarchy (url)
 		...subdomains.split('.').filter(Boolean).reverse(),
 		...routers.split('/').filter(Boolean)
 	];
+	debug(`[wrapper] URL components to process:`, components);
 
 	let parent_id = root.id;
 
@@ -162,6 +189,8 @@ async function process_domain_hierarchy (url)
 
 	for (const component of components)
 	{
+		debug(`[wrapper] Processing component: "${component}" with parent_id: ${parent_id}`);
+		
 		/**
 		 * @type {Array<Domain>}
 		 */
@@ -178,7 +207,9 @@ async function process_domain_hierarchy (url)
 
 		if (!domain)
 		{
+			debug(`[wrapper] No domain found for component "${component}"`);
 			remain = components.slice(domains.length);
+			debug(`[wrapper] Remaining components:`, remain);
 
 			/**
 			 * It is only an asset if it is the last component in the URL.
@@ -186,6 +217,7 @@ async function process_domain_hierarchy (url)
 			if (remain.length == 1)
 			{
 				const asset_path = remain[0];
+				debug(`[wrapper] Looking for asset with path: "${asset_path}" in domain: ${parent_id}`);
 				/**
 	 			* @type {Array<Asset>}
 	 			**/
@@ -199,17 +231,24 @@ async function process_domain_hierarchy (url)
 					AND
 						asset.id_domain = ${parent_id}
 				`;
-				remain = [];
+				
+				if (asset) {
+					debug(`[wrapper] Found asset:`, asset);
+					remain = [];
+				} else {
+					debug(`[wrapper] No asset found with path: "${asset_path}"`);
+				}
 			}
 			break;
 		}
 
+		debug(`[wrapper] Found domain:`, domain);
 		domains.push(domain);
 
 		parent_id = domain.id;
 	}
 
-	return {
+	const result = {
 		domains: [
 			root,
 			...domains
@@ -217,6 +256,14 @@ async function process_domain_hierarchy (url)
 		asset: asset,
 		remain
 	};
+	
+	debug(`[wrapper] Final result:`, {
+		domains: result.domains.map(d => d.name),
+		asset: asset ? asset.path : null,
+		remain
+	});
+
+	return result;
 }
 
 export default {

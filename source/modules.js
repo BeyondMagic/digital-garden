@@ -43,43 +43,64 @@ const modules = new Map();
  **/
 async function process ()
 {
+	debug("[modules] Starting module processing...");
+	
 	// Processing all events to be published.
 	for await (const file of glob.scan("."))
 	{
 		const path = `${root}/${file}`
-		debug(`Processing module of path "${path}".`);
+		debug(`[modules] Loading module from: "${path}"`);
 
-		const {default: class_obj} = await import(path);
-		const module = new class_obj();
+		try {
+			const {default: class_obj} = await import(path);
+			const module = new class_obj();
 
-		modules.set(module.name, module);
+			debug(`[modules] Instantiated module: "${module.name}"`);
+			modules.set(module.name, module);
 
-		// Process the events that this module publishes
-		for await (const name of module.events.publishers)
-		{
-			if (events.has(name))
-				throw new Error(`Event "${name}" is already published by ${events.get(name)}.`);
+			// Process the events that this module publishes
+			debug(`[modules] Processing publishers for module "${module.name}":`, module.events.publishers);
+			for await (const name of module.events.publishers)
+			{
+				if (events.has(name)) {
+					const existing_publisher = events.get(name);
+					debug(`[modules] ERROR: Event "${name}" already published by ${existing_publisher}`);
+					throw new Error(`Event "${name}" is already published by ${existing_publisher}.`);
+				}
 
-			publish(name, module.name);
+				publish(name, module.name);
+				debug(`[modules] Module "${module.name}" registered as publisher of event "${name}"`);
+			}
+		} catch (error) {
+			debug(`[modules] ERROR loading module ${path}:`, error);
+			throw error;
 		}
 	}
+
+	debug(`[modules] All modules loaded. Processing subscriptions...`);
 
 	// Process events to be subscribed.
 	// - event must be published before and has a string set to the name of the module.
 	for await (const [_, module] of modules)
 	{
+		debug(`[modules] Processing subscribers for module "${module.name}":`, module.events.subscribers);
+		
 		for await (const name of module.events.subscribers)
 		{
 			const publisher = events.get(name);
 
-			if (!publisher)
+			if (!publisher) {
+				debug(`[modules] ERROR: Event "${name}" is not published by anything`);
 				throw new Error(`Event "${name}" is not published by anything.`);
+			}
 
 			events.set("request", module.render);
-
-			debug(`Event "${name}" published by "${publisher}" is subscribed by "${module.name}".`)
+			debug(`[modules] Module "${module.name}" subscribed to event "${name}" (published by "${publisher}")`);
 		}
 	}
+	
+	debug(`[modules] Module processing complete. Loaded ${modules.size} modules.`);
+	debug(`[modules] Event registry:`, Array.from(events.keys()));
 }
 
 /**
@@ -89,11 +110,16 @@ async function process ()
  */
 function fetch_handler (name)
 {
+	debug(`[modules] Fetching handler for event: "${name}"`);
+	
 	const fn = events.get(name);
 
-	if (typeof fn !== "function")
+	if (typeof fn !== "function") {
+		debug(`[modules] ERROR: Event "${name}" handler missing or invalid. Type: ${typeof fn}`);
 		throw new Error(`Event "${name}" handler missing or invalid.`);
+	}
 
+	debug(`[modules] Handler found for event "${name}"`);
 	return fn;
 }
 

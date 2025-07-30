@@ -1,0 +1,9 @@
+.background {
+	--g-angle: 45deg;
+	--g-color-0: #7289ffff;
+	--g-position-0: 100%;
+	--g-color-1: #d7ff4c;
+	--g-position-1: 100%;
+
+	background-image: linear-gradient(var(--g-angle), var(--g-color-0) var(--g-position-0), var(--g-color-1) var(--g-position-1));
+}
