@@ -1,8 +1,21 @@
+# Run cli of developer mode of the server.
+export def cli [
+    args: list<string> = [] # Arguments to pass to the bun command.
+    --path: string = "./source/index.js" # The path to the server entry file.
+]: nothing -> any {
+    bun [
+        --hot
+        $path
+        ...$args
+    ]
+}
 
-def log [
-    ...args: list<any> # Arguments to log.
-]: nothing -> nothing {
-    use std log
+# Run the database in production mode.
+export def database []: nothing -> any {
+    docker [
+        compose
+        up
+    ]
 }
 
 # Get the root directory of the git repository.
@@ -17,4 +30,13 @@ export def bun [
     source ./env.nu
 
     ^bun ...$args
+}
+
+# Execute docker command with the given arguments.
+export def docker [
+    args: list<string> = [] # Arguments to pass to the docker command.
+]: nothing -> any {
+    source ./env.nu
+
+    ^docker ...$args
 }
