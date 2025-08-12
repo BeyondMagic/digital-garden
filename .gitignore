@@ -1,2 +1,8 @@
 # VSCode settings.
 /.vscode/
+
+# Node modules.
+/source/node_modules/
+
+# Bun lock file.
+/source/bun.lock
