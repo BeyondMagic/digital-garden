@@ -10,6 +10,18 @@ export def cli [
     ]
 }
 
+# Run the server in debug mode.
+export def debug []: nothing -> any {
+    $env.DEBUG = true
+    cli
+}
+
+# Run the server in development mode.
+export def dev []: nothing -> any {
+    $env.DEV = true
+    debug
+}
+
 # Run the database in production mode.
 export def database []: nothing -> any {
     docker [
