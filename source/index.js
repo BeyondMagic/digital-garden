@@ -1,8 +1,9 @@
 import { serve } from "bun";
-import { assert, create_debug } from "@/logger";
+import { assert, create_debug, create_info } from "@/logger";
 import { is_dev } from "./setup";
 
 const debug = create_debug(import.meta.file);
+const info = create_info(import.meta.file);
 
 assert(process.env.DOMAIN, "DOMAIN environment variable is not set");
 
@@ -19,4 +20,4 @@ const server = serve({
     development: is_dev
 })
 
-debug(`Listening on ${server.url}`, { step: { current: 2, max: 2 } });
+info(`Listening on ${server.url}`, { step: { current: 2, max: 2 } });
