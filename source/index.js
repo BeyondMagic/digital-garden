@@ -1,5 +1,5 @@
 import { serve } from "bun";
-import { assert, create_debug } from "./logger";
+import { assert, create_debug } from "@/logger";
 
 const debug = create_debug(import.meta.file);
 
