@@ -1,5 +1,6 @@
 import { serve } from "bun";
 import { assert, create_debug } from "@/logger";
+import { is_dev } from "./setup";
 
 const debug = create_debug(import.meta.file);
 
@@ -15,7 +16,7 @@ const server = serve({
     hostname,
     port,
     fetch,
-    development: true
+    development: is_dev
 })
 
 debug(`Listening on ${server.url}`, { step: { current: 2, max: 2 } });
