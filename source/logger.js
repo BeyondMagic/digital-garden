@@ -1,34 +1,8 @@
-/**
- * Signature for debug function.
- * @typedef { (message: any, options?: { step: { max: number, current: number } }) => void } DebugFunction
- */
+import { is_debug, color } from "@/setup";
 
 /**
- * Signature for error function.
- * @typedef { (message: any) => Error } ErrorFunction
+ * @import { DebugFunction, ErrorFunction, LogFunction } from "@/types";
  */
-
-/**
- * Signature for assert function that narrows to a truthy value.
- * @typedef { (condition: unknown, msg?: string) => asserts condition } AssertFunction
- */
-
-/**
- * Signature for generic log functions like info/warn/critical.
- * @typedef { (message: any, options?: { step: { max: number, current: number } }) => void } LogFunction
- */
-
-/**
- * Color codes for different log levels.
- */
-const level_color = {
-	reset: "\x1b[0m", // reset
-	debug: Bun.color('#06b6d4', 'ansi-16m'), // cyan-500
-	info: Bun.color('#22c55e', 'ansi-16m'), // green-500
-	warn: Bun.color('#f59e0b', 'ansi-16m'), // amber-500
-	error: Bun.color('#ef4444', 'ansi-16m'), // red-500
-	critical: Bun.color('#dc2626', 'ansi-16m'), // red-600
-}
 
 /**
  * Debug log with a file context.
@@ -38,11 +12,10 @@ const level_color = {
  * @returns {void}
  */
 export function debug(file, message, options) {
-	const color = level_color.debug;
 	if (options?.step)
-		console.debug(`${color}[DEBUG] [${file}] ${message} ${options.step.current}/${options.step.max}${level_color.reset}`);
+		console.debug(`${color.debug}[DEBUG] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
-		console.debug(`${color}[DEBUG] [${file}] ${message}${level_color.reset}`);
+		console.debug(`${color.debug}[DEBUG] [${file}] ${message}${color.reset}`);
 }
 
 /**
@@ -53,11 +26,10 @@ export function debug(file, message, options) {
  * @returns {void}
  */
 export function info(file, message, options) {
-	const color = level_color.info;
 	if (options?.step)
-		console.info(`${color}[INFO] [${file}] ${message} ${options.step.current}/${options.step.max}${level_color.reset}`);
+		console.info(`${color.info}[INFO] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
-		console.info(`${color}[INFO] [${file}] ${message}${level_color.reset}`);
+		console.info(`${color.info}[INFO] [${file}] ${message}${color.reset}`);
 }
 
 /**
@@ -68,11 +40,10 @@ export function info(file, message, options) {
  * @returns {void}
  */
 export function warn(file, message, options) {
-	const color = level_color.warn;
 	if (options?.step)
-		console.warn(`${color}[WARN] [${file}] ${message} ${options.step.current}/${options.step.max}${level_color.reset}`);
+		console.warn(`${color.warn}[WARN] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
-		console.warn(`${color}[WARN] [${file}] ${message}${level_color.reset}`);
+		console.warn(`${color.warn}[WARN] [${file}] ${message}${color.reset}`);
 }
 
 /**
@@ -82,8 +53,7 @@ export function warn(file, message, options) {
  * @returns {Error}
  */
 export function error(file, message) {
-	const color = level_color.error;
-	return Error(`${color}[ERROR] [${file}] ${message}${level_color.reset}`);
+	return Error(`${color.error}[ERROR] [${file}] ${message}${color.reset}`);
 }
 
 /**
@@ -93,8 +63,7 @@ export function error(file, message) {
  * @returns {void}
  */
 export function critical(file, message) {
-	const color = level_color.critical;
-	console.error(`${color}[CRITICAL] [${file}] ${message}${level_color.reset}`);
+	console.error(`${color.critical}[CRITICAL] [${file}] ${message}${color.reset}`);
 }
 
 /**
@@ -125,6 +94,10 @@ export function assert(condition, message = 'Assertion Failed') {
  * @returns {DebugFunction}
  */
 export function create_debug(file) {
+
+	if (!is_debug)
+		return () => {};
+
 	/** @type {DebugFunction} */
 	function bound_debug(message, options) {
 		return debug(file, message, options);
