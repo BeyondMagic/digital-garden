@@ -11,7 +11,8 @@ import { is_debug, color } from "@/setup";
  * @param {{ step: { max: number, current: number } }} [options] Optional step info.
  * @returns {void}
  */
-export function debug(file, message, options) {
+export function debug(file, message, options)
+{
 	if (options?.step)
 		console.debug(`${color.debug}[DEBUG] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
@@ -25,7 +26,8 @@ export function debug(file, message, options) {
  * @param {{ step: { max: number, current: number } }} [options] Optional step info.
  * @returns {void}
  */
-export function info(file, message, options) {
+export function info(file, message, options)
+{
 	if (options?.step)
 		console.info(`${color.info}[INFO] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
@@ -39,7 +41,8 @@ export function info(file, message, options) {
  * @param {{ step: { max: number, current: number } }} [options] Optional step info.
  * @returns {void}
  */
-export function warn(file, message, options) {
+export function warn(file, message, options)
+{
 	if (options?.step)
 		console.warn(`${color.warn}[WARN] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
@@ -52,7 +55,8 @@ export function warn(file, message, options) {
  * @param {any} message The message to include in the error.
  * @returns {Error}
  */
-export function error(file, message) {
+export function error(file, message)
+{
 	return Error(`${color.error}[ERROR] [${file}] ${message}${color.reset}`);
 }
 
@@ -62,7 +66,8 @@ export function error(file, message) {
  * @param {any} message The message to log.
  * @returns {void}
  */
-export function critical(file, message) {
+export function critical(file, message)
+{
 	console.error(`${color.critical}[CRITICAL] [${file}] ${message}${color.reset}`);
 }
 
@@ -81,10 +86,10 @@ export function critical(file, message) {
  * @param {string=} [message='Assertion Failed'] The error message to throw on failure.
  * @returns {asserts condition is NonNullable<T>}
  */
-export function assert(condition, message = 'Assertion Failed') {
-	if (!condition) {
+export function assert(condition, message = 'Assertion Failed')
+{
+	if (!condition)
 		throw new Error(message);
-	}
 }
 
 /**
@@ -93,13 +98,14 @@ export function assert(condition, message = 'Assertion Failed') {
  * @param {string} file
  * @returns {DebugFunction}
  */
-export function create_debug(file) {
-
+export function create_debug(file)
+{
 	if (!is_debug)
 		return () => {};
 
 	/** @type {DebugFunction} */
-	function bound_debug(message, options) {
+	function bound_debug(message, options)
+	{
 		return debug(file, message, options);
 	}
 	return bound_debug;
@@ -111,9 +117,11 @@ export function create_debug(file) {
  * @param {string} file
  * @returns {ErrorFunction}
  */
-export function create_error(file) {
+export function create_error(file)
+{
 	/** @type {ErrorFunction} */
-	function bound_error(message) {
+	function bound_error(message)
+	{
 		return error(file, message);
 	}
 	return bound_error;
@@ -124,9 +132,11 @@ export function create_error(file) {
  * @param {string} file
  * @returns {LogFunction}
  */
-export function create_info(file) {
+export function create_info(file)
+{
 	/** @type {LogFunction} */
-	function bound_info(message, options) {
+	function bound_info(message, options)
+	{
 		return info(file, message, options);
 	}
 	return bound_info;
@@ -137,9 +147,11 @@ export function create_info(file) {
  * @param {string} file
  * @returns {LogFunction}
  */
-export function create_warn(file) {
+export function create_warn(file)
+{
 	/** @type {LogFunction} */
-	function bound_warn(message, options) {
+	function bound_warn(message, options)
+	{
 		return warn(file, message, options);
 	}
 	return bound_warn;
@@ -150,9 +162,11 @@ export function create_warn(file) {
  * @param {string} file
  * @returns {LogFunction}
  */
-export function create_critical(file) {
+export function create_critical(file)
+{
 	/** @type {LogFunction} */
-	function bound_critical(message) {
+	function bound_critical(message)
+	{
 		return critical(file, message);
 	}
 	return bound_critical;

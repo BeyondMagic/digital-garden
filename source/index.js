@@ -13,6 +13,7 @@ const [
 ] = process.env.DOMAIN.split(":");
 
 debug("Starting the server...", { step: { current: 1, max: 2 } });
+
 const server = serve({
     hostname,
     port,
