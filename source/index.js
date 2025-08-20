@@ -1,16 +1,9 @@
+import { hostname, port, is_dev } from "./setup";
 import { serve } from "bun";
-import { assert, create_debug, create_info } from "@/logger";
-import { is_dev } from "./setup";
+import { create_debug, create_info } from "@/logger";
 
 const debug = create_debug(import.meta.file);
 const info = create_info(import.meta.file);
-
-assert(process.env.DOMAIN, "DOMAIN environment variable is not set");
-
-const [
-    hostname,
-    port
-] = process.env.DOMAIN.split(":");
 
 debug("Starting the server...", { step: { current: 1, max: 2 } });
 

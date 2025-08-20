@@ -1,3 +1,5 @@
+import { assert } from "@/logger";
+
 export const is_dev = process.env.DEV === "true";
 export const is_debug = process.env.DEBUG === "true";
 
@@ -12,3 +14,10 @@ export const color = {
 	error: Bun.color('#ef4444', 'ansi-16m'), // red-500
 	critical: Bun.color('#dc2626', 'ansi-16m'), // red-600
 }
+
+assert(process.env.DOMAIN, "DOMAIN environment variable is not set");
+
+export const [
+	hostname,
+	port
+] = process.env.DOMAIN.split(":");
