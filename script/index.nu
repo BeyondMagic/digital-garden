@@ -12,6 +12,9 @@ export def cli [
 
     let newline = char newline
 
+    let path = git root
+        | path join $path
+
     bun [
         --hot
         $path
