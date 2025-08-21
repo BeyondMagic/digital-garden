@@ -3,3 +3,6 @@
 
 # Bun lock file.
 /source/bun.lock
+
+# Logs
+/logs/
