@@ -41,7 +41,7 @@ export def bun [
 ]: nothing -> any {
     source ./env.nu
 
-    ^bun ...$args
+    run-external bun ...$args
 }
 
 # Execute docker command with the given arguments.
@@ -50,5 +50,5 @@ export def docker [
 ]: nothing -> any {
     source ./env.nu
 
-    ^docker ...$args
+    run-external docker ...$args
 }
