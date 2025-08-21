@@ -2,12 +2,31 @@
 export def cli [
     args: list<string> = [] # Arguments to pass to the bun command.
     --path: string = "./source/index.js" # The path to the server entry file.
+    --logs-dir: string = "./logs"
 ]: nothing -> any {
+    let datetime = date now
+        | format date '%+'
+
+    let log_file = git root
+        | path join $"($logs_dir)/($datetime).log"
+
+    let newline = char newline
+
     bun [
         --hot
         $path
         ...$args
-    ]
+    ] o+e>| lines
+    | each {|line|
+        let raw = $line
+            | str replace --all --regex `\x1b\[[0-9;]*m` ''
+
+        print $line
+
+        $raw + $newline | save --append $log_file
+    }
+
+    null
 }
 
 # Run the server in debug mode.
