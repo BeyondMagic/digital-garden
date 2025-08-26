@@ -7,8 +7,13 @@ const info = create_info(import.meta.file);
 
 debug("Starting the server...", { step: { current: 1, max: 2 } });
 
-/** @param {Request} req @param {import('bun').Server} server */
-async function fetch(req, server) {
+/**
+ * 
+ * @param {Request} req
+ * @param {import('bun').Server} server
+ **/
+async function fetch(req, server)
+{
     const url = new URL(req.url);
 
     debug(`→ ${req.method} ${url.pathname}`);
