@@ -72,5 +72,7 @@ export def docker [
 ]: nothing -> any {
     source ./env.nu
 
+    cd docker
+
     run-external docker ...$args
 }
