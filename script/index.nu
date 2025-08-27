@@ -54,7 +54,7 @@ export def database []: nothing -> any {
 
 # Get the root directory of the git repository.
 def "git root" []: nothing -> string {
-    ^git rev-parse --show-toplevel
+    run-external ...[ git rev-parse --show-toplevel ]
 }
 
 # Execute bun command with the given arguments.
