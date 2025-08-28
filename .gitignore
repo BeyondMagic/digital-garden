@@ -4,5 +4,8 @@
 # Bun lock file.
 /source/bun.lock
 
+# Public files and folders.
+/public
+
 # Logs
 /logs/
