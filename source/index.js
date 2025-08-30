@@ -18,7 +18,7 @@ async function fetch(req, server)
 
     debug(`→ ${req.method} ${url.pathname}`);
 
-    if (url.pathname === "/health") {
+    if (url.pathname == "/health") {
         return new Response("ok", { headers: { "content-type": "text/plain" } });
     }
 
