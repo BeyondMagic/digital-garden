@@ -26,8 +26,9 @@ async function domain ()
 }
 
 /**
- * Assets are files such as images, scripts, videos.
+ * Assets are filesfiles such as images, scripts, videos.
  * For example, every language has an image that represents it.
+ * - id: The unique identifier for the asset.
  * - id_domain: The domain that the asset belongs to.
  * - name: The name of the asset (4096 is the maximum length of a name in Linux).
  * - extension: The extension of the URL (e.g. .png, .jpg, .js, etc.).
@@ -48,5 +49,6 @@ async function asset ()
 }
 
 export default {
+	domain,
 	asset,
 }

@@ -1,22 +1,29 @@
 import { sql } from "bun";
+import { assert } from "@/logger";
+
 import types from "@/database/query/create/types";
 
-import { create_debug, create_info } from "@/logger";
-const debug = create_debug(import.meta.file);
-const info = create_info(import.meta.file);
-
 /**
- * Test if the type was created correctly with the correct name and return true if it was.
- * @returns {Promise<boolean>} Returns true if the table was created successfully, false otherwise.
+ * Test if the "domain" type was created correctly with the correct name.
  **/
 async function domain ()
 {
-    
     await types.domain();
     const result = await sql`SELECT * FROM pg_type WHERE typname = 'type_domain'`;
-    return result.length > 0;
+    assert(result.length === 1);
+}
+
+/**
+ * Test if the "status" type was created correctly with the correct name.
+ */
+async function status ()
+{
+    await types.status();
+    const result = await sql`SELECT * FROM pg_type WHERE typname = 'type_status'`;
+    assert(result.length === 1);
 }
 
 export default {
     domain,
+    status
 }
