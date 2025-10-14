@@ -16,6 +16,9 @@ export-env {
 	# Primary connection URL for PostgreSQL
 	$env.POSTGRES_URL = 'postgres://postgres:123456@localhost:5432/postgres'
 
+	# Set the timezone (GMT-3)
+	$env.TZ = 'America/Sao_Paulo'
+
 
 	# SSL/TLS-enabled connection URL
 	#$env.TLS_POSTGRES_DATABASE_URL =
