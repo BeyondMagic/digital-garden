@@ -7,11 +7,11 @@ import { sql } from "bun";
  */
 async function exists(name, type = 'table') {
 	const queries = {
-		table: sql`SELECT * FROM pg_tables WHERE tablename = ${name}`,
-		view: sql`SELECT * FROM pg_views WHERE viewname = ${name}`,
-		status: sql`SELECT * FROM pg_stat_all_tables WHERE relname = ${name}`
+		table: () => sql`SELECT * FROM pg_tables WHERE tablename = ${name}`,
+		view: () => sql`SELECT * FROM pg_views WHERE viewname = ${name}`,
+		status: () => sql`SELECT * FROM pg_stat_all_tables WHERE relname = ${name}`
 	};
-	const result = await queries[type];
+	const result = await queries[type]();
 	return result.length > 0;
 }
 
