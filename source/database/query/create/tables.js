@@ -10,8 +10,7 @@ import { sql } from "bun";
  * - status: The status of the domain.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-async function domain ()
-{
+async function domain() {
 	await sql`
 		CREATE TABLE domain (
 			id SERIAL PRIMARY KEY,
@@ -35,8 +34,7 @@ async function domain ()
  * TO-DO: - times: How many times the asset has been used.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
-async function asset ()
-{
+async function asset() {
 	await sql`
 		CREATE TABLE asset (
 			id SERIAL PRIMARY KEY,
