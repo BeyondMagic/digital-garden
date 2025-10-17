@@ -30,21 +30,8 @@ export async function reset_database() {
 			  AND pid <> pg_backend_pid()
 		`;
 
-		// Drop every non-system schema (covers types/domains outside "public" too)
-		await sql`
-			DO $$
-			DECLARE s text;
-			BEGIN
-			  FOR s IN
-				SELECT nspname
-				FROM pg_namespace
-				WHERE nspname NOT IN ('pg_catalog','information_schema','pg_toast')
-			  LOOP
-				EXECUTE format('DROP SCHEMA IF EXISTS %I CASCADE', s);
-			  END LOOP;
-			END
-			$$ LANGUAGE plpgsql;
-		`.simple();
+		// Drop the public schema and all its content.
+		await sql`DROP SCHEMA IF EXISTS public CASCADE`;
 
 		await sql`CREATE SCHEMA IF NOT EXISTS public`;
 
