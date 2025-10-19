@@ -1,15 +1,20 @@
 import { sql } from "bun";
+import { exists } from '@/database/query/util';
+import { assert } from '@/logger';
 
 /**
  * Create the domain type.
  * - TYPE_DOMAIN: The type of domain.
  * @returns {Promise<void>} A promise that resolves when the types are created.
  **/
-async function domain ()
-{
+async function domain() {
 	await sql`
 		CREATE TYPE TYPE_DOMAIN AS ENUM ('ROUTER', 'SUBDOMAIN');
 	`;
+}
+
+domain.test = async function () {
+	assert(await exists('domain', 'type'), 'Type "domain" was not created successfully.');
 }
 
 /**
@@ -17,14 +22,17 @@ async function domain ()
  * - TYPE_STATUS: The status of the domain/content.
  * @returns {Promise<void>} A promise that resolves when the types are created.
  */
-async function status ()
-{
+async function status() {
 	await sql`
 		CREATE TYPE TYPE_STATUS AS ENUM ('PUBLIC', 'PRIVATE', 'ARCHIVED', 'DELETED');
 	`;
 }
 
-export default {
+status.test = async function () {
+	assert(await exists('status', 'type'), 'Type "status" was not created successfully.');
+}
+
+export const types = {
 	domain,
 	status,
 }

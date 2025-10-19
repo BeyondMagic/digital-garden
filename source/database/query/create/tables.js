@@ -1,4 +1,6 @@
 import { sql } from "bun";
+import { exists } from '@/database/query/util';
+import { assert } from '@/logger';
 
 /**
  * Create the domain table.
@@ -24,6 +26,10 @@ async function domain() {
 	`;
 }
 
+domain.test = async function () {
+	assert(await exists('domain', 'table'), 'Table "domain" was not created successfully.');
+}
+
 /**
  * Assets are filesfiles such as images, scripts, videos.
  * For example, every language has an image that represents it.
@@ -46,7 +52,11 @@ async function asset() {
 	`;
 }
 
-export default {
+asset.test = async function () {
+	assert(await exists('asset', 'table'), 'Table "asset" was not created successfully.');
+}
+
+export const tables = {
 	domain,
 	asset,
 }
