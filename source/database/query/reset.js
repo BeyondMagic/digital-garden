@@ -1,24 +1,24 @@
-/**
- * WARNING: This script must be run ONLY against a test database.
- * It will DROP and RECREATE the `public` schema, effectively deleting ALL user data,
- * tables, types, sequences, and other objects within that schema.
- * Ensure the database is a disposable test DB and is expected to be empty before/after.
- */
-
 import { sql } from "bun";
 import { create_warn, create_info, create_critical } from "@/logger";
+import { exists } from '@/database/query/util';
+import { assert } from '@/logger';
 
 const warn = create_warn(import.meta.file);
 const info = create_info(import.meta.file);
 const critical = create_critical(import.meta.file);
 
 /**
+ * * WARNING: This script must be run ONLY against a test database.
+ * It will DROP and RECREATE the `public` schema, effectively deleting ALL user data,
+ * tables, types, sequences, and other objects within that schema.
+ * Ensure the database is a disposable test DB and is expected to be empty before/after.
+ * 
  * Completely resets the PostgreSQL database by dropping and recreating the `public` schema.
  * Uses CASCADE, so anything under `public` will be removed. Requires sufficient privileges.
  *
  * @returns {Promise<void>}
  */
-export async function reset_database() {
+async function database() {
 	warn("About to DROP and RECREATE the 'public' schema (test DB only).", { step: { current: 1, max: 2 } });
 
 	try {
@@ -48,3 +48,11 @@ export async function reset_database() {
 		throw e;
 	}
 }
+
+database.test = async function () {
+	assert(await exists('public', 'schema'), 'Schema "public" was not recreated successfully after reset.');
+}
+
+export const reset = {
+	database
+};
