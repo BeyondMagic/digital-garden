@@ -362,6 +362,24 @@ author_garden.test = async () => {
 	assert(await exists('author_garden', 'table'), 'Table "author_garden" was not created successfully.');
 }
 
+/**
+ * The author domain table is used to store the domains that are controlled by an author.
+ **/
+async function author_domain() {
+	await sql`
+		CREATE TABLE author_domain (
+			id SERIAL PRIMARY KEY,
+			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+			UNIQUE(id_author, id_domain)
+		);
+	`;
+}
+
+author_domain.test = async () => {
+	assert(await exists('author_domain', 'table'), 'Table "author_domain" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -380,4 +398,5 @@ export const tables = {
 	author,
 	author_connection,
 	author_garden,
+	author_domain,
 }
