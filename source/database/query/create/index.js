@@ -18,6 +18,7 @@ async function schema() {
 	await tables.content();
 	await tables.content_link();
 	await tables.garden();
+	await tables.garden_information();
 }
 
 schema.test = async () => {
@@ -37,6 +38,7 @@ schema.test = async () => {
 	tables.content.test();
 	tables.content_link.test();
 	tables.garden.test();
+	tables.garden_information.test();
 };
 
 export const create = {

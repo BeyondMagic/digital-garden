@@ -277,6 +277,27 @@ garden.test = async () => {
 	assert(await exists('garden', 'table'), 'Table "garden" was not created successfully.');
 };
 
+/**
+ * The garden information table is used to store the information about a garden in a specific language.
+ * For example, the name of the garden in the language itself.
+ **/
+async function garden_information() {
+	await sql`
+		CREATE TABLE garden_information (
+			id SERIAL PRIMARY KEY,
+			id_garden INTEGER NOT NULL REFERENCES garden(id) ON DELETE CASCADE,
+			id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+			name VARCHAR(100) NOT NULL,
+			description TEXT NOT NULL,
+			UNIQUE(id_garden, id_language)
+		);
+	`;
+}
+
+garden_information.test = async () => {
+	assert(await exists('garden_information', 'table'), 'Table "garden_information" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -291,4 +312,5 @@ export const tables = {
 	content,
 	content_link,
 	garden,
+	garden_information,
 }
