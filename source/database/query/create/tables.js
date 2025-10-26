@@ -298,6 +298,31 @@ garden_information.test = async () => {
 	assert(await exists('garden_information', 'table'), 'Table "garden_information" was not created successfully.');
 };
 
+/**
+ * The author table is used to store the authors that are used in the system.
+ * For example, the author of a blog can be stored in this table.
+ * - pages: The number of domains created by the author.
+ * - contents: The number of contents created by the author.
+ * - id_asset: The profile picture of the author.
+ **/
+async function author() {
+	await sql`
+		CREATE TABLE author (
+			id SERIAL PRIMARY KEY,
+			email VARCHAR(100) UNIQUE NOT NULL,
+			name VARCHAR(100) NOT NULL,
+			password VARCHAR(256) NOT NULL,
+			pages INTEGER NOT NULL DEFAULT 0,
+			contents INTEGER NOT NULL DEFAULT 0,
+			id_asset INTEGER REFERENCES asset(id)
+		);
+	`;
+}
+
+author.test = async () => {
+	assert(await exists('author', 'table'), 'Table "author" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -313,4 +338,5 @@ export const tables = {
 	content_link,
 	garden,
 	garden_information,
+	author,
 }
