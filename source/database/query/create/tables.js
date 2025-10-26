@@ -211,6 +211,32 @@ domain_asset.test = async () => {
 	assert(await exists('domain_asset', 'table'), 'Table "domain_asset" was not created successfully.');
 };
 
+/**
+ * The content table is used to store the content of a domain.
+ * For example, the content of a blog can be stored in this table.
+ * The content can be filtered by domain and language.
+ **/
+async function content() {
+	await sql`
+		CREATE TABLE content (
+			id SERIAL PRIMARY KEY,
+			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+			id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+			date TIMESTAMP NOT NULL,
+			status TYPE_STATUS NOT NULL,
+			title VARCHAR(100) NOT NULL,
+			title_sub VARCHAR(100) NOT NULL,
+			synopsis VARCHAR(250) NOT NULL,
+			body TEXT NOT NULL,
+			UNIQUE(id_domain, id_language)
+		);
+	`;
+}
+
+content.test = async () => {
+	assert(await exists('content', 'table'), 'Table "content" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -222,4 +248,5 @@ export const tables = {
 	tag_information,
 	domain_tag,
 	domain_asset,
+	content,
 }
