@@ -417,6 +417,24 @@ module.test = async () => {
 	assert(await exists('module', 'table'), 'Table "module" was not created successfully.');
 };
 
+/**
+ * The module event table is used to keep track of the events that are associated with a module.
+ **/
+async function module_event() {
+	await sql`
+		CREATE TABLE module_event (
+			id SERIAL PRIMARY KEY,
+			id_module INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
+			event VARCHAR(100) NOT NULL,
+			UNIQUE(id_module, event)
+		);
+	`;
+}
+
+module_event.test = async () => {
+	assert(await exists('module_event', 'table'), 'Table "module_event" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -438,4 +456,5 @@ export const tables = {
 	author_domain,
 	author_content,
 	module,
+	module_event,
 }

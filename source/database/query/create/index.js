@@ -25,6 +25,7 @@ async function schema() {
 	await tables.author_domain();
 	await tables.author_content();
 	await tables.module();
+	await tables.module_event();
 }
 
 schema.test = async () => {
@@ -51,6 +52,7 @@ schema.test = async () => {
 	tables.author_domain.test();
 	tables.author_content.test();
 	tables.module.test();
+	tables.module_event.test();
 };
 
 export const create = {
