@@ -13,7 +13,7 @@ import { assert } from '@/logger';
  **/
 async function domain() {
 	await sql`
-		CREATE OR REPLACE TABLE domain (
+		CREATE TABLE IF NOT EXISTS domain (
 			id SERIAL PRIMARY KEY,
 			id_domain_parent INTEGER REFERENCES domain(id),
 			id_domain_redirect INTEGER REFERENCES domain(id),
@@ -39,7 +39,7 @@ domain.test = async () => {
  **/
 async function asset() {
 	await sql`
-		CREATE OR REPLACE TABLE asset (
+		CREATE TABLE asset (
 			id SERIAL PRIMARY KEY,
 			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
 			name VARCHAR(4096) NOT NULL,
@@ -59,7 +59,7 @@ asset.test = async () => {
  **/
 async function language() {
 	await sql`
-		CREATE OR REPLACE TABLE language (
+		CREATE TABLE language (
 			id VARCHAR(100) PRIMARY KEY,
 			id_asset INTEGER UNIQUE NOT NULL REFERENCES asset(id) ON DELETE CASCADE
 		);
@@ -76,7 +76,7 @@ language.test = async () => {
  **/
 async function language_information() {
 	await sql`
-		CREATE OR REPLACE TABLE language_information (
+		CREATE TABLE language_information (
 			id SERIAL PRIMARY KEY,
 			id_for VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
 			id_from VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
