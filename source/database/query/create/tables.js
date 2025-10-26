@@ -344,6 +344,24 @@ author_connection.test = async () => {
 	assert(await exists('author_connection', 'table'), 'Table "author_connection" was not created successfully.');
 };
 
+/**
+ * The author garden table is used to store the gardens that an author has control over.
+ **/
+async function author_garden() {
+	await sql`
+		CREATE TABLE author_garden (
+			id SERIAL PRIMARY KEY,
+			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+			id_garden INTEGER NOT NULL REFERENCES garden(id) ON DELETE CASCADE,
+			UNIQUE(id_author, id_garden)
+		);
+	`;
+}
+
+author_garden.test = async () => {
+	assert(await exists('author_garden', 'table'), 'Table "author_garden" was not created successfully.');
+}
+
 export const tables = {
 	domain,
 	asset,
@@ -361,4 +379,5 @@ export const tables = {
 	garden_information,
 	author,
 	author_connection,
+	author_garden,
 }
