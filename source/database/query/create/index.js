@@ -9,6 +9,7 @@ async function schema() {
 	await tables.asset();
 	await tables.language();
 	await tables.language_information();
+	await tables.asset_information();
 }
 
 schema.test = async () => {
@@ -19,6 +20,7 @@ schema.test = async () => {
 	tables.asset.test();
 	tables.language.test();
 	tables.language_information.test();
+	tables.asset_information.test();
 };
 
 export const create = {

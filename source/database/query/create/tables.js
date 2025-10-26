@@ -27,7 +27,7 @@ async function domain() {
 
 domain.test = async () => {
 	assert(await exists('domain', 'table'), 'Table "domain" was not created successfully.');
-}
+};
 
 /**
  * Assets are filesfiles such as images, scripts, videos.
@@ -51,7 +51,7 @@ async function asset() {
 
 asset.test = async () => {
 	assert(await exists('asset', 'table'), 'Table "asset" was not created successfully.');
-}
+};
 
 /**
  * The language table is used to store the languages that are supported by the system.
@@ -68,7 +68,7 @@ async function language() {
 
 language.test = async () => {
 	assert(await exists('language', 'table'), 'Table "language" was not created successfully.');
-}
+};
 
 /**
  * The information about a language in a specific language.
@@ -89,11 +89,33 @@ async function language_information() {
 
 language_information.test = async () => {
 	assert(await exists('language_information', 'table'), 'Table "language_information" was not created successfully.');
+};
+
+/**
+ * The information about an asset in a specific language.
+ * For example, the name of the asset in the language itself.
+ **/
+async function asset_information() {
+	await sql`
+		CREATE TABLE asset_information (
+			id SERIAL PRIMARY KEY,
+			id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
+			id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+			name VARCHAR(100) NOT NULL,
+			description TEXT NOT NULL,
+			UNIQUE(id_asset, id_language)
+		);
+	`;
 }
+
+asset_information.test = async () => {
+	assert(await exists('asset_information', 'table'), 'Table "asset_information" was not created successfully.');
+};
 
 export const tables = {
 	domain,
 	asset,
 	language,
-	language_information
+	language_information,
+	asset_information,
 }
