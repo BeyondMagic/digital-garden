@@ -11,6 +11,10 @@ async function schema() {
 	await tables.language_information();
 	await tables.asset_information();
 	await tables.tag();
+	await tables.tag_requirement();
+	await tables.tag_information();
+	await tables.domain_tag();
+	await tables.domain_asset();
 }
 
 schema.test = async () => {
@@ -23,6 +27,10 @@ schema.test = async () => {
 	tables.language_information.test();
 	tables.asset_information.test();
 	tables.tag.test();
+	tables.tag_requirement.test();
+	tables.tag_information.test();
+	tables.domain_tag.test();
+	tables.domain_asset.test();
 };
 
 export const create = {

@@ -192,6 +192,25 @@ domain_tag.test = async () => {
 	assert(await exists('domain_tag', 'table'), 'Table "domain_tag" was not created successfully.');
 };
 
+/**
+ * The domain_asset table is used to store the assets that are used in a domain.
+ * For example, the asset "logo.png" can be used to store the logo of the domain.
+ **/
+async function domain_asset() {
+	await sql`
+		CREATE TABLE domain_asset (
+			id SERIAL PRIMARY KEY,
+			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+			id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
+			UNIQUE(id_domain, id_asset)
+		);
+	`;
+}
+
+domain_asset.test = async () => {
+	assert(await exists('domain_asset', 'table'), 'Table "domain_asset" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -202,4 +221,5 @@ export const tables = {
 	tag_requirement,
 	tag_information,
 	domain_tag,
+	domain_asset,
 }
