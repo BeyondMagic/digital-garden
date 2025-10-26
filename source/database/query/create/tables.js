@@ -444,9 +444,9 @@ async function module_event_subscription() {
 		CREATE TABLE module_event_subscription (
 			id SERIAL PRIMARY KEY,
 			id_event INTEGER NOT NULL REFERENCES module_event(id) ON DELETE CASCADE,
-			id_module_listener INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
+			id_module INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			UNIQUE(id_event, id_module_listener)
+			UNIQUE(id_event, id_module)
 		);
 	`;
 }
