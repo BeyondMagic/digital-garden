@@ -256,6 +256,27 @@ content_link.test = async () => {
 	assert(await exists('content_link', 'table'), 'Table "content_link" was not created successfully.');
 };
 
+/**
+ * The garden table is used to store the gardens that are used in the system.
+ * - id_domain: The root domain of the platform.
+ * - id_asset: The logo of the platform.
+ **/
+async function garden() {
+	await sql`
+		CREATE TABLE garden (
+			id SERIAL PRIMARY KEY,
+			-- Root domain of the platform.
+			id_domain INTEGER NOT NULL UNIQUE REFERENCES domain(id) ON DELETE CASCADE,
+			-- Will serve as the logo of the platform.
+			id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE
+		);
+	`;
+}
+
+garden.test = async () => {
+	assert(await exists('garden', 'table'), 'Table "garden" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -269,4 +290,5 @@ export const tables = {
 	domain_asset,
 	content,
 	content_link,
+	garden,
 }

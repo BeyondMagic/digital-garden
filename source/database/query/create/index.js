@@ -17,6 +17,7 @@ async function schema() {
 	await tables.domain_asset();
 	await tables.content();
 	await tables.content_link();
+	await tables.garden();
 }
 
 schema.test = async () => {
@@ -35,6 +36,7 @@ schema.test = async () => {
 	tables.domain_asset.test();
 	tables.content.test();
 	tables.content_link.test();
+	tables.garden.test();
 };
 
 export const create = {
