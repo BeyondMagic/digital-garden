@@ -53,7 +53,25 @@ asset.test = async function () {
 	assert(await exists('asset', 'table'), 'Table "asset" was not created successfully.');
 }
 
+/**
+ * The language table is used to store the languages that are supported by the system.
+ * For example, Portuguese, Japanese, English, Spanish, French, etc.
+ **/
+async function language() {
+	await sql`
+		CREATE OR REPLACE TABLE language (
+			id VARCHAR(100) PRIMARY KEY,
+			id_asset INTEGER UNIQUE NOT NULL REFERENCES asset(id) ON DELETE CASCADE
+		);
+	`;
+}
+
+language.test = async function () {
+	assert(await exists('language', 'table'), 'Table "language" was not created successfully.');
+}
+
 export const tables = {
 	domain,
 	asset,
+	language,
 }
