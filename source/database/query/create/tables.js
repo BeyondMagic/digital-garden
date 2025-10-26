@@ -112,10 +112,29 @@ asset_information.test = async () => {
 	assert(await exists('asset_information', 'table'), 'Table "asset_information" was not created successfully.');
 };
 
+/**
+ * The tag table is used to store the tags that are used in the system.
+ * For example, the tag "programming" can be used to tag content related to programming.
+ * The table can be used to filter content by tag.
+ **/
+async function tag() {
+	await sql`
+		CREATE TABLE tag (
+			id SERIAL PRIMARY KEY,
+			id_asset INTEGER REFERENCES asset(id)
+		);
+	`;
+}
+
+tag.test = async () => {
+	assert(await exists('tag', 'table'), 'Table "tag" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
 	language,
 	language_information,
 	asset_information,
+	tag,
 }
