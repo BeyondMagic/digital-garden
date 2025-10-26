@@ -398,6 +398,25 @@ author_content.test = async () => {
 	assert(await exists('author_content', 'table'), 'Table "author_content" was not created successfully.');
 };
 
+/**
+ * The module table is used to keep track of the modules that are available in the system.
+ **/
+async function module() {
+	await sql`
+		CREATE TABLE module (
+			id SERIAL PRIMARY KEY,
+			repository VARCHAR(4096) UNIQUE NOT NULL,
+			installed BOOLEAN NOT NULL,
+			enabled BOOLEAN NOT NULL,
+			last_checked TIMESTAMP NOT NULL
+		);
+	`;
+}
+
+module.test = async () => {
+	assert(await exists('module', 'table'), 'Table "module" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -418,4 +437,5 @@ export const tables = {
 	author_garden,
 	author_domain,
 	author_content,
+	module,
 }
