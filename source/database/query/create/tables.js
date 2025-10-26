@@ -10,11 +10,10 @@ import { assert } from '@/logger';
  * - type: The type of the domain.
  * - name: The name of the domain.
  * - status: The status of the domain.
- * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
 async function domain() {
 	await sql`
-		CREATE TABLE domain (
+		CREATE OR REPLACE TABLE domain (
 			id SERIAL PRIMARY KEY,
 			id_domain_parent INTEGER REFERENCES domain(id),
 			id_domain_redirect INTEGER REFERENCES domain(id),
@@ -37,12 +36,10 @@ domain.test = async function () {
  * - id_domain: The domain that the asset belongs to.
  * - name: The name of the asset (4096 is the maximum length of a name in Linux).
  * - extension: The extension of the URL (e.g. .png, .jpg, .js, etc.).
- * TO-DO: - times: How many times the asset has been used.
- * @returns {Promise<void>} A promise that resolves when the table is created.
  **/
 async function asset() {
 	await sql`
-		CREATE TABLE asset (
+		CREATE OR REPLACE TABLE asset (
 			id SERIAL PRIMARY KEY,
 			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
 			name VARCHAR(4096) NOT NULL,
