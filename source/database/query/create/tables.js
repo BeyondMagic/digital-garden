@@ -237,6 +237,25 @@ content.test = async () => {
 	assert(await exists('content', 'table'), 'Table "content" was not created successfully.');
 };
 
+
+/**
+ * The content link table is used to store the links between different content entries.
+ **/
+async function content_link() {
+	await sql`
+		CREATE TABLE content_link (
+			id SERIAL PRIMARY KEY,
+			id_from INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
+			id_to INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
+			UNIQUE(id_from, id_to)
+		);
+	`;
+}
+
+content_link.test = async () => {
+	assert(await exists('content_link', 'table'), 'Table "content_link" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -249,4 +268,5 @@ export const tables = {
 	domain_tag,
 	domain_asset,
 	content,
+	content_link,
 }
