@@ -323,6 +323,27 @@ author.test = async () => {
 	assert(await exists('author', 'table'), 'Table "author" was not created successfully.');
 };
 
+/**
+ * The author connection table is used to store the connections of an author.
+ * For example, the author can connect to the system using a device and a token.
+ **/
+async function author_connection() {
+	await sql`
+		CREATE TABLE author_connection (
+			id SERIAL PRIMARY KEY,
+			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+			device VARCHAR(100) NOT NULL,
+			token VARCHAR(256) UNIQUE NOT NULL,
+			logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			last_connection TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+		);
+	`;
+}
+
+author_connection.test = async () => {
+	assert(await exists('author_connection', 'table'), 'Table "author_connection" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -339,4 +360,5 @@ export const tables = {
 	garden,
 	garden_information,
 	author,
+	author_connection,
 }
