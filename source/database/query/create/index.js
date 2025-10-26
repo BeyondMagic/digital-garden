@@ -23,6 +23,7 @@ async function schema() {
 	await tables.author_connection();
 	await tables.author_garden();
 	await tables.author_domain();
+	await tables.author_content();
 }
 
 schema.test = async () => {
@@ -47,6 +48,7 @@ schema.test = async () => {
 	tables.author_connection.test();
 	tables.author_garden.test();
 	tables.author_domain.test();
+	tables.author_content.test();
 };
 
 export const create = {

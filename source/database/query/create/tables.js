@@ -380,6 +380,24 @@ author_domain.test = async () => {
 	assert(await exists('author_domain', 'table'), 'Table "author_domain" was not created successfully.');
 };
 
+/**
+ * The author content table is used to keep track of the contents that are controlled by an author.
+ */
+async function author_content() {
+	await sql`
+		CREATE TABLE author_content (
+			id SERIAL PRIMARY KEY,
+			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+			id_content INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
+			UNIQUE(id_author, id_content)
+		);
+	`;
+}
+
+author_content.test = async () => {
+	assert(await exists('author_content', 'table'), 'Table "author_content" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -399,4 +417,5 @@ export const tables = {
 	author_connection,
 	author_garden,
 	author_domain,
+	author_content,
 }
