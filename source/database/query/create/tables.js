@@ -172,6 +172,26 @@ tag_information.test = async () => {
 	assert(await exists('tag_information', 'table'), 'Table "tag_information" was not created successfully.');
 };
 
+/**
+ * The domain_tag table is used to store the tags that are used in a domain.
+ * For example, the tag "programming" can be used to tag content related to programming.
+ * The tag can be used to filter domains by tag.
+ **/
+async function domain_tag() {
+	await sql`
+		CREATE TABLE domain_tag (
+			id SERIAL PRIMARY KEY,
+			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+			id_tag INTEGER NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+			UNIQUE(id_domain, id_tag)
+		);
+	`;
+}
+
+domain_tag.test = async () => {
+	assert(await exists('domain_tag', 'table'), 'Table "domain_tag" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -181,4 +201,5 @@ export const tables = {
 	tag,
 	tag_requirement,
 	tag_information,
+	domain_tag,
 }
