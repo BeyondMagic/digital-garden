@@ -13,7 +13,7 @@ async function domain() {
 	`;
 }
 
-domain.test = async function () {
+domain.test = async () => {
 	assert(await exists('domain', 'type'), 'Type "domain" was not created successfully.');
 }
 
@@ -28,7 +28,7 @@ async function status() {
 	`;
 }
 
-status.test = async function () {
+status.test = async () => {
 	assert(await exists('status', 'type'), 'Type "status" was not created successfully.');
 }
 

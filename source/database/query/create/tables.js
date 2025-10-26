@@ -25,7 +25,7 @@ async function domain() {
 	`;
 }
 
-domain.test = async function () {
+domain.test = async () => {
 	assert(await exists('domain', 'table'), 'Table "domain" was not created successfully.');
 }
 
@@ -49,7 +49,7 @@ async function asset() {
 	`;
 }
 
-asset.test = async function () {
+asset.test = async () => {
 	assert(await exists('asset', 'table'), 'Table "asset" was not created successfully.');
 }
 
@@ -66,7 +66,7 @@ async function language() {
 	`;
 }
 
-language.test = async function () {
+language.test = async () => {
 	assert(await exists('language', 'table'), 'Table "language" was not created successfully.');
 }
 
@@ -87,7 +87,7 @@ async function language_information() {
 	`;
 }
 
-language_information.test = async function () {
+language_information.test = async () => {
 	assert(await exists('language_information', 'table'), 'Table "language_information" was not created successfully.');
 }
 

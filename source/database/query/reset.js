@@ -49,7 +49,7 @@ async function database() {
 	}
 }
 
-database.test = async function () {
+database.test = async () => {
 	assert(await exists('public', 'schema'), 'Schema "public" was not recreated successfully after reset.');
 }
 

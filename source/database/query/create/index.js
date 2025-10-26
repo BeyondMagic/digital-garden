@@ -11,7 +11,7 @@ async function schema() {
 	await tables.language_information();
 }
 
-schema.test = async function () {
+schema.test = async () => {
 	types.domain.test();
 	types.status.test();
 
