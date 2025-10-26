@@ -8,6 +8,7 @@ async function schema() {
 	await tables.domain();
 	await tables.asset();
 	await tables.language();
+	await tables.language_information();
 }
 
 schema.test = async function () {
@@ -17,6 +18,7 @@ schema.test = async function () {
 	tables.domain.test();
 	tables.asset.test();
 	tables.language.test();
+	tables.language_information.test();
 };
 
 export const create = {

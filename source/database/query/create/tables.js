@@ -70,8 +70,30 @@ language.test = async function () {
 	assert(await exists('language', 'table'), 'Table "language" was not created successfully.');
 }
 
+/**
+ * The information about a language in a specific language.
+ * For example, the name of the language in the language itself.
+ **/
+async function language_information() {
+	await sql`
+		CREATE OR REPLACE TABLE language_information (
+			id SERIAL PRIMARY KEY,
+			id_for VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+			id_from VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+			name VARCHAR(100) NOT NULL,
+			description TEXT NOT NULL,
+			UNIQUE(id_for, id_from)
+		);
+	`;
+}
+
+language_information.test = async function () {
+	assert(await exists('language_information', 'table'), 'Table "language_information" was not created successfully.');
+}
+
 export const tables = {
 	domain,
 	asset,
 	language,
+	language_information
 }
