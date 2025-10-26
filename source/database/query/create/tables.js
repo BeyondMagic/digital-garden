@@ -130,6 +130,27 @@ tag.test = async () => {
 	assert(await exists('tag', 'table'), 'Table "tag" was not created successfully.');
 };
 
+/**
+ * The tag requirement table is used to store the requirements of a tag.
+ * Basically a tag that is required for another tag.
+ * For example, a tag "programming" is required for the tag "java".
+ * This means that if a tag "java" is added, a tag "programming" must be added too.
+ **/
+async function tag_requirement() {
+	await sql`
+		CREATE TABLE tag_requirement (
+			id SERIAL PRIMARY KEY,
+			id_tag INTEGER NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+			id_tag_for INTEGER NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+			UNIQUE(id_tag, id_tag_for)
+		);
+	`;
+}
+
+tag_requirement.test = async () => {
+	assert(await exists('tag_requirement', 'table'), 'Table "tag_requirement" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -137,4 +158,5 @@ export const tables = {
 	language_information,
 	asset_information,
 	tag,
+	tag_requirement,
 }
