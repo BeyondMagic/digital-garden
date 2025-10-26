@@ -151,6 +151,27 @@ tag_requirement.test = async () => {
 	assert(await exists('tag_requirement', 'table'), 'Table "tag_requirement" was not created successfully.');
 };
 
+/**
+ * The information about a tag in a specific language.
+ * For example, the name of the tag in the language itself.
+ **/
+async function tag_information() {
+	await sql`
+		CREATE TABLE tag_information (
+			id SERIAL PRIMARY KEY,
+			id_tag INTEGER NOT NULL REFERENCES tag(id) ON DELETE CASCADE,
+			id_language VARCHAR NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+			name VARCHAR(100) NOT NULL,
+			description TEXT NOT NULL,
+			UNIQUE(id_tag, id_language)
+		);
+	`;
+}
+
+tag_information.test = async () => {
+	assert(await exists('tag_information', 'table'), 'Table "tag_information" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -159,4 +180,5 @@ export const tables = {
 	asset_information,
 	tag,
 	tag_requirement,
+	tag_information,
 }
