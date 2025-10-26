@@ -26,6 +26,8 @@ async function schema() {
 	await tables.author_content();
 	await tables.module();
 	await tables.module_event();
+	await tables.module_event_subscription();
+	await tables.module_event_subscription_domain();
 }
 
 schema.test = async () => {
@@ -53,6 +55,8 @@ schema.test = async () => {
 	tables.author_content.test();
 	tables.module.test();
 	tables.module_event.test();
+	tables.module_event_subscription.test();
+	tables.module_event_subscription_domain.test();
 };
 
 export const create = {

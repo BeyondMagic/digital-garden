@@ -435,6 +435,44 @@ module_event.test = async () => {
 	assert(await exists('module_event', 'table'), 'Table "module_event" was not created successfully.');
 };
 
+/**
+ * Subscriptions that connect a listener module to a specific module event.
+ * Each (event, listener) pair is unique to avoid duplicate deliveries.
+ */
+async function module_event_subscription() {
+	await sql`
+		CREATE TABLE module_event_subscription (
+			id SERIAL PRIMARY KEY,
+			id_event INTEGER NOT NULL REFERENCES module_event(id) ON DELETE CASCADE,
+			id_module_listener INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			UNIQUE(id_event, id_module_listener)
+		);
+	`;
+}
+
+module_event_subscription.test = async () => {
+	assert(await exists('module_event_subscription', 'table'), 'Table "module_event_subscription" was not created successfully.');
+};
+
+/**
+ * Optional domain scoping for subscriptions. When rows exist, the listener only
+ * receives events for the listed domains; absence of rows means all domains.
+ */
+async function module_event_subscription_domain() {
+	await sql`
+		CREATE TABLE module_event_subscription_domain (
+			id_subscription INTEGER NOT NULL REFERENCES module_event_subscription(id) ON DELETE CASCADE,
+			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+			PRIMARY KEY (id_subscription, id_domain)
+		);
+	`;
+}
+
+module_event_subscription_domain.test = async () => {
+	assert(await exists('module_event_subscription_domain', 'table'), 'Table "module_event_subscription_domain" was not created successfully.');
+};
+
 export const tables = {
 	domain,
 	asset,
@@ -457,4 +495,6 @@ export const tables = {
 	author_content,
 	module,
 	module_event,
+	module_event_subscription,
+	module_event_subscription_domain,
 }
