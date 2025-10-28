@@ -14,7 +14,7 @@ async function domain() {
 }
 
 domain.test = async () => {
-	assert(await exists('domain', 'type'), 'Type "domain" was not created successfully.');
+	assert(await exists('type_domain', 'type'), 'Type "domain" was not created successfully.');
 }
 
 /**
@@ -29,7 +29,7 @@ async function status() {
 }
 
 status.test = async () => {
-	assert(await exists('status', 'type'), 'Type "status" was not created successfully.');
+	assert(await exists('type_status', 'type'), 'Type "status" was not created successfully.');
 }
 
 export const types = {
