@@ -1,5 +1,5 @@
-import { create } from "@/database/query/create";
+import { query } from "@/database/query";
 
 export const database = {
-	create,
+	query,
 }
