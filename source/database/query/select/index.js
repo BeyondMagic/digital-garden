@@ -6,6 +6,7 @@ import { sql } from "bun";
  * @property {string} event
  * @property {number} module_id
  * @property {string} repository
+ * @property {string} slug
  * @property {number[]|null} domains
  */
 
@@ -20,6 +21,7 @@ async function subscriptions() {
 			me.event,
 			listener.id AS module_id,
 			listener.repository,
+			listener.slug,
 			(
 				SELECT array_agg(mesd.id_domain)
 				FROM module_event_subscription_domain AS mesd
@@ -32,8 +34,7 @@ async function subscriptions() {
 		JOIN
 			module AS listener ON listener.id = mes.id_module
 		WHERE
-			listener.installed = true
-			AND listener.enabled = true
+			listener.enabled = true
 	`;
 
 	return rows;
