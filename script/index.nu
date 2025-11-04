@@ -1,6 +1,8 @@
+#!/usr/bin/env -S nu --stdin
+
 # Run cli of developer mode of the server.
 export def cli [
-    args: list<string> = [] # Arguments to pass to the bun command.
+    ...args: string # Arguments to pass to the bun command.
     --path: string = "./source/index.js" # The path to the server entry file.
     --logs-dir: string = "./logs"
 ]: nothing -> any {
@@ -59,7 +61,7 @@ def "git root" []: nothing -> string {
 
 # Execute bun command with the given arguments.
 export def bun [
-    args: list<string> = [] # Arguments to pass to the bun command.
+    ...args: string # Arguments to pass to the bun command.
 ]: nothing -> any {
     source ./env.nu
 
@@ -68,11 +70,47 @@ export def bun [
 
 # Execute docker command with the given arguments.
 export def docker [
-    args: list<string> = [] # Arguments to pass to the docker command.
+    ...args: string # Arguments to pass to the docker command.
 ]: nothing -> any {
     source ./env.nu
 
     cd docker
 
     run-external docker ...$args
+}
+
+# Main entry point.
+export def main [
+    subcommand: string = "cli" # The subcommand to run.
+    ...args: string # Arguments to pass
+]: nothing -> any {
+    match $subcommand {
+        "bun" => {
+            bun ...$args
+        }
+        "docker" => {
+            docker ...$args
+        }
+        "cli" => {
+            cli ...$args
+        }
+        "debug" => {
+            debug
+        }
+        "dev" => {
+            dev
+        }
+        "database" => {
+            database
+        }
+        _ => {
+            error make {
+                msg: $"Unknown subcommand."
+                label: {
+                    text: $"The subcommand '($subcommand)' is not recognized."
+                    span: (metadata $subcommand).span
+                }
+            }
+        }
+    }
 }
