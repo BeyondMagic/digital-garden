@@ -19,5 +19,9 @@
 	},
 	// Set the newly created custom profile as the default for this workspace.
 	// When a new terminal is opened, it will automatically use this configuration.
-	"terminal.integrated.defaultProfile.linux": "nu"
+	"terminal.integrated.defaultProfile.linux": "nu",
+
+    "code-runner.executorMap": {
+        "javascript": "./script/index.nu bun",
+    }
 }
