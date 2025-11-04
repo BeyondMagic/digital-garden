@@ -400,13 +400,17 @@ author_content.test = async () => {
 
 /**
  * The module table is used to keep track of the modules that are available in the system.
+ * - repository: The repository URL/filepath of the module.
+ * - slug: The slug identifier for the module.
+ * - enabled: Whether the module is enabled.
+ * - last_checked: The last time the module was checked for updates.
  **/
 async function module() {
 	await sql`
 		CREATE TABLE module (
 			id SERIAL PRIMARY KEY,
 			repository VARCHAR(4096) UNIQUE NOT NULL,
-			installed BOOLEAN NOT NULL,
+			slug VARCHAR(8) UNIQUE NOT NULL,
 			enabled BOOLEAN NOT NULL,
 			last_checked TIMESTAMP NOT NULL
 		);
