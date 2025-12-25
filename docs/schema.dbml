@@ -1,0 +1,247 @@
+// SPDX-FileCopyrightText: 2025 João V. Farias (beyondmagic) <beyondmagic@mail.ru>
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// Types
+
+Enum "TYPE_DOMAIN" {
+    "ROUTER"
+    "SUBDOMAIN"
+}
+
+Enum "TYPE_STATUS" {
+    "PUBLIC"
+    "PRIVATE"
+    "ARCHIVED"
+    "DELETED"
+}
+
+// Area: Auditory
+
+Table "Request" {
+  "id" serial [pk, not null, increment]
+  "id_content" bigint [not null, ref: < "Content"."id"]
+  "ip" varchar(500) [not null]
+  "device" varchar(500) [not null]
+  "time" timestamp [not null]
+}
+
+// Area: Garden
+
+Table "Garden_Information" {
+  "id" bigint [pk, not null]
+  "id_garden" bigint [not null, ref: < "Garden"."id"]
+  "id_language" varchar(500) [not null, ref: < "Language"."id"]
+  "name" varchar(500) [not null]
+  "description" text [not null]
+
+  Indexes {
+    (id_garden, id_language) [unique]
+  }
+}
+
+Table "Garden" {
+  "id" bigint [pk, not null]
+  "id_domain" bigint [unique, not null, note: 'The root subdomain of the Garden.', ref: < "Domain"."id"]
+  "id_asset" bigint [unique, not null, ref: < "Asset"."id"]
+}
+
+// Area: Language
+
+Table "Language_Information" {
+  "id" bigint [pk, not null]
+  "id_for" varchar(500) [not null, ref: < "Language"."id"]
+  "id_from" varchar(500) [not null, ref: < "Language"."id"]
+  "name" varchar(500) [not null]
+  "description" text [not null]
+
+  Indexes {
+    (id_for, id_from) [unique]
+  }
+}
+
+Table "Language" {
+  "id" varchar(500) [pk, not null]
+  "id_asset" bigint [unique, not null, ref: < "Asset"."id"]
+}
+
+// Area: Tag
+
+Table "Tag" {
+  "id" bigint [pk, not null]
+  "id_asset" bigint [ref: < "Asset"."id"]
+}
+
+Table "Tag_Requirement" {
+  "id" bigint [pk, not null]
+  "id_tag" bigint [not null, ref: < "Tag"."id"]
+  "id_tag_for" bigint [not null, ref: < "Tag"."id"]
+
+  Indexes {
+    (id_tag, id_tag_for) [unique]
+  }
+}
+
+Table "Domain_Tag" {
+  "id" bigint [pk, not null]
+  "id_domain" bigint [not null, ref: < "Domain"."id"]
+  "id_tag" bigint [not null, ref: < "Tag"."id"]
+}
+
+Table "Tag_Information" {
+  "id" bigint [pk, not null]
+  "id_tag" bigint [not null, ref: < "Tag"."id"]
+  "id_language" varchar(500) [not null, ref: < "Language"."id"]
+  "name" varchar(500) [not null]
+  "description" text [not null]
+
+  Indexes {
+    (id_tag, id_language) [unique]
+  }
+}
+
+// Area: Module
+
+Table "Module" {
+  "id" bigint [pk, not null]
+  "repository" varchar(500) [unique, not null, note: 'Either a path or a link to a git repository.']
+  "slug" varchar(8) [unique, not null]
+  "enabled" boolean [not null]
+  "last_checked" timestamp [not null]
+}
+
+Table "Module_Event" {
+  "id" bigint [pk, not null]
+  "id_module" bigint [not null, ref: < "Module"."id"]
+  "event" varchar(500) [not null]
+
+  Indexes {
+    (id_module, event) [unique]
+  }
+}
+
+Table "Module_Event_Subscription_Domain" {
+  "id_subscription" bigint [not null, ref: < "Module_Event_Subscription"."id"]
+  "id_domain" bigint [not null, ref: < "Domain"."id"]
+  Indexes {
+    (id_subscription, id_domain) [pk]
+  }
+}
+
+Table "Module_Event_Subscription" {
+  "id" bigint [pk, not null]
+  "id_module" bigint [not null, ref: < "Module"."id"]
+  "id_event" bigint [not null, ref: < "Module_Event"."id"]
+  "created_at" timestamp [not null]
+
+  Indexes {
+    (id_module, id_event) [unique]
+  }
+}
+
+// Area: Domain
+
+Table "Domain" {
+  "id" bigint [pk, not null]
+  "id_domain_parent" bigint [ref: < "Domain"."id"]
+  "id_domain_redirect" bigint [ref: < "Domain"."id"]
+  "type" TYPE_DOMAIN [not null]
+  "name" varchar(500) [not null]
+  "status" TYPE_STATUS [not null]
+}
+
+Table "Content" {
+  "id" bigint [pk, not null]
+  "id_domain" bigint [not null, ref: < "Domain"."id"]
+  "id_language" varchar(500) [not null, ref: < "Language"."id"]
+  "status" TYPE_STATUS [not null]
+  "title" varchar(500)
+  "title_sub" varchar(500)
+  "synopsis" varchar(500)
+  "body" text
+  "requests" bigint [not null]
+
+  Indexes {
+    (id_domain, id_language) [unique]
+  }
+}
+
+Table "Content_Link" {
+  "id" bigint [pk, not null]
+  "id_from" bigint [not null, ref: < "Content"."id"]
+  "id_to" bigint [not null, ref: < "Content"."id"]
+
+  Indexes {
+    (id_from, id_to) [unique]
+  }
+}
+
+// Area: Asset
+
+Table "Asset" {
+  "id" bigint [pk, not null]
+  "id_domain" bigint [unique, not null, ref: < "Domain"."id"]
+  "name" varchar(500) [unique, not null]
+  "extension" varchar(500)
+}
+
+Table "Asset_Information" {
+  "id" bigint [pk, not null]
+  "id_asset" bigint [not null, ref: < "Asset"."id"]
+  "id_language" varchar(500) [not null, ref: < "Language"."id"]
+  "name" varchar(500) [not null]
+  "description" text [not null]
+
+  Indexes {
+    (id_asset, id_language) [unique]
+  }
+}
+
+// Area: Authors
+
+Table "Author" {
+  "id" bigint [pk, not null]
+  "id_asset" bigint [not null, ref: < "Asset"."id"]
+  "email" varchar(500) [unique, not null]
+  "name" varchar(500) [not null]
+  "password" varchar(500) [not null, note: 'Hashed password (e.g., bcrypt/argon2); never store plaintext here']
+  "pages" bigint [not null]
+  "contents" bigint [not null]
+}
+
+Table "Author_Connections" {
+  "id" bigint [pk, not null]
+  "id_author" bigint [not null, ref: < "Author"."id"]
+  "device" varchar(500) [not null]
+  "token" varchar(500) [unique, not null]
+  "logged_at" timestamp [not null]
+  "last_connection" timestamp [not null]
+}
+
+Table "Authored_Domain" {
+  "id" bigint [pk, not null]
+  "id_author" bigint [not null, ref: < "Author"."id"]
+  "id_domain" bigint [not null, ref: < "Domain"."id"]
+
+  Indexes {
+    (id_author, id_domain) [unique]
+  }
+}
+
+Table "Authored_Content" {
+  "id" bigint [pk, not null]
+  "id_author" bigint [not null, ref: < "Author"."id"]
+  "id_content" bigint [not null, ref: < "Content"."id"]
+
+  Indexes {
+    (id_author, id_content) [unique]
+  }
+}
+
+Table "Authored_Garden" {
+  "id" bigint [pk, not null]
+  "id_author" bigint [not null, ref: < "Author"."id"]
+  "id_garden" bigint [not null, ref: < "Garden"."id"]
+  Indexes {
+     (id_author, id_garden) [unique]
+  }
+}

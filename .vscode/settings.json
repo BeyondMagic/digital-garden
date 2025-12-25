@@ -9,10 +9,7 @@
 			// VS Code will find 'nu' if it is in the system's PATH environment variable.
 			"path": "nu",
 			// Pass arguments to the Nushell executable.
-			"args": [
-				"--execute",
-				"use script/index.nu"
-			],
+			"args": ["--execute", "use script/index.nu"],
 			// Optional: Set a custom icon for the terminal tab for easy identification.
 			"icon": "terminal"
 		}
@@ -21,7 +18,8 @@
 	// When a new terminal is opened, it will automatically use this configuration.
 	"terminal.integrated.defaultProfile.linux": "nu",
 
-    "code-runner.executorMap": {
-        "javascript": "./script/index.nu bun",
-    }
+	"code-runner.executorMap": {
+		"javascript": "./script/index.nu bun"
+	},
+	"dbmlERDPreviewer.preferredTheme": "dark"
 }

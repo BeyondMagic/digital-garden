@@ -1,0 +1,1 @@
+Primary documentation is in the repository `README.md`. See that file for full usage and the project principles.

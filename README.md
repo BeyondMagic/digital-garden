@@ -66,6 +66,10 @@ $ ./script/index.nu dev
 
 See `CONTRIBUTING.md` for contribution guidelines (if present). Feel free to open issues or PRs on this repository.
 
+## Database schema
+
+The database schema is available as a DBML reference in `/docs/schema.dbml`.
+
 # License
 
 See the `LICENSE` file for licensing details.
