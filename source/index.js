@@ -1,4 +1,10 @@
-import { hostname, port, is_dev } from "./setup";
+/*
+ * SPDX-FileCopyrightText: 2025 João V. Farias (beyondmagic) <beyondmagic@mail.ru>
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+import { hostname, is_dev, port } from "./setup";
 import { serve } from "bun";
 import { create_debug, create_info } from "@/logger";
 
