@@ -70,6 +70,21 @@ See [`CONTRIBUTING.md`](/docs/CONTRIBUTING.md) for contribution guidelines (if p
 
 The database schema is available as a [DBML reference](/docs/schema.dbml).
 
+# Citation
+
+If you use `digital-garden` for your research, please cite it using the following BibTeX entry:
+
+```bibtex
+@misc{digital-garden,
+  author = {João V. Farias},
+  title = {digital-garden: A Bun-driven modular digital garden runtime},
+  year = {2025},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/BeyondMagic/digital-garden}}
+}
+```
+
 # License
 
 See the [LICENSE](/LICENSES/LICENSE) file for licensing details.
