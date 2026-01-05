@@ -103,16 +103,19 @@ Table "Tag_Information" {
 
 Table "Module" {
   "id" bigint [pk, not null]
-  "repository" varchar(500) [unique, not null, note: 'Either a path or a link to a git repository.']
+  // If a path, then link `ln` to local filesystem; if a link, then git clone.
+  "repository" varchar(512) [unique, not null, note: 'Either a path or a link to a git repository.']
   "slug" varchar(8) [unique, not null]
   "enabled" boolean [not null]
   "last_checked" timestamp [not null]
+  "commit" varchar(40) // MAximum length for SHA-1
+  "branch" varchar(256)
 }
 
 Table "Module_Event" {
   "id" bigint [pk, not null]
   "id_module" bigint [not null, ref: < "Module"."id"]
-  "event" varchar(500) [not null]
+  "event" varchar(512) [not null]
 
   Indexes {
     (id_module, event) [unique]
