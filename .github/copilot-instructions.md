@@ -7,3 +7,7 @@ When performing a code review, follow these principles:
 4. Observability: must provide clear logging and debugging tools to monitor module behavior and system health.
 5. Testability: should be easy to test features in isolation and as part of the whole system.
 6. Knowability: must be well-documented, with clear, concise and precise instructions of features, configuration and usage.
+
+Note:
+- The current shell is `Nushell`, so ensure that any shell commands or scripts are compatible with Nushell syntax and conventions, for example, no use of `&&` and `||` for command chaining.
+- For Javascript files, ensure you use snake_case for variable and function names, and write JSDoc comments for all functions and classes.
