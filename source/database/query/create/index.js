@@ -5,7 +5,7 @@
  */
 
 import { tables } from "@/database/query/create/tables";
-import { types } from '@/database/query/create/types';
+import { types } from "@/database/query/create/types";
 
 async function schema() {
 	await types.domain();
@@ -66,5 +66,5 @@ schema.test = async () => {
 };
 
 export const create = {
-	schema
+	schema,
 };

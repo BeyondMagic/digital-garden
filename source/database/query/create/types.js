@@ -5,8 +5,8 @@
  */
 
 import { sql } from "bun";
-import { exists } from '@/database/query/util';
-import { assert } from '@/logger';
+import { exists } from "@/database/query/util";
+import { assert } from "@/logger";
 
 /**
  * Create the domain type.
@@ -20,8 +20,11 @@ async function domain() {
 }
 
 domain.test = async () => {
-	assert(await exists('type_domain', 'type'), 'Type "domain" was not created successfully.');
-}
+	assert(
+		await exists("type_domain", "type"),
+		'Type "domain" was not created successfully.',
+	);
+};
 
 /**
  * Create the status type.
@@ -35,10 +38,13 @@ async function status() {
 }
 
 status.test = async () => {
-	assert(await exists('type_status', 'type'), 'Type "status" was not created successfully.');
-}
+	assert(
+		await exists("type_status", "type"),
+		'Type "status" was not created successfully.',
+	);
+};
 
 export const types = {
 	domain,
 	status,
-}
+};
