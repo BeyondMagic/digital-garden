@@ -5,8 +5,6 @@
  */
 
 import { sql } from "bun";
-import { exists } from "@/database/query/util";
-import { assert } from "@/logger";
 
 /**
  * Create the domain table.
@@ -31,13 +29,6 @@ async function domain() {
 	`;
 }
 
-domain.test = async () => {
-	assert(
-		await exists("domain", "table"),
-		'Table "domain" was not created successfully.',
-	);
-};
-
 /**
  * Assets are filesfiles such as images, scripts, videos.
  * For example, every language has an image that represents it.
@@ -58,13 +49,6 @@ async function asset() {
 	`;
 }
 
-asset.test = async () => {
-	assert(
-		await exists("asset", "table"),
-		'Table "asset" was not created successfully.',
-	);
-};
-
 /**
  * The language table is used to store the languages that are supported by the system.
  * For example, Portuguese, Japanese, English, Spanish, French, etc.
@@ -77,13 +61,6 @@ async function language() {
 		);
 	`;
 }
-
-language.test = async () => {
-	assert(
-		await exists("language", "table"),
-		'Table "language" was not created successfully.',
-	);
-};
 
 /**
  * The information about a language in a specific language.
@@ -102,13 +79,6 @@ async function language_information() {
 	`;
 }
 
-language_information.test = async () => {
-	assert(
-		await exists("language_information", "table"),
-		'Table "language_information" was not created successfully.',
-	);
-};
-
 /**
  * The information about an asset in a specific language.
  * For example, the name of the asset in the language itself.
@@ -126,13 +96,6 @@ async function asset_information() {
 	`;
 }
 
-asset_information.test = async () => {
-	assert(
-		await exists("asset_information", "table"),
-		'Table "asset_information" was not created successfully.',
-	);
-};
-
 /**
  * The tag table is used to store the tags that are used in the system.
  * For example, the tag "programming" can be used to tag content related to programming.
@@ -146,13 +109,6 @@ async function tag() {
 		);
 	`;
 }
-
-tag.test = async () => {
-	assert(
-		await exists("tag", "table"),
-		'Table "tag" was not created successfully.',
-	);
-};
 
 /**
  * The tag requirement table is used to store the requirements of a tag.
@@ -171,13 +127,6 @@ async function tag_requirement() {
 	`;
 }
 
-tag_requirement.test = async () => {
-	assert(
-		await exists("tag_requirement", "table"),
-		'Table "tag_requirement" was not created successfully.',
-	);
-};
-
 /**
  * The information about a tag in a specific language.
  * For example, the name of the tag in the language itself.
@@ -195,13 +144,6 @@ async function tag_information() {
 	`;
 }
 
-tag_information.test = async () => {
-	assert(
-		await exists("tag_information", "table"),
-		'Table "tag_information" was not created successfully.',
-	);
-};
-
 /**
  * The domain_tag table is used to store the tags that are used in a domain.
  * For example, the tag "programming" can be used to tag content related to programming.
@@ -218,13 +160,6 @@ async function domain_tag() {
 	`;
 }
 
-domain_tag.test = async () => {
-	assert(
-		await exists("domain_tag", "table"),
-		'Table "domain_tag" was not created successfully.',
-	);
-};
-
 /**
  * The domain_asset table is used to store the assets that are used in a domain.
  * For example, the asset "logo.png" can be used to store the logo of the domain.
@@ -239,13 +174,6 @@ async function domain_asset() {
 		);
 	`;
 }
-
-domain_asset.test = async () => {
-	assert(
-		await exists("domain_asset", "table"),
-		'Table "domain_asset" was not created successfully.',
-	);
-};
 
 /**
  * The content table is used to store the content of a domain.
@@ -269,13 +197,6 @@ async function content() {
 	`;
 }
 
-content.test = async () => {
-	assert(
-		await exists("content", "table"),
-		'Table "content" was not created successfully.',
-	);
-};
-
 /**
  * The content link table is used to store the links between different content entries.
  **/
@@ -289,13 +210,6 @@ async function content_link() {
 		);
 	`;
 }
-
-content_link.test = async () => {
-	assert(
-		await exists("content_link", "table"),
-		'Table "content_link" was not created successfully.',
-	);
-};
 
 /**
  * The garden table is used to store the gardens that are used in the system.
@@ -314,13 +228,6 @@ async function garden() {
 	`;
 }
 
-garden.test = async () => {
-	assert(
-		await exists("garden", "table"),
-		'Table "garden" was not created successfully.',
-	);
-};
-
 /**
  * The garden information table is used to store the information about a garden in a specific language.
  * For example, the name of the garden in the language itself.
@@ -337,13 +244,6 @@ async function garden_information() {
 		);
 	`;
 }
-
-garden_information.test = async () => {
-	assert(
-		await exists("garden_information", "table"),
-		'Table "garden_information" was not created successfully.',
-	);
-};
 
 /**
  * The author table is used to store the authors that are used in the system.
@@ -366,13 +266,6 @@ async function author() {
 	`;
 }
 
-author.test = async () => {
-	assert(
-		await exists("author", "table"),
-		'Table "author" was not created successfully.',
-	);
-};
-
 /**
  * The author connection table is used to store the connections of an author.
  * For example, the author can connect to the system using a device and a token.
@@ -390,13 +283,6 @@ async function author_connection() {
 	`;
 }
 
-author_connection.test = async () => {
-	assert(
-		await exists("author_connection", "table"),
-		'Table "author_connection" was not created successfully.',
-	);
-};
-
 /**
  * The author garden table is used to store the gardens that an author has control over.
  **/
@@ -410,13 +296,6 @@ async function author_garden() {
 		);
 	`;
 }
-
-author_garden.test = async () => {
-	assert(
-		await exists("author_garden", "table"),
-		'Table "author_garden" was not created successfully.',
-	);
-};
 
 /**
  * The author domain table is used to store the domains that are controlled by an author.
@@ -432,13 +311,6 @@ async function author_domain() {
 	`;
 }
 
-author_domain.test = async () => {
-	assert(
-		await exists("author_domain", "table"),
-		'Table "author_domain" was not created successfully.',
-	);
-};
-
 /**
  * The author content table is used to keep track of the contents that are controlled by an author.
  */
@@ -452,13 +324,6 @@ async function author_content() {
 		);
 	`;
 }
-
-author_content.test = async () => {
-	assert(
-		await exists("author_content", "table"),
-		'Table "author_content" was not created successfully.',
-	);
-};
 
 /**
  * The module table is used to keep track of the modules that are available in the system.
@@ -479,13 +344,6 @@ async function module() {
 	`;
 }
 
-module.test = async () => {
-	assert(
-		await exists("module", "table"),
-		'Table "module" was not created successfully.',
-	);
-};
-
 /**
  * The module event table is used to keep track of the events that are associated with a module.
  **/
@@ -499,13 +357,6 @@ async function module_event() {
 		);
 	`;
 }
-
-module_event.test = async () => {
-	assert(
-		await exists("module_event", "table"),
-		'Table "module_event" was not created successfully.',
-	);
-};
 
 /**
  * Subscriptions that connect a listener module to a specific module event.
@@ -523,13 +374,6 @@ async function module_event_subscription() {
 	`;
 }
 
-module_event_subscription.test = async () => {
-	assert(
-		await exists("module_event_subscription", "table"),
-		'Table "module_event_subscription" was not created successfully.',
-	);
-};
-
 /**
  * Optional domain scoping for subscriptions. When rows exist, the listener only
  * receives events for the listed domains; absence of rows means all domains.
@@ -543,13 +387,6 @@ async function module_event_subscription_domain() {
 		);
 	`;
 }
-
-module_event_subscription_domain.test = async () => {
-	assert(
-		await exists("module_event_subscription_domain", "table"),
-		'Table "module_event_subscription_domain" was not created successfully.',
-	);
-};
 
 export const tables = {
 	domain,
