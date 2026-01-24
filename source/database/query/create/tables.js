@@ -331,6 +331,8 @@ async function author_content() {
  * - slug: The slug identifier for the module.
  * - enabled: Whether the module is enabled.
  * - last_checked: The last time the module was checked for updates.
+ * - commit: The current commit hash of the module.
+ * - branch: The branch of the module repository.
  **/
 async function module() {
 	await sql`
@@ -339,51 +341,56 @@ async function module() {
 			repository VARCHAR(4096) UNIQUE NOT NULL,
 			slug VARCHAR(8) UNIQUE NOT NULL,
 			enabled BOOLEAN NOT NULL,
-			last_checked TIMESTAMP NOT NULL
+			last_checked TIMESTAMP NOT NULL,
+			commit VARCHAR(40) NOT NULL,
+			branch VARCHAR(100) NOT NULL DEFAULT 'main'
 		);
 	`;
 }
 
 /**
- * The module event table is used to keep track of the events that are associated with a module.
+ *
+ * Columns:
+ * - id: The unique identifier for this binding.
+ * - id_domain_target: Optional domain this binding targets. When NULL, the
+ *   binding is associated with the garden more broadly rather than a specific
+ *   domain. If set, the referenced domain is deleted, the binding is removed
+ *   via ON DELETE CASCADE.
+ * - id_garden: The garden to which this binding belongs. When the garden is
+ *   deleted, all associated bindings are removed via ON DELETE CASCADE.
+ * - recursive: Whether the binding applies recursively to descendant domains
+ *   of id_domain_target (if specified).
+ * - enabled: Whether this binding is currently active. Disabled bindings are
+ *   kept for audit/history but must be ignored by dispatch logic.
+ * - slug_module: The slug (short identifier) of the module providing the
+ *   capability, referencing module(slug). Deleting a module cascades and
+ *   removes its bindings.
+ * - slug_capability: The specific capability within the module that this
+ *   binding exposes (for example, an event handler or integration point).
+ * - methods: Optional string describing the methods/actions for which this
+ *   binding is valid (e.g. a list of HTTP methods or custom verbs), or NULL
+ *   when not applicable.
+ * - priority: Numeric priority used to order bindings when multiple
+ *   candidates match a given request or event. Higher values take precedence.
+ *
+ * Constraints:
+ * - UNIQUE(id_garden, id_domain_target, slug_module, slug_capability): Ensures
+ *   that a specific module capability can only be bound once per garden and
+ *   target domain combination.
  **/
-async function module_event() {
+async function module_binding() {
 	await sql`
-		CREATE TABLE module_event (
+		CREATE TABLE module_binding (
 			id SERIAL PRIMARY KEY,
-			id_module INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
-			event VARCHAR(100) NOT NULL,
-			UNIQUE(id_module, event)
-		);
-	`;
-}
-
-/**
- * Subscriptions that connect a listener module to a specific module event.
- * Each (event, listener) pair is unique to avoid duplicate deliveries.
- */
-async function module_event_subscription() {
-	await sql`
-		CREATE TABLE module_event_subscription (
-			id SERIAL PRIMARY KEY,
-			id_event INTEGER NOT NULL REFERENCES module_event(id) ON DELETE CASCADE,
-			id_module INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			UNIQUE(id_event, id_module)
-		);
-	`;
-}
-
-/**
- * Optional domain scoping for subscriptions. When rows exist, the listener only
- * receives events for the listed domains; absence of rows means all domains.
- */
-async function module_event_subscription_domain() {
-	await sql`
-		CREATE TABLE module_event_subscription_domain (
-			id_subscription INTEGER NOT NULL REFERENCES module_event_subscription(id) ON DELETE CASCADE,
-			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
-			PRIMARY KEY (id_subscription, id_domain)
+			id_domain_target INTEGER REFERENCES domain(id) ON DELETE CASCADE,
+			id_garden INTEGER REFERENCES garden(id) ON DELETE CASCADE,
+			recursive BOOLEAN NOT NULL,
+			enabled BOOLEAN NOT NULL,
+			slug_module VARCHAR(8) NOT NULL REFERENCES module(slug) ON DELETE CASCADE,
+			slug_capability VARCHAR(8) NOT NULL,
+			methods VARCHAR(128),
+			priority INTEGER NOT NULL DEFAULT 0,
+			UNIQUE(id_garden, id_domain_target, slug_module, slug_capability)
 		);
 	`;
 }
@@ -409,7 +416,5 @@ export const tables = {
 	author_domain,
 	author_content,
 	module,
-	module_event,
-	module_event_subscription,
-	module_event_subscription_domain,
+	module_binding,
 };
