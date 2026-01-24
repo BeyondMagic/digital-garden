@@ -10,4 +10,4 @@ When performing a code review, follow these principles:
 
 Note:
 - The current shell is `Nushell`, so ensure that any shell commands or scripts are compatible with Nushell syntax and conventions, for example, no use of `&&` and `||` for command chaining.
-- For Javascript files, ensure you use snake_case for variable and function names, and write JSDoc comments for all functions and classes.
+- For Javascript files, ensure you use snake_case for variable and function names, and write JSDoc comments for all functions and classes. IF possible, write a unit test for each function by extending a method `function.test = function() { ... }`.
