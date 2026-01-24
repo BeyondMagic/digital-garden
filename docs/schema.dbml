@@ -15,6 +15,11 @@ Enum "TYPE_STATUS" {
     "DELETED"
 }
 
+Enum "TYPE_ADAPTER" {
+    "HTTP"
+    "ACTION"
+}
+
 // Area: Auditory
 
 Table "Request" {
@@ -105,39 +110,42 @@ Table "Module" {
   "id" bigint [pk, not null]
   // If a path, then link `ln` to local filesystem; if a link, then git clone.
   "repository" varchar(512) [unique, not null, note: 'Either a path or a link to a git repository.']
-  "slug" varchar(8) [unique, not null]
+  "slug" varchar(8) [unique, not null, note: 'Human-chosen identifier (e.g. petalize, notifications).']
   "enabled" boolean [not null]
   "last_checked" timestamp [not null]
-  "commit" varchar(40) // MAximum length for SHA-1
-  "branch" varchar(256)
+  "commit" varchar(40) [not null]
+  "branch" varchar(256) [not null]
 }
 
-Table "Module_Event" {
+Table "Module_Binding" {
   "id" bigint [pk, not null]
-  "id_module" bigint [not null, ref: < "Module"."id"]
-  "event" varchar(512) [not null]
+  "id_garden" bigint [not null, ref: < "Garden"."id"]
+
+  // Target selection:
+  // If null, applies to all domains in the garden.
+  // If set, applies only to the specified domain.
+  "id_domain_target" bigint [ref: < "Domain"."id"]
+
+  "adapter" TYPE_ADAPTER [not null]
+
+  "recursive" boolean [not null]
+  "enabled" boolean [not null]
+
+  // Identify the capability to dispatch to (runtime will validate existence)
+  "slug_module" varchar(8) [not null, ref: < "Module"."slug"]
+  "slug_capability" varchar(8) [not null]
+
+  // Optional allow-list of HTTP methods.
+  // Recommended encoding: comma-separated upper-case values (e.g. "GET,POST").
+  "methods" varchar(128)
+
+  // Tie-breaker when two bindings are equally specific.
+  "priority" int [not null, default: 0]
 
   Indexes {
-    (id_module, event) [unique]
-  }
-}
-
-Table "Module_Event_Subscription_Domain" {
-  "id_subscription" bigint [not null, ref: < "Module_Event_Subscription"."id"]
-  "id_domain" bigint [not null, ref: < "Domain"."id"]
-  Indexes {
-    (id_subscription, id_domain) [pk]
-  }
-}
-
-Table "Module_Event_Subscription" {
-  "id" bigint [pk, not null]
-  "id_module" bigint [not null, ref: < "Module"."id"]
-  "id_event" bigint [not null, ref: < "Module_Event"."id"]
-  "created_at" timestamp [not null]
-
-  Indexes {
-    (id_module, id_event) [unique]
+    (id_garden, enabled)
+    (id_garden, id_domain_target)
+    (id_garden, slug_module)
   }
 }
 
@@ -150,6 +158,11 @@ Table "Domain" {
   "type" TYPE_DOMAIN [not null]
   "name" varchar(500) [not null]
   "status" TYPE_STATUS [not null]
+
+  Indexes {
+    // A parent domain can only have one subdomain of a given name and type.
+    (id_domain_parent, type, name) [unique]
+  }
 }
 
 Table "Content" {
