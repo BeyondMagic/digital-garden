@@ -111,17 +111,6 @@ async function domain_tag() {
 	`;
 }
 
-async function domain_asset() {
-	await sql`
-		CREATE TABLE domain_asset (
-			id SERIAL PRIMARY KEY,
-			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
-			id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
-			UNIQUE(id_domain, id_asset)
-		);
-	`;
-}
-
 async function content() {
 	await sql`
 		CREATE TABLE content (
@@ -276,7 +265,6 @@ export const tables = {
 	tag_requirement,
 	tag_information,
 	domain_tag,
-	domain_asset,
 	content,
 	content_link,
 	garden,

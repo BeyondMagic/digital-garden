@@ -45,7 +45,6 @@ TableGroup "Tag" {
   Tag_Information
   Tag_Requirement
   Domain_Tag
-  Domain_Asset
 }
 
 TableGroup "Module" {
@@ -150,16 +149,6 @@ Table "Domain_Tag" [note: 'Associates tags with a domain (for filtering domains 
   "id" bigint [pk, not null]
   "id_domain" bigint [not null, ref: < "Domain"."id", note: 'Tagged domain.']
   "id_tag" bigint [not null, ref: < "Tag"."id", note: 'Tag applied to the domain.']
-}
-
-Table "Domain_Asset" [note: 'Associates existing assets with a domain (e.g., a logo.png used by a domain).'] {
-  "id" bigint [pk, not null]
-  "id_domain" bigint [not null, ref: < "Domain"."id", note: 'Domain using the asset.']
-  "id_asset" bigint [not null, ref: < "Asset"."id", note: 'Asset used by the domain.']
-
-  Indexes {
-    (id_domain, id_asset) [unique, note: 'One association per domain-asset pair.']
-  }
 }
 
 Table "Tag_Information" [note: 'Localized (per-language) human-friendly tag name/description.'] {

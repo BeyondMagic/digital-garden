@@ -20,7 +20,6 @@ async function schema() {
 	await tables.tag_requirement();
 	await tables.tag_information();
 	await tables.domain_tag();
-	await tables.domain_asset();
 	await tables.content();
 	await tables.content_link();
 	await tables.garden();
