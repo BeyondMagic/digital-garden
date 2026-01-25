@@ -22,82 +22,92 @@ Enum "TYPE_ADAPTER" {
 
 // Area: Auditory
 
-Table "Request" {
+Table "Request" [note: 'Auditing table for tracking content requests (best-effort metadata like IP/device/timestamp).'] {
   "id" serial [pk, not null, increment]
-  "id_content" bigint [not null, ref: < "Content"."id"]
-  "ip" varchar(500) [not null]
-  "device" varchar(500) [not null]
-  "time" timestamp [not null]
+  "id_content" bigint [not null, ref: < "Content"."id", note: 'Content that was requested.']
+  "ip" varchar(500) [not null, note: 'Requester IP (best-effort).']
+  "device" varchar(500) [not null, note: 'Requester device/user-agent descriptor (best-effort).']
+  "time" timestamp [not null, note: 'When the request happened.']
 }
 
 // Area: Garden
 
-Table "Garden_Information" {
+Table "Garden_Information" [note: 'Localized (per-language) information about a Garden.'] {
   "id" bigint [pk, not null]
-  "id_garden" bigint [not null, ref: < "Garden"."id"]
-  "id_language" varchar(500) [not null, ref: < "Language"."id"]
-  "name" varchar(500) [not null]
-  "description" text [not null]
+  "id_garden" bigint [not null, ref: < "Garden"."id", note: 'Garden being described.']
+  "id_language" varchar(500) [not null, ref: < "Language"."id", note: 'Language of this record.']
+  "name" varchar(500) [not null, note: 'Garden name in the given language.']
+  "description" text [not null, note: 'Garden description in the given language.']
 
   Indexes {
     (id_garden, id_language) [unique]
   }
 }
 
-Table "Garden" {
+Table "Garden" [note: 'A garden is a top-level site instance rooted at a Domain node and represented by an Asset (e.g., logo).'] {
   "id" bigint [pk, not null]
-  "id_domain" bigint [unique, not null, note: 'The root subdomain of the Garden.', ref: < "Domain"."id"]
-  "id_asset" bigint [unique, not null, ref: < "Asset"."id"]
+  "id_domain" bigint [unique, not null, note: 'Root domain of the garden/platform.', ref: < "Domain"."id"]
+  "id_asset" bigint [unique, not null, note: 'Logo/representative asset for the garden.', ref: < "Asset"."id"]
 }
 
 // Area: Language
 
-Table "Language_Information" {
+Table "Language_Information" [note: 'Localized (translated) language metadata: a language described in another language.'] {
   "id" bigint [pk, not null]
-  "id_for" varchar(500) [not null, ref: < "Language"."id"]
-  "id_from" varchar(500) [not null, ref: < "Language"."id"]
-  "name" varchar(500) [not null]
-  "description" text [not null]
+  "id_for" varchar(500) [not null, ref: < "Language"."id", note: 'Language being described.']
+  "id_from" varchar(500) [not null, ref: < "Language"."id", note: 'Language used for the description.']
+  "name" varchar(500) [not null, note: 'Localized name of the language.']
+  "description" text [not null, note: 'Localized description of the language.']
 
   Indexes {
     (id_for, id_from) [unique]
   }
 }
 
-Table "Language" {
+Table "Language" [note: 'Supported languages (e.g., en, pt, ja). Each language may be represented by an Asset (icon/flag).'] {
   "id" varchar(500) [pk, not null]
-  "id_asset" bigint [unique, not null, ref: < "Asset"."id"]
+  "id_asset" bigint [unique, not null, ref: < "Asset"."id", note: 'Representative asset for this language (icon/flag).']
 }
 
 // Area: Tag
 
-Table "Tag" {
+Table "Tag" [note: 'Tags are labels used for filtering and organizing content/domains. A tag may have a representative Asset.'] {
   "id" bigint [pk, not null]
-  "id_asset" bigint [ref: < "Asset"."id"]
+  "id_asset" bigint [ref: < "Asset"."id", note: 'Optional representative asset for the tag.']
 }
 
-Table "Tag_Requirement" {
+Table "Tag_Requirement" [note: 'A tag-to-tag dependency: if id_tag_for is used, id_tag must also be present (e.g. "programming" required for "java").'] {
   "id" bigint [pk, not null]
-  "id_tag" bigint [not null, ref: < "Tag"."id"]
-  "id_tag_for" bigint [not null, ref: < "Tag"."id"]
+  "id_tag" bigint [not null, ref: < "Tag"."id", note: 'Required tag.']
+  "id_tag_for" bigint [not null, ref: < "Tag"."id", note: 'Tag that requires id_tag.']
 
   Indexes {
     (id_tag, id_tag_for) [unique]
   }
 }
 
-Table "Domain_Tag" {
+Table "Domain_Tag" [note: 'Associates tags with a domain (for filtering domains by tag).'] {
   "id" bigint [pk, not null]
-  "id_domain" bigint [not null, ref: < "Domain"."id"]
-  "id_tag" bigint [not null, ref: < "Tag"."id"]
+  "id_domain" bigint [not null, ref: < "Domain"."id", note: 'Tagged domain.']
+  "id_tag" bigint [not null, ref: < "Tag"."id", note: 'Tag applied to the domain.']
 }
 
-Table "Tag_Information" {
+Table "Domain_Asset" [note: 'Associates existing assets with a domain (e.g., a logo.png used by a domain).'] {
   "id" bigint [pk, not null]
-  "id_tag" bigint [not null, ref: < "Tag"."id"]
-  "id_language" varchar(500) [not null, ref: < "Language"."id"]
-  "name" varchar(500) [not null]
-  "description" text [not null]
+  "id_domain" bigint [not null, ref: < "Domain"."id", note: 'Domain using the asset.']
+  "id_asset" bigint [not null, ref: < "Asset"."id", note: 'Asset used by the domain.']
+
+  Indexes {
+    (id_domain, id_asset) [unique]
+  }
+}
+
+Table "Tag_Information" [note: 'Localized (per-language) human-friendly tag name/description.'] {
+  "id" bigint [pk, not null]
+  "id_tag" bigint [not null, ref: < "Tag"."id", note: 'Tag being described.']
+  "id_language" varchar(500) [not null, ref: < "Language"."id", note: 'Language of this record.']
+  "name" varchar(500) [not null, note: 'Localized tag name.']
+  "description" text [not null, note: 'Localized tag description.']
 
   Indexes {
     (id_tag, id_language) [unique]
@@ -106,41 +116,41 @@ Table "Tag_Information" {
 
 // Area: Module
 
-Table "Module" {
+Table "Module" [note: 'Tracks installed modules (repository, version pointers, and enable/disable).'] {
   "id" bigint [pk, not null]
   // If a path, then link `ln` to local filesystem; if a link, then git clone.
-  "repository" varchar(512) [unique, not null, note: 'Either a path or a link to a git repository.']
-  "slug" varchar(8) [unique, not null, note: 'Human-chosen identifier (e.g. petalize, notifications).']
-  "enabled" boolean [not null]
-  "last_checked" timestamp [not null]
-  "commit" varchar(40) [not null]
-  "branch" varchar(256) [not null]
+  "repository" varchar(512) [unique, not null, note: 'Repository URL/filepath of the module.']
+  "slug" varchar(8) [unique, not null, note: 'Short identifier for the module (used as stable key).']
+  "enabled" boolean [not null, note: 'Whether the module is enabled.']
+  "last_checked" timestamp [not null, note: 'Last time the server checked this module for updates/health.']
+  "commit" varchar(40) [not null, note: 'Current commit hash checked out for this module.']
+  "branch" varchar(256) [not null, note: 'Branch tracked for updates (e.g., main).']
 }
 
-Table "Module_Binding" {
+Table "Module_Binding" [note: 'Binds a module capability to a garden/domain-tree scope (routing/dispatch configuration).'] {
   "id" bigint [pk, not null]
-  "id_garden" bigint [not null, ref: < "Garden"."id"]
+  "id_garden" bigint [not null, ref: < "Garden"."id", note: 'Garden that owns this binding.']
 
   // Target selection:
   // If null, applies to all domains in the garden.
   // If set, applies only to the specified domain.
-  "id_domain_target" bigint [ref: < "Domain"."id"]
+  "id_domain_target" bigint [ref: < "Domain"."id", note: 'Optional target domain. NULL means garden-wide binding.']
 
-  "adapter" TYPE_ADAPTER [not null]
+  "adapter" TYPE_ADAPTER [not null, note: 'Adapter type of the capability being bound (HTTP vs ACTION).']
 
-  "recursive" boolean [not null]
-  "enabled" boolean [not null]
+  "recursive" boolean [not null, note: 'If true, applies to descendant domains under the target.']
+  "enabled" boolean [not null, note: 'Whether this binding participates in dispatch.']
 
   // Identify the capability to dispatch to (runtime will validate existence)
-  "slug_module" varchar(8) [not null, ref: < "Module"."slug"]
-  "slug_capability" varchar(8) [not null]
+  "slug_module" varchar(8) [not null, ref: < "Module"."slug", note: 'Module providing the capability.']
+  "slug_capability" varchar(8) [not null, note: 'Capability identifier within the module.']
 
   // Optional allow-list of HTTP methods.
   // Recommended encoding: comma-separated upper-case values (e.g. "GET,POST").
-  "methods" varchar(128)
+  "methods" varchar(128) [note: 'Optional allow-list of HTTP methods (e.g. "GET,POST"); NULL means all.']
 
   // Tie-breaker when two bindings are equally specific.
-  "priority" int [not null, default: 0]
+  "priority" int [not null, default: 0, note: 'Tie-breaker when multiple bindings match; higher wins.']
 
   Indexes {
     (id_garden, enabled)
@@ -151,13 +161,13 @@ Table "Module_Binding" {
 
 // Area: Domain
 
-Table "Domain" {
+Table "Domain" [note: 'Domain tree node used for both SUBDOMAIN (host labels) and ROUTER (path segments).'] {
   "id" bigint [pk, not null]
-  "id_domain_parent" bigint [ref: < "Domain"."id"]
-  "id_domain_redirect" bigint [ref: < "Domain"."id"]
-  "type" TYPE_DOMAIN [not null]
-  "name" varchar(500) [not null]
-  "status" TYPE_STATUS [not null]
+  "id_domain_parent" bigint [ref: < "Domain"."id", note: 'Parent domain node (if any).']
+  "id_domain_redirect" bigint [ref: < "Domain"."id", note: 'Optional redirect target for this domain.']
+  "type" TYPE_DOMAIN [not null, note: 'ROUTER or SUBDOMAIN.']
+  "name" varchar(500) [not null, note: 'Label for this node (subdomain label or router segment).']
+  "status" TYPE_STATUS [not null, note: 'Visibility/lifecycle state of this node.']
 
   Indexes {
     // A parent domain can only have one subdomain of a given name and type.
@@ -165,26 +175,26 @@ Table "Domain" {
   }
 }
 
-Table "Content" {
+Table "Content" [note: 'Content entries belonging to a domain and language (e.g., blog post/page).'] {
   "id" bigint [pk, not null]
-  "id_domain" bigint [not null, ref: < "Domain"."id"]
-  "id_language" varchar(500) [not null, ref: < "Language"."id"]
-  "status" TYPE_STATUS [not null]
-  "title" varchar(500)
-  "title_sub" varchar(500)
-  "synopsis" varchar(500)
-  "body" text
-  "requests" bigint [not null]
+  "id_domain" bigint [not null, ref: < "Domain"."id", note: 'Domain that owns this content.']
+  "id_language" varchar(500) [not null, ref: < "Language"."id", note: 'Language of the content.']
+  "status" TYPE_STATUS [not null, note: 'Visibility/lifecycle state.']
+  "title" varchar(500) [note: 'Title (required in current SQL implementation).']
+  "title_sub" varchar(500) [note: 'Subtitle (required in current SQL implementation).']
+  "synopsis" varchar(500) [note: 'Short summary (required in current SQL implementation).']
+  "body" text [note: 'Main content body (required in current SQL implementation).']
+  "requests" bigint [not null, note: 'Denormalized counter for request/visit tracking (if used).']
 
   Indexes {
     (id_domain, id_language) [unique]
   }
 }
 
-Table "Content_Link" {
+Table "Content_Link" [note: 'Directed links between content entries (for graphs/backlinks).'] {
   "id" bigint [pk, not null]
-  "id_from" bigint [not null, ref: < "Content"."id"]
-  "id_to" bigint [not null, ref: < "Content"."id"]
+  "id_from" bigint [not null, ref: < "Content"."id", note: 'Source content.']
+  "id_to" bigint [not null, ref: < "Content"."id", note: 'Destination content.']
 
   Indexes {
     (id_from, id_to) [unique]
@@ -193,19 +203,19 @@ Table "Content_Link" {
 
 // Area: Asset
 
-Table "Asset" {
+Table "Asset" [note: 'Assets are files such as images, scripts, videos. Used as logos/icons and general media.'] {
   "id" bigint [pk, not null]
-  "id_domain" bigint [unique, not null, ref: < "Domain"."id"]
-  "name" varchar(500) [unique, not null]
-  "extension" varchar(500)
+  "id_domain" bigint [unique, not null, ref: < "Domain"."id", note: 'Domain that owns the asset (often an asset subtree).']
+  "name" varchar(500) [unique, not null, note: 'Asset filename (Linux allows up to 4096 bytes).']
+  "extension" varchar(500) [note: 'Optional file extension (e.g. .png, .jpg, .js).']
 }
 
-Table "Asset_Information" {
+Table "Asset_Information" [note: 'Localized (per-language) asset name/description.'] {
   "id" bigint [pk, not null]
-  "id_asset" bigint [not null, ref: < "Asset"."id"]
-  "id_language" varchar(500) [not null, ref: < "Language"."id"]
-  "name" varchar(500) [not null]
-  "description" text [not null]
+  "id_asset" bigint [not null, ref: < "Asset"."id", note: 'Asset being described.']
+  "id_language" varchar(500) [not null, ref: < "Language"."id", note: 'Language of this record.']
+  "name" varchar(500) [not null, note: 'Localized asset name.']
+  "description" text [not null, note: 'Localized asset description.']
 
   Indexes {
     (id_asset, id_language) [unique]
@@ -214,49 +224,49 @@ Table "Asset_Information" {
 
 // Area: Authors
 
-Table "Author" {
+Table "Author" [note: 'Authors/users who can own domains and content. Stores identity + hashed password and counters.'] {
   "id" bigint [pk, not null]
-  "id_asset" bigint [not null, ref: < "Asset"."id"]
-  "email" varchar(500) [unique, not null]
-  "name" varchar(500) [not null]
-  "password" varchar(500) [not null, note: 'Hashed password (e.g., bcrypt/argon2); never store plaintext here']
-  "pages" bigint [not null]
-  "contents" bigint [not null]
+  "id_asset" bigint [not null, ref: < "Asset"."id", note: 'Profile picture asset.']
+  "email" varchar(500) [unique, not null, note: 'Unique author email.']
+  "name" varchar(500) [not null, note: 'Display name.']
+  "password" varchar(500) [not null, note: 'Hashed password; never store plaintext.']
+  "pages" bigint [not null, note: 'Counter: number of domains/pages created by the author.']
+  "contents" bigint [not null, note: 'Counter: number of content entries created by the author.']
 }
 
-Table "Author_Connections" {
+Table "Author_Connections" [note: 'Stores active/previous author sessions (device + token + timestamps).'] {
   "id" bigint [pk, not null]
-  "id_author" bigint [not null, ref: < "Author"."id"]
-  "device" varchar(500) [not null]
-  "token" varchar(500) [unique, not null]
-  "logged_at" timestamp [not null]
-  "last_connection" timestamp [not null]
+  "id_author" bigint [not null, ref: < "Author"."id", note: 'Author owning the connection/session.']
+  "device" varchar(500) [not null, note: 'Device identifier/label.']
+  "token" varchar(500) [unique, not null, note: 'Session token presented by the client.']
+  "logged_at" timestamp [not null, note: 'When the session was created.']
+  "last_connection" timestamp [not null, note: 'Last time this token was used.']
 }
 
-Table "Authored_Domain" {
+Table "Authored_Domain" [note: 'Many-to-many: which authors control which domains.'] {
   "id" bigint [pk, not null]
-  "id_author" bigint [not null, ref: < "Author"."id"]
-  "id_domain" bigint [not null, ref: < "Domain"."id"]
+  "id_author" bigint [not null, ref: < "Author"."id", note: 'Author with control.']
+  "id_domain" bigint [not null, ref: < "Domain"."id", note: 'Controlled domain.']
 
   Indexes {
     (id_author, id_domain) [unique]
   }
 }
 
-Table "Authored_Content" {
+Table "Authored_Content" [note: 'Many-to-many: which authors control which content entries.'] {
   "id" bigint [pk, not null]
-  "id_author" bigint [not null, ref: < "Author"."id"]
-  "id_content" bigint [not null, ref: < "Content"."id"]
+  "id_author" bigint [not null, ref: < "Author"."id", note: 'Author with control.']
+  "id_content" bigint [not null, ref: < "Content"."id", note: 'Controlled content.']
 
   Indexes {
     (id_author, id_content) [unique]
   }
 }
 
-Table "Authored_Garden" {
+Table "Authored_Garden" [note: 'Many-to-many: which authors have admin/control over a garden.'] {
   "id" bigint [pk, not null]
-  "id_author" bigint [not null, ref: < "Author"."id"]
-  "id_garden" bigint [not null, ref: < "Garden"."id"]
+  "id_author" bigint [not null, ref: < "Author"."id", note: 'Author with control.']
+  "id_garden" bigint [not null, ref: < "Garden"."id", note: 'Controlled garden.']
   Indexes {
      (id_author, id_garden) [unique]
   }
