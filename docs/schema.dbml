@@ -131,9 +131,6 @@ Table "Module_Binding" [note: 'Binds a module capability to a garden/domain-tree
   "id" bigint [pk, not null]
   "id_garden" bigint [not null, ref: < "Garden"."id", note: 'Garden that owns this binding.']
 
-  // Target selection:
-  // If null, applies to all domains in the garden.
-  // If set, applies only to the specified domain.
   "id_domain_target" bigint [ref: < "Domain"."id", note: 'Optional target domain. NULL means garden-wide binding.']
 
   "adapter" TYPE_ADAPTER [not null, note: 'Adapter type of the capability being bound (HTTP vs ACTION).']
@@ -141,15 +138,11 @@ Table "Module_Binding" [note: 'Binds a module capability to a garden/domain-tree
   "recursive" boolean [not null, note: 'If true, applies to descendant domains under the target.']
   "enabled" boolean [not null, note: 'Whether this binding participates in dispatch.']
 
-  // Identify the capability to dispatch to (runtime will validate existence)
   "slug_module" varchar(8) [not null, ref: < "Module"."slug", note: 'Module providing the capability.']
   "slug_capability" varchar(8) [not null, note: 'Capability identifier within the module.']
 
-  // Optional allow-list of HTTP methods.
-  // Recommended encoding: comma-separated upper-case values (e.g. "GET,POST").
   "methods" varchar(128) [note: 'Optional allow-list of HTTP methods (e.g. "GET,POST"); NULL means all.']
 
-  // Tie-breaker when two bindings are equally specific.
   "priority" int [not null, default: 0, note: 'Tie-breaker when multiple bindings match; higher wins.']
 
   Indexes {
