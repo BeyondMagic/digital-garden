@@ -5,21 +5,21 @@
 // Types
 // ------------------------------------------------------------------------
 
-Enum "TYPE_DOMAIN" {
-    "ROUTER"
-    "SUBDOMAIN"
+Enum "TYPE_DOMAIN" [note: 'Domain node type, path segment vs subdomain.'] {
+    "ROUTER" [note: 'Path segment node, like `blog` in `example.com/blog`.']
+    "SUBDOMAIN" [note: 'Subdomain node, like `sub` in `sub.example.com`.']
 }
 
-Enum "TYPE_STATUS" {
-    "PUBLIC"
-    "PRIVATE"
-    "ARCHIVED"
-    "DELETED"
+Enum "TYPE_STATUS" [note: 'Content or domain visibility/lifecycle status.'] {
+    "PUBLIC" [note: 'Visible/active content or domain.']
+    "PRIVATE" [note: 'Hidden content or domain, not publicly accessible.']
+    "ARCHIVED" [note: 'Content or domain that is archived but retrievable.']
+    "DELETED" [note: 'Content or domain that is deleted and not accessible.']
 }
 
-Enum "TYPE_ADAPTER" {
-    "HTTP"
-    "ACTION"
+Enum "TYPE_ADAPTER" [note: 'Adapter types for handling different kinds of inputs or events.'] {
+    "HTTP" [note: 'HTTP request/response adapter.']
+    "ACTION" [note: 'Internal action/event adapter.']
 }
 
 // ------------------------------------------------------------------------
