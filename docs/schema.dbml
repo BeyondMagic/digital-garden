@@ -5,19 +5,19 @@
 // Types
 // ------------------------------------------------------------------------
 
-Enum "TYPE_DOMAIN" [note: 'Domain node type, path segment vs subdomain.'] {
+Enum "TYPE_DOMAIN" {
     "ROUTER" [note: 'Path segment node, like `blog` in `example.com/blog`.']
     "SUBDOMAIN" [note: 'Subdomain node, like `sub` in `sub.example.com`.']
 }
 
-Enum "TYPE_STATUS" [note: 'Content or domain visibility/lifecycle status.'] {
+Enum "TYPE_STATUS" {
     "PUBLIC" [note: 'Visible/active content or domain.']
     "PRIVATE" [note: 'Hidden content or domain, not publicly accessible.']
     "ARCHIVED" [note: 'Content or domain that is archived but retrievable.']
     "DELETED" [note: 'Content or domain that is deleted and not accessible.']
 }
 
-Enum "TYPE_ADAPTER" [note: 'Adapter types for handling different kinds of inputs or events.'] {
+Enum "TYPE_ADAPTER" {
     "HTTP" [note: 'HTTP request/response adapter.']
     "ACTION" [note: 'Internal action/event adapter.']
 }
@@ -160,7 +160,7 @@ Table "Module_Binding" [note: 'Binds a module capability to a garden/domain-tree
     (id_garden, enabled) [note: 'Index to quickly find enabled/disabled bindings within a garden.']
     (id_garden, id_domain_target) [note: 'Index to quickly find bindings for a specific garden-domain pair.']
     (id_garden, slug_module) [note: 'Index to quickly find bindings for a specific garden-module pair.']
-    (id_garden, id_domain_target, slug_module, slug_capability) [unique] [note: 'Unique constraint to prevent duplicate bindings for the same garden, target domain, module, and capability.']
+    (id_garden, id_domain_target, slug_module, slug_capability) [unique, note: 'Unique constraint to prevent duplicate bindings for the same garden, target domain, module, and capability.']
   }
 }
 
