@@ -156,6 +156,7 @@ Table "Module_Binding" [note: 'Binds a module capability to a garden/domain-tree
     (id_garden, enabled)
     (id_garden, id_domain_target)
     (id_garden, slug_module)
+    (id_garden, id_domain_target, slug_module, slug_capability) [unique]
   }
 }
 
