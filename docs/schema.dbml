@@ -23,6 +23,56 @@ Enum "TYPE_ADAPTER" {
 }
 
 // ------------------------------------------------------------------------
+// Table Groups (areas)
+// ------------------------------------------------------------------------
+
+TableGroup "Auditory" {
+  Request
+}
+
+TableGroup "Garden" {
+  Garden
+  Garden_Information
+}
+
+TableGroup "Language" {
+  Language
+  Language_Information
+}
+
+TableGroup "Tag" {
+  Tag
+  Tag_Information
+  Tag_Requirement
+  Domain_Tag
+  Domain_Asset
+}
+
+TableGroup "Module" {
+  Module
+  Module_Binding
+}
+
+TableGroup "Domain" {
+  Domain
+  Content
+  Content_Link
+}
+
+TableGroup "Asset" {
+  Asset
+  Asset_Information
+}
+
+TableGroup "Authors" {
+  Author
+  Author_Connections
+  Authored_Domain
+  Authored_Content
+  Authored_Garden
+}
+
+// ------------------------------------------------------------------------
 // Area: Auditory
 // ------------------------------------------------------------------------
 
