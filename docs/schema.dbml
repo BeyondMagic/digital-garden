@@ -1,7 +1,9 @@
 // SPDX-FileCopyrightText: 2025 João V. Farias (beyondmagic) <beyondmagic@mail.ru>
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+// ------------------------------------------------------------------------
 // Types
+// ------------------------------------------------------------------------
 
 Enum "TYPE_DOMAIN" {
     "ROUTER"
@@ -20,7 +22,9 @@ Enum "TYPE_ADAPTER" {
     "ACTION"
 }
 
+// ------------------------------------------------------------------------
 // Area: Auditory
+// ------------------------------------------------------------------------
 
 Table "Request" [note: 'Auditing table for tracking content requests (best-effort metadata like IP/device/timestamp).'] {
   "id" serial [pk, not null, increment]
@@ -30,7 +34,9 @@ Table "Request" [note: 'Auditing table for tracking content requests (best-effor
   "time" timestamp [not null, note: 'When the request happened.']
 }
 
+// ------------------------------------------------------------------------
 // Area: Garden
+// ------------------------------------------------------------------------
 
 Table "Garden_Information" [note: 'Localized (per-language) information about a Garden.'] {
   "id" bigint [pk, not null]
@@ -40,7 +46,7 @@ Table "Garden_Information" [note: 'Localized (per-language) information about a 
   "description" text [not null, note: 'Garden description in the given language.']
 
   Indexes {
-    (id_garden, id_language) [unique]
+    (id_garden, id_language) [unique, note: 'One record per garden-language pair.']
   }
 }
 
@@ -50,7 +56,9 @@ Table "Garden" [note: 'A garden is a top-level site instance rooted at a Domain 
   "id_asset" bigint [unique, not null, note: 'Logo/representative asset for the garden.', ref: < "Asset"."id"]
 }
 
+// ------------------------------------------------------------------------
 // Area: Language
+// ------------------------------------------------------------------------
 
 Table "Language_Information" [note: 'Localized (translated) language metadata: a language described in another language.'] {
   "id" bigint [pk, not null]
@@ -60,7 +68,7 @@ Table "Language_Information" [note: 'Localized (translated) language metadata: a
   "description" text [not null, note: 'Localized description of the language.']
 
   Indexes {
-    (id_for, id_from) [unique]
+    (id_for, id_from) [unique, note: 'One record per language-language pair.']
   }
 }
 
@@ -69,7 +77,9 @@ Table "Language" [note: 'Supported languages (e.g., en, pt, ja). Each language m
   "id_asset" bigint [unique, not null, ref: < "Asset"."id", note: 'Representative asset for this language (icon/flag).']
 }
 
+// ------------------------------------------------------------------------
 // Area: Tag
+// ------------------------------------------------------------------------
 
 Table "Tag" [note: 'Tags are labels used for filtering and organizing content/domains. A tag may have a representative Asset.'] {
   "id" bigint [pk, not null]
@@ -82,7 +92,7 @@ Table "Tag_Requirement" [note: 'A tag-to-tag dependency: if id_tag_for is used, 
   "id_tag_for" bigint [not null, ref: < "Tag"."id", note: 'Tag that requires id_tag.']
 
   Indexes {
-    (id_tag, id_tag_for) [unique]
+    (id_tag, id_tag_for) [unique, note: 'One requirement per tag-tag pair.']
   }
 }
 
@@ -98,7 +108,7 @@ Table "Domain_Asset" [note: 'Associates existing assets with a domain (e.g., a l
   "id_asset" bigint [not null, ref: < "Asset"."id", note: 'Asset used by the domain.']
 
   Indexes {
-    (id_domain, id_asset) [unique]
+    (id_domain, id_asset) [unique, note: 'One association per domain-asset pair.']
   }
 }
 
@@ -110,15 +120,16 @@ Table "Tag_Information" [note: 'Localized (per-language) human-friendly tag name
   "description" text [not null, note: 'Localized tag description.']
 
   Indexes {
-    (id_tag, id_language) [unique]
+    (id_tag, id_language) [unique, note: 'One record per tag-language pair.']
   }
 }
 
+// ------------------------------------------------------------------------
 // Area: Module
+// ------------------------------------------------------------------------
 
 Table "Module" [note: 'Tracks installed modules (repository, version pointers, and enable/disable).'] {
   "id" bigint [pk, not null]
-  // If a path, then link `ln` to local filesystem; if a link, then git clone.
   "repository" varchar(512) [unique, not null, note: 'Repository URL/filepath of the module.']
   "slug" varchar(8) [unique, not null, note: 'Short identifier for the module (used as stable key).']
   "enabled" boolean [not null, note: 'Whether the module is enabled.']
@@ -146,14 +157,16 @@ Table "Module_Binding" [note: 'Binds a module capability to a garden/domain-tree
   "priority" int [not null, default: 0, note: 'Tie-breaker when multiple bindings match; higher wins.']
 
   Indexes {
-    (id_garden, enabled)
-    (id_garden, id_domain_target)
-    (id_garden, slug_module)
-    (id_garden, id_domain_target, slug_module, slug_capability) [unique]
+    (id_garden, enabled) [note: 'Index to quickly find enabled/disabled bindings within a garden.']
+    (id_garden, id_domain_target) [note: 'Index to quickly find bindings for a specific garden-domain pair.']
+    (id_garden, slug_module) [note: 'Index to quickly find bindings for a specific garden-module pair.']
+    (id_garden, id_domain_target, slug_module, slug_capability) [unique] [note: 'Unique constraint to prevent duplicate bindings for the same garden, target domain, module, and capability.']
   }
 }
 
+// ------------------------------------------------------------------------
 // Area: Domain
+// ------------------------------------------------------------------------
 
 Table "Domain" [note: 'Domain tree node used for both SUBDOMAIN (host labels) and ROUTER (path segments).'] {
   "id" bigint [pk, not null]
@@ -164,8 +177,7 @@ Table "Domain" [note: 'Domain tree node used for both SUBDOMAIN (host labels) an
   "status" TYPE_STATUS [not null, note: 'Visibility/lifecycle state of this node.']
 
   Indexes {
-    // A parent domain can only have one subdomain of a given name and type.
-    (id_domain_parent, type, name) [unique]
+    (id_domain_parent, type, name) [unique, note: 'Unique constraint to prevent duplicate subdomains/routes under the same parent.']
   }
 }
 
@@ -181,7 +193,7 @@ Table "Content" [note: 'Content entries belonging to a domain and language (e.g.
   "requests" bigint [not null, note: 'Denormalized counter for request/visit tracking (if used).']
 
   Indexes {
-    (id_domain, id_language) [unique]
+    (id_domain, id_language) [unique, note: 'One content entry per domain-language pair.']
   }
 }
 
@@ -191,11 +203,13 @@ Table "Content_Link" [note: 'Directed links between content entries (for graphs/
   "id_to" bigint [not null, ref: < "Content"."id", note: 'Destination content.']
 
   Indexes {
-    (id_from, id_to) [unique]
+    (id_from, id_to) [unique, note: 'One link per content-content pair.']
   }
 }
 
+// ------------------------------------------------------------------------
 // Area: Asset
+// ------------------------------------------------------------------------
 
 Table "Asset" [note: 'Assets are files such as images, scripts, videos. Used as logos/icons and general media.'] {
   "id" bigint [pk, not null]
@@ -212,11 +226,13 @@ Table "Asset_Information" [note: 'Localized (per-language) asset name/descriptio
   "description" text [not null, note: 'Localized asset description.']
 
   Indexes {
-    (id_asset, id_language) [unique]
+    (id_asset, id_language) [unique, note: 'One record per asset-language pair.']
   }
 }
 
+// ------------------------------------------------------------------------
 // Area: Authors
+// ------------------------------------------------------------------------
 
 Table "Author" [note: 'Authors/users who can own domains and content. Stores identity + hashed password and counters.'] {
   "id" bigint [pk, not null]
@@ -243,7 +259,7 @@ Table "Authored_Domain" [note: 'Many-to-many: which authors control which domain
   "id_domain" bigint [not null, ref: < "Domain"."id", note: 'Controlled domain.']
 
   Indexes {
-    (id_author, id_domain) [unique]
+    (id_author, id_domain) [unique, note: 'One record per author-domain pair.']
   }
 }
 
@@ -253,7 +269,7 @@ Table "Authored_Content" [note: 'Many-to-many: which authors control which conte
   "id_content" bigint [not null, ref: < "Content"."id", note: 'Controlled content.']
 
   Indexes {
-    (id_author, id_content) [unique]
+    (id_author, id_content) [unique, note: 'One record per author-content pair.']
   }
 }
 
@@ -262,6 +278,6 @@ Table "Authored_Garden" [note: 'Many-to-many: which authors have admin/control o
   "id_author" bigint [not null, ref: < "Author"."id", note: 'Author with control.']
   "id_garden" bigint [not null, ref: < "Garden"."id", note: 'Controlled garden.']
   Indexes {
-     (id_author, id_garden) [unique]
+     (id_author, id_garden) [unique, note: 'One record per author-garden pair.']
   }
 }
