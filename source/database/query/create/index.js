@@ -31,39 +31,8 @@ async function schema() {
 	await tables.author_domain();
 	await tables.author_content();
 	await tables.module();
-	await tables.module_event();
-	await tables.module_event_subscription();
-	await tables.module_event_subscription_domain();
+	await tables.module_binding();
 }
-
-schema.test = async () => {
-	types.domain.test();
-	types.status.test();
-
-	tables.domain.test();
-	tables.asset.test();
-	tables.language.test();
-	tables.language_information.test();
-	tables.asset_information.test();
-	tables.tag.test();
-	tables.tag_requirement.test();
-	tables.tag_information.test();
-	tables.domain_tag.test();
-	tables.domain_asset.test();
-	tables.content.test();
-	tables.content_link.test();
-	tables.garden.test();
-	tables.garden_information.test();
-	tables.author.test();
-	tables.author_connection.test();
-	tables.author_garden.test();
-	tables.author_domain.test();
-	tables.author_content.test();
-	tables.module.test();
-	tables.module_event.test();
-	tables.module_event_subscription.test();
-	tables.module_event_subscription_domain.test();
-};
 
 export const create = {
 	schema,

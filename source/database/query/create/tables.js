@@ -6,15 +6,6 @@
 
 import { sql } from "bun";
 
-/**
- * Create the domain table.
- * - id: The unique identifier for the domain.
- * - id_domain_parent: The parent domain (if any).
- * - id_domain_redirect: The domain to redirect to (if any).
- * - type: The type of the domain.
- * - name: The name of the domain.
- * - status: The status of the domain.
- **/
 async function domain() {
 	await sql`
 		CREATE TABLE IF NOT EXISTS domain (
@@ -29,14 +20,6 @@ async function domain() {
 	`;
 }
 
-/**
- * Assets are filesfiles such as images, scripts, videos.
- * For example, every language has an image that represents it.
- * - id: The unique identifier for the asset.
- * - id_domain: The domain that the asset belongs to.
- * - name: The name of the asset (4096 is the maximum length of a name in Linux).
- * - extension: The extension of the URL (e.g. .png, .jpg, .js, etc.).
- **/
 async function asset() {
 	await sql`
 		CREATE TABLE asset (
@@ -49,10 +32,6 @@ async function asset() {
 	`;
 }
 
-/**
- * The language table is used to store the languages that are supported by the system.
- * For example, Portuguese, Japanese, English, Spanish, French, etc.
- **/
 async function language() {
 	await sql`
 		CREATE TABLE language (
@@ -62,10 +41,6 @@ async function language() {
 	`;
 }
 
-/**
- * The information about a language in a specific language.
- * For example, the name of the language in the language itself.
- **/
 async function language_information() {
 	await sql`
 		CREATE TABLE language_information (
@@ -79,10 +54,6 @@ async function language_information() {
 	`;
 }
 
-/**
- * The information about an asset in a specific language.
- * For example, the name of the asset in the language itself.
- **/
 async function asset_information() {
 	await sql`
 		CREATE TABLE asset_information (
@@ -96,11 +67,6 @@ async function asset_information() {
 	`;
 }
 
-/**
- * The tag table is used to store the tags that are used in the system.
- * For example, the tag "programming" can be used to tag content related to programming.
- * The table can be used to filter content by tag.
- **/
 async function tag() {
 	await sql`
 		CREATE TABLE tag (
@@ -110,12 +76,6 @@ async function tag() {
 	`;
 }
 
-/**
- * The tag requirement table is used to store the requirements of a tag.
- * Basically a tag that is required for another tag.
- * For example, a tag "programming" is required for the tag "java".
- * This means that if a tag "java" is added, a tag "programming" must be added too.
- **/
 async function tag_requirement() {
 	await sql`
 		CREATE TABLE tag_requirement (
@@ -127,10 +87,6 @@ async function tag_requirement() {
 	`;
 }
 
-/**
- * The information about a tag in a specific language.
- * For example, the name of the tag in the language itself.
- **/
 async function tag_information() {
 	await sql`
 		CREATE TABLE tag_information (
@@ -144,11 +100,6 @@ async function tag_information() {
 	`;
 }
 
-/**
- * The domain_tag table is used to store the tags that are used in a domain.
- * For example, the tag "programming" can be used to tag content related to programming.
- * The tag can be used to filter domains by tag.
- **/
 async function domain_tag() {
 	await sql`
 		CREATE TABLE domain_tag (
@@ -160,10 +111,6 @@ async function domain_tag() {
 	`;
 }
 
-/**
- * The domain_asset table is used to store the assets that are used in a domain.
- * For example, the asset "logo.png" can be used to store the logo of the domain.
- **/
 async function domain_asset() {
 	await sql`
 		CREATE TABLE domain_asset (
@@ -175,11 +122,6 @@ async function domain_asset() {
 	`;
 }
 
-/**
- * The content table is used to store the content of a domain.
- * For example, the content of a blog can be stored in this table.
- * The content can be filtered by domain and language.
- **/
 async function content() {
 	await sql`
 		CREATE TABLE content (
@@ -197,9 +139,6 @@ async function content() {
 	`;
 }
 
-/**
- * The content link table is used to store the links between different content entries.
- **/
 async function content_link() {
 	await sql`
 		CREATE TABLE content_link (
@@ -211,11 +150,6 @@ async function content_link() {
 	`;
 }
 
-/**
- * The garden table is used to store the gardens that are used in the system.
- * - id_domain: The root domain of the platform.
- * - id_asset: The logo of the platform.
- **/
 async function garden() {
 	await sql`
 		CREATE TABLE garden (
@@ -228,10 +162,6 @@ async function garden() {
 	`;
 }
 
-/**
- * The garden information table is used to store the information about a garden in a specific language.
- * For example, the name of the garden in the language itself.
- **/
 async function garden_information() {
 	await sql`
 		CREATE TABLE garden_information (
@@ -245,13 +175,6 @@ async function garden_information() {
 	`;
 }
 
-/**
- * The author table is used to store the authors that are used in the system.
- * For example, the author of a blog can be stored in this table.
- * - pages: The number of domains created by the author.
- * - contents: The number of contents created by the author.
- * - id_asset: The profile picture of the author.
- **/
 async function author() {
 	await sql`
 		CREATE TABLE author (
@@ -266,10 +189,6 @@ async function author() {
 	`;
 }
 
-/**
- * The author connection table is used to store the connections of an author.
- * For example, the author can connect to the system using a device and a token.
- **/
 async function author_connection() {
 	await sql`
 		CREATE TABLE author_connection (
@@ -283,9 +202,6 @@ async function author_connection() {
 	`;
 }
 
-/**
- * The author garden table is used to store the gardens that an author has control over.
- **/
 async function author_garden() {
 	await sql`
 		CREATE TABLE author_garden (
@@ -297,9 +213,6 @@ async function author_garden() {
 	`;
 }
 
-/**
- * The author domain table is used to store the domains that are controlled by an author.
- **/
 async function author_domain() {
 	await sql`
 		CREATE TABLE author_domain (
@@ -311,9 +224,6 @@ async function author_domain() {
 	`;
 }
 
-/**
- * The author content table is used to keep track of the contents that are controlled by an author.
- */
 async function author_content() {
 	await sql`
 		CREATE TABLE author_content (
@@ -325,15 +235,6 @@ async function author_content() {
 	`;
 }
 
-/**
- * The module table is used to keep track of the modules that are available in the system.
- * - repository: The repository URL/filepath of the module.
- * - slug: The slug identifier for the module.
- * - enabled: Whether the module is enabled.
- * - last_checked: The last time the module was checked for updates.
- * - commit: The current commit hash of the module.
- * - branch: The branch of the module repository.
- **/
 async function module() {
 	await sql`
 		CREATE TABLE module (
@@ -348,36 +249,6 @@ async function module() {
 	`;
 }
 
-/**
- *
- * Columns:
- * - id: The unique identifier for this binding.
- * - id_domain_target: Optional domain this binding targets. When NULL, the
- *   binding is associated with the garden more broadly rather than a specific
- *   domain. If set, the referenced domain is deleted, the binding is removed
- *   via ON DELETE CASCADE.
- * - id_garden: The garden to which this binding belongs. When the garden is
- *   deleted, all associated bindings are removed via ON DELETE CASCADE.
- * - recursive: Whether the binding applies recursively to descendant domains
- *   of id_domain_target (if specified).
- * - enabled: Whether this binding is currently active. Disabled bindings are
- *   kept for audit/history but must be ignored by dispatch logic.
- * - slug_module: The slug (short identifier) of the module providing the
- *   capability, referencing module(slug). Deleting a module cascades and
- *   removes its bindings.
- * - slug_capability: The specific capability within the module that this
- *   binding exposes (for example, an event handler or integration point).
- * - methods: Optional string describing the methods/actions for which this
- *   binding is valid (e.g. a list of HTTP methods or custom verbs), or NULL
- *   when not applicable.
- * - priority: Numeric priority used to order bindings when multiple
- *   candidates match a given request or event. Higher values take precedence.
- *
- * Constraints:
- * - UNIQUE(id_garden, id_domain_target, slug_module, slug_capability): Ensures
- *   that a specific module capability can only be bound once per garden and
- *   target domain combination.
- **/
 async function module_binding() {
 	await sql`
 		CREATE TABLE module_binding (
