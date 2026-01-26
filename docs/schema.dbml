@@ -78,8 +78,8 @@ TableGroup "Authors" {
 Table "Request" [note: 'Auditing table for tracking content requests (best-effort metadata like IP/device/timestamp).'] {
   "id" serial [pk, not null, increment]
   "id_content" bigint [not null, ref: < "Content"."id", note: 'Content that was requested.']
-  "ip" varchar(500) [not null, note: 'Requester IP (best-effort).']
-  "device" varchar(500) [not null, note: 'Requester device/user-agent descriptor (best-effort).']
+  "ip" varchar(128) [not null, note: 'Requester IP (best-effort).']
+  "device" varchar(128) [not null, note: 'Requester device/user-agent descriptor (best-effort).']
   "time" timestamp [not null, note: 'When the request happened.']
 }
 
@@ -90,8 +90,8 @@ Table "Request" [note: 'Auditing table for tracking content requests (best-effor
 Table "Garden_Information" [note: 'Localized (per-language) information about a Garden.'] {
   "id" bigint [pk, not null]
   "id_garden" bigint [not null, ref: < "Garden"."id", note: 'Garden being described.']
-  "id_language" varchar(500) [not null, ref: < "Language"."id", note: 'Language of this record.']
-  "name" varchar(500) [not null, note: 'Garden name in the given language.']
+  "id_language" bigint [not null, ref: < "Language"."id", note: 'Language of this record.']
+  "name" varchar(64) [not null, note: 'Garden name in the given language.']
   "description" text [not null, note: 'Garden description in the given language.']
 
   Indexes {
@@ -111,19 +111,24 @@ Table "Garden" [note: 'A garden is a top-level site instance rooted at a Domain 
 
 Table "Language_Information" [note: 'Localized (translated) language metadata: a language described in another language.'] {
   "id" bigint [pk, not null]
-  "id_for" varchar(500) [not null, ref: < "Language"."id", note: 'Language being described.']
-  "id_from" varchar(500) [not null, ref: < "Language"."id", note: 'Language used for the description.']
-  "name" varchar(500) [not null, note: 'Localized name of the language.']
+  "id_language_for" bigint [not null, ref: < "Language"."id", note: 'Language being described.']
+  "id_language_from" bigint [not null, ref: < "Language"."id", note: 'Language used for the description.']
+  "name" varchar(64) [not null, note: 'Localized name of the language.']
   "description" text [not null, note: 'Localized description of the language.']
 
   Indexes {
-    (id_for, id_from) [unique, note: 'One record per language-language pair.']
+    (id_language_for, id_language_from) [unique, note: 'One record per language-language pair.']
   }
 }
 
 Table "Language" [note: 'Supported languages (e.g., en, pt, ja). Each language may be represented by an Asset (icon/flag).'] {
-  "id" varchar(500) [pk, not null]
-  "id_asset" bigint [unique, not null, ref: < "Asset"."id", note: 'Representative asset for this language (icon/flag).']
+  "id" bigint [pk, not null, note: 'Language code (e.g., "en", "pt", "ja").']
+  "id_asset" bigint [not null, ref: < "Asset"."id", note: 'Representative asset for this language (icon/flag).']
+  "slug" varchar(8) [not null, note: 'Language identifier (e.g., "en_GB", "pt_BR", "ja_JP").']
+  
+  Indexes {
+    (slug) [unique, note: 'Unique slug per language.']
+  }
 }
 
 // ------------------------------------------------------------------------
@@ -154,8 +159,8 @@ Table "Domain_Tag" [note: 'Associates tags with a domain (for filtering domains 
 Table "Tag_Information" [note: 'Localized (per-language) human-friendly tag name/description.'] {
   "id" bigint [pk, not null]
   "id_tag" bigint [not null, ref: < "Tag"."id", note: 'Tag being described.']
-  "id_language" varchar(500) [not null, ref: < "Language"."id", note: 'Language of this record.']
-  "name" varchar(500) [not null, note: 'Localized tag name.']
+  "id_language" bigint [not null, ref: < "Language"."id", note: 'Language of this record.']
+  "name" varchar(64) [not null, note: 'Localized tag name.']
   "description" text [not null, note: 'Localized tag description.']
 
   Indexes {
@@ -212,24 +217,24 @@ Table "Domain" [note: 'Domain tree node used for both SUBDOMAIN (host labels) an
   "id_domain_parent" bigint [ref: < "Domain"."id", note: 'Parent domain node (if any).']
   "id_domain_redirect" bigint [ref: < "Domain"."id", note: 'Optional redirect target for this domain.']
   "type" TYPE_DOMAIN [not null, note: 'ROUTER or SUBDOMAIN.']
-  "name" varchar(500) [not null, note: 'Label for this node (subdomain label or router segment).']
+  "slug" varchar(32) [not null, note: 'Slug for this node (subdomain label or router segment).']
   "status" TYPE_STATUS [not null, note: 'Visibility/lifecycle state of this node.']
 
   Indexes {
-    (id_domain_parent, type, name) [unique, note: 'Unique constraint to prevent duplicate subdomains/routes under the same parent.']
+    (id_domain_parent, type, slug) [unique, note: 'Unique constraint to prevent duplicate subdomains/routes under the same parent.']
   }
 }
 
 Table "Content" [note: 'Content entries belonging to a domain and language (e.g., blog post/page).'] {
   "id" bigint [pk, not null]
   "id_domain" bigint [not null, ref: < "Domain"."id", note: 'Domain that owns this content.']
-  "id_language" varchar(500) [not null, ref: < "Language"."id", note: 'Language of the content.']
+  "id_language" bigint [not null, ref: < "Language"."id", note: 'Language of the content.']
   "status" TYPE_STATUS [not null, note: 'Visibility/lifecycle state.']
-  "title" varchar(500) [note: 'Title (required in current SQL implementation).']
-  "title_sub" varchar(500) [note: 'Subtitle (required in current SQL implementation).']
-  "synopsis" varchar(500) [note: 'Short summary (required in current SQL implementation).']
-  "body" text [note: 'Main content body (required in current SQL implementation).']
-  "requests" bigint [not null, note: 'Denormalized counter for request/visit tracking (if used).']
+  "title" varchar(512) [note: 'Title.']
+  "title_sub" varchar(512) [note: 'Subtitle.']
+  "synopsis" varchar(512) [note: 'Short summary.']
+  "body" text [note: 'Main content body.']
+  // "requests" bigint [not null, note: 'Denormalized counter for request/visit tracking (if used).']
 
   Indexes {
     (id_domain, id_language) [unique, note: 'One content entry per domain-language pair.']
@@ -253,15 +258,14 @@ Table "Content_Link" [note: 'Directed links between content entries (for graphs/
 Table "Asset" [note: 'Assets are files such as images, scripts, videos. Used as logos/icons and general media.'] {
   "id" bigint [pk, not null]
   "id_domain" bigint [unique, not null, ref: < "Domain"."id", note: 'Domain that owns the asset (often an asset subtree).']
-  "name" varchar(500) [unique, not null, note: 'Asset filename (Linux allows up to 4096 bytes).']
-  "extension" varchar(500) [note: 'Optional file extension (e.g. .png, .jpg, .js).']
+  "slug" varchar(64) [unique, not null, note: 'Asset filename (Linux allows up to 4096 bytes).']
 }
 
 Table "Asset_Information" [note: 'Localized (per-language) asset name/description.'] {
   "id" bigint [pk, not null]
   "id_asset" bigint [not null, ref: < "Asset"."id", note: 'Asset being described.']
-  "id_language" varchar(500) [not null, ref: < "Language"."id", note: 'Language of this record.']
-  "name" varchar(500) [not null, note: 'Localized asset name.']
+  "id_language" bigint [not null, ref: < "Language"."id", note: 'Language of this record.']
+  "name" varchar(512) [not null, note: 'Localized asset name.']
   "description" text [not null, note: 'Localized asset description.']
 
   Indexes {
@@ -276,9 +280,9 @@ Table "Asset_Information" [note: 'Localized (per-language) asset name/descriptio
 Table "Author" [note: 'Authors/users who can own domains and content. Stores identity + hashed password and counters.'] {
   "id" bigint [pk, not null]
   "id_asset" bigint [not null, ref: < "Asset"."id", note: 'Profile picture asset.']
-  "email" varchar(500) [unique, not null, note: 'Unique author email.']
-  "name" varchar(500) [not null, note: 'Display name.']
-  "password" varchar(500) [not null, note: 'Hashed password; never store plaintext.']
+  "email" varchar(256) [unique, not null, note: 'Unique author email.']
+  "name" varchar(256) [not null, note: 'Display name.']
+  "password" varchar(512) [not null, note: 'Hashed password; never store plaintext.']
   "pages" bigint [not null, note: 'Counter: number of domains/pages created by the author.']
   "contents" bigint [not null, note: 'Counter: number of content entries created by the author.']
 }
@@ -286,8 +290,8 @@ Table "Author" [note: 'Authors/users who can own domains and content. Stores ide
 Table "Author_Connections" [note: 'Stores active/previous author sessions (device + token + timestamps).'] {
   "id" bigint [pk, not null]
   "id_author" bigint [not null, ref: < "Author"."id", note: 'Author owning the connection/session.']
-  "device" varchar(500) [not null, note: 'Device identifier/label.']
-  "token" varchar(500) [unique, not null, note: 'Session token presented by the client.']
+  "device" varchar(256) [not null, note: 'Device identifier/label.']
+  "token" varchar(512) [unique, not null, note: 'Session token presented by the client.']
   "logged_at" timestamp [not null, note: 'When the session was created.']
   "last_connection" timestamp [not null, note: 'Last time this token was used.']
 }
