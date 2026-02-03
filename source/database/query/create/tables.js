@@ -6,10 +6,6 @@
 
 import { sql } from "bun";
 
-/**
- * Creates the `domain` table.
- * @returns {Promise<void>}
- */
 async function domain() {
 	await sql`
 		CREATE TABLE IF NOT EXISTS domain (
