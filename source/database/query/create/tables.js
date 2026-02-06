@@ -283,15 +283,14 @@ async function module_binding() {
 	await sql`
 		CREATE TABLE module_binding (
 			id SERIAL PRIMARY KEY,
-			id_domain_target INTEGER REFERENCES domain(id) ON DELETE CASCADE,
-			id_garden INTEGER REFERENCES garden(id) ON DELETE CASCADE,
+			id_domain INTEGER REFERENCES domain(id) ON DELETE CASCADE,
+			id_module INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
+			slug VARCHAR(128) NOT NULL,
 			recursive BOOLEAN NOT NULL,
 			enabled BOOLEAN NOT NULL,
-			slug_module VARCHAR(8) NOT NULL REFERENCES module(slug) ON DELETE CASCADE,
-			slug_capability VARCHAR(8) NOT NULL,
-			methods VARCHAR(128),
 			priority INTEGER NOT NULL DEFAULT 0,
-			CONSTRAINT module_binding_unique_pair UNIQUE(id_garden, id_domain_target, slug_module, slug_capability)
+			CONSTRAINT module_binding_unique_pair UNIQUE(id_module, slug),
+			CONSTRAINT module_binding_slug_not_empty CHECK (char_length(btrim(slug)) > 0),
 		);
 	`;
 }
