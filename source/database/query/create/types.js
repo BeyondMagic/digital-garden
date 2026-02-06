@@ -12,13 +12,13 @@ async function domain() {
 	`;
 }
 
-async function status() {
+async function subject_status() {
 	await sql`
-		CREATE TYPE TYPE_STATUS AS ENUM ('PUBLIC', 'PRIVATE', 'ARCHIVED', 'DELETED');
+		CREATE TYPE TYPE_SUBJECT_STATUS AS ENUM ('PUBLIC', 'PRIVATE', 'ARCHIVED', 'DELETED');
 	`;
 }
 
 export const types = {
 	domain,
-	status,
+	subject_status,
 };
