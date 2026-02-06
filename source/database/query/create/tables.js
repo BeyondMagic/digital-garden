@@ -262,15 +262,19 @@ async function module() {
 		CREATE TABLE module (
 			id SERIAL PRIMARY KEY,
 			repository VARCHAR(512) UNIQUE NOT NULL,
-			slug VARCHAR(8) UNIQUE NOT NULL,
-			enabled BOOLEAN NOT NULL,
-			last_checked TIMESTAMP NOT NULL,
 			commit VARCHAR(40) NOT NULL,
 			branch VARCHAR(256) NOT NULL DEFAULT 'main',
+			version_major INTEGER,
+			version_minor INTEGER,
+			version_patch INTEGER,
+			last_heartbeat TIMESTAMP NOT NULL,
+			enabled BOOLEAN NOT NULL,
 			CONSTRAINT module_repository_not_empty CHECK (char_length(btrim(repository)) > 0),
-			CONSTRAINT module_slug_not_empty CHECK (char_length(btrim(slug)) > 0),
 			CONSTRAINT module_commit_not_empty CHECK (char_length(btrim(commit)) > 0),
-			CONSTRAINT module_branch_not_empty CHECK (char_length(btrim(branch)) > 0)
+			CONSTRAINT module_branch_not_empty CHECK (char_length(btrim(branch)) > 0),
+			CONSTRAINT module_version_major_non_negative CHECK (version_major IS NULL OR version_major >= 0),
+			CONSTRAINT module_version_minor_non_negative CHECK (version_minor IS NULL OR version_minor >= 0),
+			CONSTRAINT module_version_patch_non_negative CHECK (version_patch IS NULL OR version_patch >= 0)
 		);
 	`;
 }
