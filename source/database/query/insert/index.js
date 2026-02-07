@@ -6,6 +6,11 @@
 import { sql } from "bun";
 
 /**
+ * @typedef {Object} RowIdentifier
+ * @property {number} id - Unique identifier.
+ */
+
+/**
  * @typedef {Object} ModuleInput - Information about a module.
  * @property {string} repository - Repository URL of the module.
  * @property {string} commit - Git commit hash of the module version.
@@ -18,9 +23,7 @@ import { sql } from "bun";
  */
 
 /**
- * @typedef {Object} Module - Input data for inserting a module.
- * @extends ModuleInsertInput
- * @property {number} id - Unique identifier for the module.
+ * @typedef {ModuleInput & RowIdentifier} Module - Full row module data, including the generated ID.
  */
 
 /**
@@ -94,9 +97,7 @@ export async function insert_module({
  */
 
 /**
- * @typedef {Object} Asset - Input data for inserting an asset.
- * @extends AssetInput
- * @property {number} id - Unique identifier for the asset.
+ * @typedef {AssetInput & RowIdentifier} Asset - Full row asset data, including the generated ID.
  */
 
 /**
@@ -142,9 +143,7 @@ export async function asset({
  */
 
 /**
- * @typedef {Object} Domain
- * @extends DomainInput
- * @property {number} id - Unique identifier for the domain.
+ * @typedef {DomainInput & RowIdentifier} Domain - Full row domain data.
  */
 
 /**
