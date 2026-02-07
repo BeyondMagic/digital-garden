@@ -4,6 +4,7 @@
  */
 
 import { sql } from "bun";
+import { select } from "@/database/query/select";
 
 /**
  * @typedef {Object} RowIdentifier
@@ -97,16 +98,22 @@ export async function insert_module({
  */
 
 /**
- * @typedef {AssetInput & RowIdentifier} Asset - Full row asset data, including the generated ID.
+ * @typedef {Object} AssetBlob
+ * @property {Blob} blob - The binary data of the asset.
  */
 
 /**
- * @param {AssetInput} asset Asset information to insert.
+ * @typedef {AssetInput & AssetBlob & RowIdentifier} Asset - Full row asset data, including the generated ID.
+ */
+
+/**
+ * @param {AssetInput & AssetBlob} asset Asset information to insert.
  * @returns {Promise<number>} Inserted asset ID.
  */
 export async function asset({
 	id_domain,
 	slug,
+	blob,
 }) {
 
 	if (typeof id_domain !== "number" || id_domain <= 0)
@@ -114,6 +121,15 @@ export async function asset({
 
 	if (typeof slug !== "string" || slug.trim().length === 0)
 		throw new TypeError("asset: slug must be a non-empty string");
+
+	const domain_tree_path = await select.domain_tree(id_domain);
+	const domain_path = domain_tree_path
+		.map(domain => domain.slug)
+		.join("/");
+
+	// const repository_root = git.root();
+	// const file_path = `/public/${domain_path}/${slug}`;
+	// await save_blob_to_storage(blob, file_path);
 
 	const result = await sql`
 		INSERT INTO asset (
