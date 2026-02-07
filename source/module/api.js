@@ -29,7 +29,7 @@
  * @property {string} name - Human-readable name of the capability.
  * @property {string} description - Description of the capability.
  * @property {HTTPMethod} method - HTTP method (e.g., GET, POST, PUT, DELETE).
- * @property {Scope} scope - Scope of the capability, requires *ID target* and *token* if set.
+ * @property {Scope} scope - Scope of the capability, requires **ID target** and **token** if set.
  * @property {(context: any, params: any) => any} adapter - Adapter function that implements the capability's functionality, receives context and parameters as arguments.
  * @property {string | null} deprecation - Message providing details about the deprecation.
  */
