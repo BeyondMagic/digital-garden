@@ -91,6 +91,7 @@ export async function insert_module({
  * @typedef {Object} AssetInput - Information about an asset.
  * @property {number} id_domain - ID of the domain the asset belongs to.
  * @property {string} slug - Unique slug for the asset within the domain.
+ * @property {string} extension - File extension of the asset (e.g., "jpg", "png", "pdf").
  */
 
 /**
@@ -140,4 +141,5 @@ export async function asset({
 
 export const insert = {
 	module: insert_module,
+	asset
 };
