@@ -1,11 +1,11 @@
 #!/usr/bin/env -S nu --stdin
 #
-# SPDX-FileCopyrightText: 2025 João V. Farias (beyondmagic) <beyondmagic@mail.ru>
+# SPDX-FileCopyrightText: 2025-2026 João V. Farias (beyondmagic) <beyondmagic@mail.ru>
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Run cli of developer mode of the server.
 export def cli [
-    ...args: string # Arguments to pass to the bun command.
+    args: list<string> # Arguments to pass to the bun command.
     --path: string = "./source/index.js" # The path to the server entry file.
     --logs-dir: string = "./logs"
 ]: nothing -> any {
@@ -40,7 +40,7 @@ export def cli [
 # Run the server in debug mode.
 export def debug []: nothing -> any {
     $env.DEBUG = true
-    cli
+    cli []
 }
 
 # Run the server in development mode.
@@ -64,7 +64,7 @@ def "git root" []: nothing -> string {
 
 # Execute bun command with the given arguments.
 export def bun [
-    ...args: string # Arguments to pass to the bun command.
+    args: list<string> # Arguments to pass to the bun command.
 ]: nothing -> any {
     source ./env.nu
 
@@ -73,7 +73,7 @@ export def bun [
 
 # Execute docker command with the given arguments.
 export def docker [
-    ...args: string # Arguments to pass to the docker command.
+    args: list<string> # Arguments to pass to the docker command.
 ]: nothing -> any {
     source ./env.nu
 
@@ -89,13 +89,13 @@ export def main [
 ]: nothing -> any {
     match $subcommand {
         "bun" => {
-            bun ...$args
+            bun $args
         }
         "docker" => {
-            docker ...$args
+            docker $args
         }
         "cli" => {
-            cli ...$args
+            cli $args
         }
         "debug" => {
             debug
