@@ -105,16 +105,28 @@ export async function insert_module({
  */
 export async function asset({
 	id_domain,
-	slug
+	slug,
+	extension
 }) {
+
+	if (typeof id_domain !== "number" || id_domain <= 0)
+		throw new TypeError("asset: id_domain must be a positive number");
+
+	if (typeof slug !== "string" || slug.trim().length === 0)
+		throw new TypeError("asset: slug must be a non-empty string");
+
+	if (typeof extension !== "string" || extension.trim().length === 0)
+		throw new TypeError("asset: extension must be a non-empty string");
 
 	const result = await sql`
 		INSERT INTO asset (
 			id_domain,
-			slug
+			slug,
+			extension
 		) VALUES (
 			${id_domain},
-			${slug}
+			${slug},
+			${extension}
 		)
 		RETURNING id
 	`;
