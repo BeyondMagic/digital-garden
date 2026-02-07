@@ -127,8 +127,7 @@ export async function asset({
 		.map(domain => domain.slug)
 		.join("/");
 
-	// const repository_root = git.root();
-	// const file_path = `/public/${domain_path}/${slug}`;
+	const file_path = `${cdn}/${domain_path}/${slug}`;
 	// await save_blob_to_storage(blob, file_path);
 
 	const result = await sql`
