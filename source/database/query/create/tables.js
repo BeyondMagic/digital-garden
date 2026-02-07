@@ -23,7 +23,8 @@ async function domain() {
 			CONSTRAINT domain_root_kind_check CHECK (
 				(id_domain_parent IS NULL AND kind = 'SUBDOMAIN') OR
 				(id_domain_parent IS NOT NULL)
-			)
+			),
+			CONSTRAINT domain_slug_format CHECK (slug NOT LIKE '%/%' AND slug NOT LIKE '%\0%')
 		);
 	`;
 }
@@ -35,7 +36,8 @@ async function asset() {
 			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
 			slug VARCHAR(64) NOT NULL,
 			CONSTRAINT asset_unique_domain_slug UNIQUE(id_domain, slug),
-			CONSTRAINT asset_slug_not_empty CHECK (char_length(btrim(slug)) > 0)
+			CONSTRAINT asset_slug_not_empty CHECK (char_length(btrim(slug)) > 0),
+			CONSTRAINT asset_slug_format CHECK (slug NOT LIKE '%/%' AND slug NOT LIKE '%\0%')
 		);
 	`;
 }
@@ -267,7 +269,7 @@ async function module() {
 			version_major INTEGER,
 			version_minor INTEGER,
 			version_patch INTEGER,
-			last_heartbeat TIMESTAMP NOT NULL,
+			last_heartbeat TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			enabled BOOLEAN NOT NULL,
 			CONSTRAINT module_repository_not_empty CHECK (char_length(btrim(repository)) > 0),
 			CONSTRAINT module_commit_not_empty CHECK (char_length(btrim(commit)) > 0),
