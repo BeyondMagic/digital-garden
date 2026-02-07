@@ -1,21 +1,21 @@
 {
-  "name": "digital-garden",
-  "exports": {
-    ".": {
-      "import": "./module/api.js",
-      "require": "./module/api.cjs"
-    },
-    "./server": {
-      "import": "./index.js"
-    }
-  },
-  "module": "index.js",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+	"name": "digital-garden",
+	"exports": {
+		".": {
+			"import": "./module/api.js",
+			"require": "./module/api.cjs"
+		},
+		"./server": {
+			"import": "./index.js"
+		}
+	},
+	"module": "index.js",
+	"type": "module",
+	"private": true,
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
 }
