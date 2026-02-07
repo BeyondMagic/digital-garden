@@ -7,10 +7,6 @@
 import { is_debug, color } from "@/setup";
 
 /**
- * @import { DebugFunction, ErrorFunction, LogFunction } from "@/types";
- */
-
-/**
  * Debug log with a file context.
  * @param {string} file The file to log messages for.
  * @param {any} message The message to log.
@@ -93,6 +89,11 @@ export function assert(condition, message = 'Assertion Failed') {
 }
 
 /**
+ * Signature for debug function.
+ * @typedef { (message: any, options?: { step: { max: number, current: number } }) => void } DebugFunction
+ */
+
+/**
  * Factory to bind a file to the debug function.
  * Returns a normal function to preserve expected typing behavior.
  * @param {string} file
@@ -110,6 +111,11 @@ export function create_debug(file) {
 }
 
 /**
+ * Signature for error function.
+ * @typedef { (message: any) => Error } ErrorFunction
+ */
+
+/**
  * Factory to bind a file to the error function.
  * Returns a normal function to preserve expected typing behavior.
  * @param {string} file
@@ -122,6 +128,11 @@ export function create_error(file) {
 	}
 	return bound_error;
 }
+
+/**
+ * Signature for generic log functions like info/warn/critical.
+ * @typedef { (message: any, options?: { step: { max: number, current: number } }) => void } LogFunction
+ */
 
 /**
  * Factory to bind a file to the info function.
