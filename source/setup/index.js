@@ -27,3 +27,7 @@ export const [
 	hostname,
 	port
 ] = process.env.DOMAIN.split(":");
+
+assert(process.env.CDN, "CDN environment variable is not set");
+
+export const cdn = process.env.CDN;
