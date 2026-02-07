@@ -1,5 +1,14 @@
 {
   "name": "digital-garden",
+  "exports": {
+    ".": {
+      "import": "./module/api.js",
+      "require": "./module/api.cjs"
+    },
+    "./server": {
+      "import": "./index.js"
+    }
+  },
   "module": "index.js",
   "type": "module",
   "private": true,
