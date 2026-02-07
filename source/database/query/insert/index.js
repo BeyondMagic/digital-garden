@@ -122,29 +122,37 @@ export async function asset({
 	if (typeof slug !== "string" || slug.trim().length === 0)
 		throw new TypeError("asset: slug must be a non-empty string");
 
-	const domain_tree_path = await select.domain_tree(id_domain);
-	const domain_path = domain_tree_path
-		.map(domain => domain.slug)
-		.join("/");
+	const id = await sql.begin(async sql => {
+		const insert_result = await sql`
+			INSERT INTO asset (
+				id_domain,
+				slug
+			) VALUES (
+				${id_domain},
+				${slug}
+			)
+			RETURNING id
+		`;
 
-	const file_path = `${cdn}/${domain_path}/${slug}`;
-	// await save_blob_to_storage(blob, file_path);
+		if (insert_result.length === 0)
+			throw new Error("insert_asset: failed to insert asset");
 
-	const result = await sql`
-		INSERT INTO asset (
-			id_domain,
-			slug
-		) VALUES (
-			${id_domain},
-			${slug}
-		)
-		RETURNING id
-	`;
+		const domain_tree_path = await select.domain_tree(id_domain);
+		const domain_path = domain_tree_path
+			.map(domain => domain.slug)
+			.join("/");
 
-	if (result.length === 0)
-		throw new Error("insert_asset: failed to insert asset");
+		const file_path = `${cdn}/${domain_path}/${slug}`;
 
-	return result[0].id;
+		if (await Bun.file(file_path).exists())
+			throw new Error(`insert_asset: file already exists at path ${file_path}`);
+
+		await Bun.write(file_path, blob);
+
+		return insert_result[0].id;
+	})
+
+	return id;
 }
 
 /**
