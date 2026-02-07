@@ -7,6 +7,35 @@
 "use strict";
 
 /**
+* @typedef {Object} Author - Information about an author.
+* @property {string} name - Name of the author.
+* @property {string | null} url - URL to the author's website or profile.
+* @property {string | null} email - Email address of the author.
+*/
+
+/**
+ * Version information of the module (semantic versioning).
+ * @abstract
+ * @static
+ * @typedef {Object} Version - Semantic versioning information.
+ * @property {number} major - Incompatible API changes.
+ * @property {number} minor - Backwards-compatible functionality additions.
+ * @property {number} patch - Backwards-compatible bug fixes.
+ */
+
+/**
+ * @typedef {Object} Capability - Information about a module capability of adapter action.
+ * @property {string} slug - Unique identifier for the capability.
+ * @property {string} name - Human-readable name of the capability.
+ * @property {string} description - Description of the capability.
+ * @property {'binding' | 'action'} type - Type of the capability, either 'binding' for request/response bindings or 'action' for callable actions.
+ * @property {HTTPMethod} method - HTTP method (e.g., GET, POST, PUT, DELETE).
+ * @property {Scope} scope - Scope of the capability, requires *ID target* and *token* if set.
+ * @property {(context: any, params: any) => any} adapter - Adapter function that implements the capability's functionality, receives context and parameters as arguments.
+ * @property {string | null} deprecation - Message providing details about the deprecation.
+ */
+
+/**
  * Base class for all modules.
  * @abstract
  * @class
@@ -40,13 +69,6 @@ export class Module {
 	static description = null;
 
 	/**
-	 * @typedef {Object} Author - Information about an author.
-	 * @property {string} name - Name of the author.
-	 * @property {string | null} url - URL to the author's website or profile.
-	 * @property {string | null} email - Email address of the author.
-	 */
-
-	/**
 	 * List of authors of the module.
 	 * @abstract
 	 * @static
@@ -54,16 +76,6 @@ export class Module {
 	 */
 	// @ts-ignore -- ignore ts error for static field for jsdoc.
 	static authors = null;
-
-	/**
-	 * Version information of the module (semantic versioning).
-	 * @abstract
-	 * @static
-	 * @typedef {Object} Version - Semantic versioning information.
-	 * @property {number} major - Incompatible API changes.
-	 * @property {number} minor - Backwards-compatible functionality additions.
-	 * @property {number} patch - Backwards-compatible bug fixes.
-	 */
 
 	/** @type { Version } */
 	static version = {
@@ -99,18 +111,6 @@ export class Module {
 
 	/**
 	 * @typedef {'server' | 'garden' | 'domain' | 'content' | null} Scope - Scope types for module capabilities.
-	 */
-
-	/**
-	 * @typedef {Object} Capability - Information about a module capability of adapter action.
-	 * @property {string} slug - Unique identifier for the capability.
-	 * @property {string} name - Human-readable name of the capability.
-	 * @property {string} description - Description of the capability.
-	 * @property {'binding' | 'action'} type - Type of the capability, either 'binding' for request/response bindings or 'action' for callable actions.
-	 * @property {HTTPMethod} method - HTTP method (e.g., GET, POST, PUT, DELETE).
-	 * @property {Scope} scope - Scope of the capability, requires *ID target* and *token* if set.
-	 * @property {(context: any, params: any) => any} adapter - Adapter function that implements the capability's functionality, receives context and parameters as arguments.
-	 * @property {string | null} deprecation - Message providing details about the deprecation.
 	 */
 
 	/**
