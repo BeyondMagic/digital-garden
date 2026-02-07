@@ -39,12 +39,9 @@ async function asset() {
 			id SERIAL PRIMARY KEY,
 			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
 			slug VARCHAR(64) NOT NULL,
-			extension VARCHAR(16) NOT NULL,
 			CONSTRAINT asset_unique_domain_slug UNIQUE(id_domain, slug),
 			CONSTRAINT asset_slug_not_empty CHECK (char_length(btrim(slug)) > 0),
-			CONSTRAINT asset_slug_format CHECK (slug NOT LIKE '%/%' AND slug NOT LIKE '%\0%' AND slug NOT LIKE '%.%'),
-			CONSTRAINT asset_extension_not_empty CHECK (char_length(btrim(extension)) > 0),
-			CONSTRAINT asset_extension_format CHECK (extension NOT LIKE '%/%' AND extension NOT LIKE '%\0%')
+			CONSTRAINT asset_slug_format CHECK (slug NOT LIKE '%/%' AND slug NOT LIKE '%\0%' AND slug NOT LIKE '%.%')
 		);
 	`;
 }

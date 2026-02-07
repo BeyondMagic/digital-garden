@@ -91,7 +91,6 @@ export async function insert_module({
  * @typedef {Object} AssetInput - Information about an asset.
  * @property {number} id_domain - ID of the domain the asset belongs to.
  * @property {string} slug - Unique slug for the asset within the domain.
- * @property {string} extension - File extension of the asset (e.g., "jpg", "png", "pdf").
  */
 
 /**
@@ -107,7 +106,6 @@ export async function insert_module({
 export async function asset({
 	id_domain,
 	slug,
-	extension
 }) {
 
 	if (typeof id_domain !== "number" || id_domain <= 0)
@@ -116,18 +114,13 @@ export async function asset({
 	if (typeof slug !== "string" || slug.trim().length === 0)
 		throw new TypeError("asset: slug must be a non-empty string");
 
-	if (typeof extension !== "string" || extension.trim().length === 0)
-		throw new TypeError("asset: extension must be a non-empty string");
-
 	const result = await sql`
 		INSERT INTO asset (
 			id_domain,
-			slug,
-			extension
+			slug
 		) VALUES (
 			${id_domain},
-			${slug},
-			${extension}
+			${slug}
 		)
 		RETURNING id
 	`;
