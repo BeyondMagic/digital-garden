@@ -136,10 +136,75 @@ export async function asset({
 		throw new Error("insert_asset: failed to insert asset");
 
 	return result[0].id;
+}
 
+/**
+ * @typedef {Object} DomainInput
+ * @property {number} id_domain - ID of the domain the asset belongs to.
+ * @property {number | null} id_domain_parent - ID of the parent domain (nullable).
+ * @property {number | null} id_domain_redirect - ID of the domain to redirect to (nullable).
+ * @property {string} kind - Kind of the domain (e.g., "SUBDOMAIN", "ROUTER").
+ * @property {string} slug - Unique slug for the domain.
+ * @property {string} status - Status of the domain (e.g., "PUBLIC", "PRIVATE", "ARCHIVED", "DELETED").
+ */
+
+/**
+ * @typedef {Object} Domain
+ * @extends DomainInput
+ * @property {number} id - Unique identifier for the domain.
+ */
+
+/**
+ * @param {DomainInput} domain Domain information to insert.
+ * @returns {Promise<number>} Inserted domain ID.
+ */
+export async function domain({
+	id_domain_parent,
+	id_domain_redirect,
+	kind,
+	slug,
+	status,
+}) {
+	if (id_domain_parent !== null && (typeof id_domain_parent !== "number" || id_domain_parent <= 0))
+		throw new TypeError("domain: id_domain_parent must be a positive number or null");
+
+	if (id_domain_redirect !== null && (typeof id_domain_redirect !== "number" || id_domain_redirect <= 0))
+		throw new TypeError("domain: id_domain_redirect must be a positive number or null");
+
+	if (typeof kind !== "string" || kind.trim().length === 0)
+		throw new TypeError("domain: kind must be a non-empty string");
+
+	if (typeof slug !== "string" || slug.trim().length === 0)
+		throw new TypeError("domain: slug must be a non-empty string");
+
+	if (typeof status !== "string" || status.trim().length === 0)
+		throw new TypeError("domain: status must be a non-empty string");
+
+	const result = await sql`
+		INSERT INTO domain (
+			id_domain_parent,
+			id_domain_redirect,
+			kind,
+			slug,
+			status
+		) VALUES (
+			${id_domain_parent},
+			${id_domain_redirect},
+			${kind},
+			${slug},
+			${status}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_domain: failed to insert domain");
+
+	return result[0].id;
 }
 
 export const insert = {
 	module: insert_module,
-	asset
+	asset,
+	domain,
 };
