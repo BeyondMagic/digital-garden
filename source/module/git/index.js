@@ -7,7 +7,7 @@
 import { dirname, join } from "node:path";
 import { $ } from "bun";
 
-import { assert, create_debug, create_info, create_warn } from "@/logger";
+import { assert, create_debug, create_info, create_warn } from "@/logger/index.js";
 import { util } from "./util.js";
 
 const debug = create_debug(import.meta.file);
@@ -113,8 +113,7 @@ test_git.test = async () => {
 	const available = await test_git();
 	assert(typeof available === "boolean");
 	info(
-		`[${test_name}] git executable is ${
-			available ? "available" : "not available"
+		`[${test_name}] git executable is ${available ? "available" : "not available"
 		}.`,
 	);
 };

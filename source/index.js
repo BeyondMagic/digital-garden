@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { hostname, is_dev, port } from "./setup";
+import { hostname, is_dev, port } from "@/setup";
 import { serve } from "bun";
 import { create_debug, create_info } from "@/logger";
 
