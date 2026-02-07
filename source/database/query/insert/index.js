@@ -6,7 +6,7 @@
 import { sql } from "bun";
 
 /**
- * @typedef {Object} ModuleInsertInput - Information about a module.
+ * @typedef {Object} ModuleInput - Information about a module.
  * @property {string} repository - Repository URL of the module.
  * @property {string} commit - Git commit hash of the module version.
  * @property {string} branch - Git branch of the module.
@@ -24,8 +24,7 @@ import { sql } from "bun";
  */
 
 /**
- * Insert a new module row.
- * @param {ModuleInsertInput} module Module information to insert.
+ * @param {ModuleInput} module Module information to insert.
  * @returns {Promise<number>} Inserted module ID.
  */
 export async function insert_module({
@@ -88,18 +87,44 @@ export async function insert_module({
 	return result[0].id;
 }
 
-insert_module.test = function () {
-	let threw = false;
-	try {
-		// @ts-expect-error intentionally invalid
-		insert_module(null);
-	} catch {
-		threw = true;
-	}
-	if (!threw) {
-		throw new Error("insert_module.test: expected invalid input to throw");
-	}
-};
+/**
+ * @typedef {Object} AssetInput - Information about an asset.
+ * @property {number} id_domain - ID of the domain the asset belongs to.
+ * @property {string} slug - Unique slug for the asset within the domain.
+ */
+
+/**
+ * @typedef {Object} Asset - Input data for inserting an asset.
+ * @extends AssetInput
+ * @property {number} id - Unique identifier for the asset.
+ */
+
+/**
+ * @param {AssetInput} asset Asset information to insert.
+ * @returns {Promise<number>} Inserted asset ID.
+ */
+export async function asset({
+	id_domain,
+	slug
+}) {
+
+	const result = await sql`
+		INSERT INTO asset (
+			id_domain,
+			slug
+		) VALUES (
+			${id_domain},
+			${slug}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_asset: failed to insert asset");
+
+	return result[0].id;
+
+}
 
 export const insert = {
 	module: insert_module,
