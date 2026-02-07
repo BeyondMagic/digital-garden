@@ -5,6 +5,7 @@
 
 import { sql } from "bun";
 import { select } from "@/database/query/select";
+import { cdn } from "@/setup";
 
 /**
  * @typedef {Object} RowIdentifier
@@ -123,6 +124,7 @@ export async function asset({
 		throw new TypeError("asset: slug must be a non-empty string");
 
 	const id = await sql.begin(async sql => {
+		/** @type {Array<{id: number}>} */
 		const insert_result = await sql`
 			INSERT INTO asset (
 				id_domain,
@@ -134,7 +136,9 @@ export async function asset({
 			RETURNING id
 		`;
 
-		if (insert_result.length === 0)
+		const asset_row = insert_result[0];
+
+		if (!asset_row)
 			throw new Error("insert_asset: failed to insert asset");
 
 		const domain_tree_path = await select.domain_tree(id_domain);
@@ -149,7 +153,7 @@ export async function asset({
 
 		await Bun.write(file_path, blob);
 
-		return insert_result[0].id;
+		return asset_row.id;
 	})
 
 	return id;
