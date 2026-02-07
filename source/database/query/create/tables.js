@@ -285,22 +285,6 @@ async function module() {
 	`;
 }
 
-async function module_binding() {
-	await sql`
-		CREATE TABLE module_binding (
-			id SERIAL PRIMARY KEY,
-			id_domain INTEGER REFERENCES domain(id) ON DELETE CASCADE,
-			id_module INTEGER NOT NULL REFERENCES module(id) ON DELETE CASCADE,
-			slug VARCHAR(128) NOT NULL,
-			recursive BOOLEAN NOT NULL,
-			enabled BOOLEAN NOT NULL,
-			priority INTEGER NOT NULL DEFAULT 0,
-			CONSTRAINT module_binding_unique_pair UNIQUE(id_module, slug),
-			CONSTRAINT module_binding_slug_not_empty CHECK (char_length(btrim(slug)) > 0),
-		);
-	`;
-}
-
 export const tables = {
 	domain,
 	asset,
@@ -321,5 +305,4 @@ export const tables = {
 	author_domain,
 	author_content,
 	module,
-	module_binding,
 };
