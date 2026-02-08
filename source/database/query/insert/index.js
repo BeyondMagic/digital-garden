@@ -5,8 +5,7 @@
 
 import { sql } from "bun";
 import { symlink } from "node:fs/promises";
-import { select } from "@/database/query/select";
-import { public_root, setup } from "@/setup";
+import { build_asset_path } from "@/database/query/util";
 
 /**
  * @typedef {Object} RowIdentifier
@@ -126,12 +125,7 @@ export async function asset({
 
 	const id = await sql.begin(async sql => {
 
-		const domain_tree_path = await select.domain_tree(id_domain);
-		const domain_path = domain_tree_path
-			.map(domain => domain.slug)
-			.join("/");
-
-		const file_path = `${public_root}/${domain_path}/${slug}`;
+		const file_path = await build_asset_path(id_domain, slug);
 
 		/** @type {Array<{id: number}>} */
 		const [asset_row] = await sql`
