@@ -125,14 +125,24 @@ export async function asset({
 		throw new TypeError("asset: slug must be a non-empty string");
 
 	const id = await sql.begin(async sql => {
+
+		const domain_tree_path = await select.domain_tree(id_domain);
+		const domain_path = domain_tree_path
+			.map(domain => domain.slug)
+			.join("/");
+
+		const file_path = `${public_root}/${domain_path}/${slug}`;
+
 		/** @type {Array<{id: number}>} */
 		const insert_result = await sql`
 			INSERT INTO asset (
 				id_domain,
-				slug
+				slug,
+				path
 			) VALUES (
 				${id_domain},
-				${slug}
+				${slug},
+				${file_path}
 			)
 			RETURNING id
 		`;
