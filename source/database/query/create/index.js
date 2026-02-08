@@ -9,7 +9,7 @@ import { types } from "@/database/query/create/types";
 
 async function schema() {
 	await types.domain();
-	await types.status();
+	await types.subject_status();
 
 	await tables.domain();
 	await tables.asset();
