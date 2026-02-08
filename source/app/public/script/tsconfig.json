@@ -1,0 +1,35 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+
+    // This folder is browser-only; avoid pulling in Bun/Node globals.
+    "types": [],
+
+    // Web-components are shipped as native ESM.
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noEmit": true,
+
+    // Most files here are plain JS with JSDoc types.
+    "allowJs": true,
+    "checkJs": true,
+
+    // Keep JSX off-by-default for this folder.
+    "jsx": "preserve"
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "./**/*.js",
+    "./**/*.mjs"
+  ],
+  "exclude": [
+    "./**/node_modules/**",
+    "./dist/**",
+    "./build/**"
+  ]
+}
