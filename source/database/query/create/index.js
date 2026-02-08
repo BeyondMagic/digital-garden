@@ -30,7 +30,6 @@ async function schema() {
 	await tables.author_domain();
 	await tables.author_content();
 	await tables.module();
-	await tables.module_binding();
 }
 
 export const create = {
