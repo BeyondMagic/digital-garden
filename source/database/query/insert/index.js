@@ -7,26 +7,7 @@ import { sql } from "bun";
 import { symlink } from "node:fs/promises";
 import { build_asset_path } from "@/database/query/util";
 
-/**
- * @typedef {Object} RowIdentifier
- * @property {number} id - Unique identifier.
- */
-
-/**
- * @typedef {Object} ModuleInput - Information about a module.
- * @property {string} repository - Repository URL of the module.
- * @property {string} commit - Git commit hash of the module version.
- * @property {string} branch - Git branch of the module.
- * @property {number | null} version_major - Major version number of the module.
- * @property {number | null} version_minor - Minor version number of the module.
- * @property {number | null} version_patch - Patch version number of the module.
- * @property {Date} last_heartbeat - Timestamp of the last heartbeat received from the module.
- * @property {boolean} enabled - Whether the module is enabled or not.
- */
-
-/**
- * @typedef {ModuleInput & RowIdentifier} Module - Full row module data, including the generated ID.
- */
+/** @import {ModuleInput, RowIdentifier, AssetInput, AssetData, DomainInput} from "@/database/query/index"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -93,21 +74,6 @@ export async function insert_module({
 }
 
 /**
- * @typedef {Object} AssetInput - Information about an asset.
- * @property {number} id_domain - ID of the domain the asset belongs to.
- * @property {string} slug - Unique slug for the asset within the domain.
- */
-
-/**
- * @typedef {Object} AssetData
- * @property {{blob: Blob} | {path: string}} data - The binary data of the asset.
- */
-
-/**
- * @typedef {AssetInput & RowIdentifier} Asset - Full row asset data, including the generated ID.
- */
-
-/**
  * @param {AssetInput & AssetData} asset Asset information to insert.
  * @returns {Promise<number>} Inserted asset ID.
  */
@@ -165,20 +131,6 @@ export async function asset({
 
 	return id;
 }
-
-/**
- * @typedef {Object} DomainInput
- * @property {number} id_domain - ID of the domain the asset belongs to.
- * @property {number | null} id_domain_parent - ID of the parent domain (nullable).
- * @property {number | null} id_domain_redirect - ID of the domain to redirect to (nullable).
- * @property {string} kind - Kind of the domain (e.g., "SUBDOMAIN", "ROUTER").
- * @property {string} slug - Unique slug for the domain.
- * @property {string} status - Status of the domain (e.g., "PUBLIC", "PRIVATE", "ARCHIVED", "DELETED").
- */
-
-/**
- * @typedef {DomainInput & RowIdentifier} Domain - Full row domain data.
- */
 
 /**
  * @param {DomainInput} domain Domain information to insert.
