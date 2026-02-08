@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { hostname, is_dev, port } from "@/setup";
+import { domain, hostname, is_dev, port } from "@/setup";
 import { serve } from "bun";
 import { create_debug, create_info } from "@/logger";
 
@@ -21,13 +21,17 @@ debug("Starting the server...", { step: { current: 1, max: 2 } });
 async function fetch(req, server) {
     const url = new URL(req.url);
 
-    debug(`→ ${req.method} ${url.pathname}`);
+    debug(`${req.method}\t\t→ ${url}`);
 
-    if (url.pathname == "/health") {
-        return new Response("ok", { headers: { "content-type": "text/plain" } });
-    }
+    const subdomains = url.host.replace(domain, "").split(".").filter(Boolean);
+    // info(`Subdomains\t→ [${subdomains.join(", ") || "None"}]`);
 
-    info(`404 ${url.pathname}`);
+    const routers = url.pathname.split("/").filter(Boolean);
+    // info(`Routers\t→ [${routers.join(", ") || "None"}]`);
+
+    const domains = [...subdomains.reverse(), ...routers].reverse();
+    info(`Domains\t→ [${domains.join(", ") || "None"}]`);
+
     return new Response("Not Found", { status: 404, headers: { "content-type": "text/plain" } });
 }
 

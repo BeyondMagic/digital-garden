@@ -23,10 +23,12 @@ export const color = {
 
 assert(process.env.DOMAIN, "DOMAIN environment variable is not set");
 
+export const domain = process.env.DOMAIN;
+
 export const [
 	hostname,
 	port
-] = process.env.DOMAIN.split(":");
+] = domain.split(":");
 
 assert(process.env.PUBLIC_ROOT, "PUBLIC_ROOT environment variable is not set");
 
@@ -36,6 +38,7 @@ export const setup = {
 	is_dev,
 	is_debug,
 	color,
+	domain,
 	hostname,
 	port,
 	public_root,
