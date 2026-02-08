@@ -2,8 +2,8 @@
 	"name": "digital-garden",
 	"exports": {
 		".": {
-			"import": "./module/api.js",
-			"require": "./module/api.cjs"
+			"import": "./module/api/index.js",
+			"require": "./module/api/index.cjs"
 		},
 		"./server": {
 			"import": "./index.js"

@@ -1,10 +1,15 @@
 /*
  * SPDX-FileCopyrightText: 2025-2026 João V. Farias (beyondmagic) <beyondmagic@mail.ru>
- *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 "use strict";
+
+import { capability } from "@/module/api/capability";
+
+/**
+ * @typedef {('GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD' | 'TRACE' | 'CONNECT')} HTTPMethod - HTTP methods for defining capabilities.
+ */
 
 /**
 * @typedef {Object} Author - Information about an author.
@@ -24,20 +29,36 @@
  */
 
 /**
+ * @template T
+ * @callback AsyncResponseFunction
+ * @param {T} data - Input parameter
+ * @returns {Promise<Response>}
+ */
+
+/**
+ * @template T
  * @typedef {Object} Capability - Information about a module capability of adapter action.
  * @property {string} slug - Unique identifier for the capability.
  * @property {string} name - Human-readable name of the capability.
  * @property {string} description - Description of the capability.
  * @property {HTTPMethod} method - HTTP method (e.g., GET, POST, PUT, DELETE).
  * @property {Scope} scope - Scope of the capability, requires **ID target** and **token** if set.
- * @property {(context: any, params: any) => any} adapter - Adapter function that implements the capability's functionality, receives context and parameters as arguments.
+ * @property {AsyncResponseFunction<T>} handler - Function that implements the capability's functionality, receives context and parameters as arguments.
  * @property {string | null} deprecation - Message providing details about the deprecation.
  */
 
 /**
  * Base class for all modules.
  * @abstract
- * @class
+ * @interface
+ * @property {string} slug - Unique identifier for the module.
+ * @property {string} name - Unique name of the module.
+ * @property {string} description - Description of the module.
+ * @property {Array<Author>} authors - List of authors of the module.
+ * @property {Version} version - Version information of the module (semantic versioning).
+ * @property {string | null} deprecation - Indicates if the module is deprecated, with an optional message providing details about the deprecation.
+ * @property {string} subresource_integrity - Subresource integrity hash for the module, used to verify the integrity of the module's resources.
+ * @property {Array<Capability>} capabilities - List of capabilities provided by the module, defining its functionality and how it can be interacted with.
  */
 export class Module {
 	/**
@@ -105,10 +126,6 @@ export class Module {
 	static subresource_integrity = null;
 
 	/**
-	 * @typedef {('GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD' | 'TRACE' | 'CONNECT')} HTTPMethod - HTTP methods for defining capabilities.
-	 */
-
-	/**
 	 * @typedef {'server' | 'garden' | 'domain' | 'content' | null} Scope - Scope types for module capabilities.
 	 */
 
@@ -116,7 +133,7 @@ export class Module {
 	 * List of capabilities provided by the module.
 	 * @abstract
 	 * @static
-	 * @type {Capability[]}
+	 * @type {Array<Capability<any>>}
 	 */
 	// @ts-ignore -- ignore ts error for static field for jsdoc.
 	static capabilities = "Disable this deprecation warning.";
@@ -141,10 +158,15 @@ export class Module {
  * @description Namespace for the digital garden module system, exposing the base Module class and other relevant types and utilities for module development.
  * @global
  */
-const digital_garden = {
+export const api = {
 	Module,
+	capability: {
+		create_register: capability.create_register,
+		create_get: capability.create_get,
+		create_remove: capability.create_remove,
+	}
 };
 
-globalThis["digital-garden"] = digital_garden;
+globalThis["digital-garden"] = api;
 
-module.exports = digital_garden;
+module.exports = api;
