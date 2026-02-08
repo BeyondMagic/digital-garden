@@ -134,7 +134,7 @@ export async function asset({
 		const file_path = `${public_root}/${domain_path}/${slug}`;
 
 		/** @type {Array<{id: number}>} */
-		const insert_result = await sql`
+		const [asset_row] = await sql`
 			INSERT INTO asset (
 				id_domain,
 				slug,
@@ -147,17 +147,8 @@ export async function asset({
 			RETURNING id
 		`;
 
-		const asset_row = insert_result[0];
-
 		if (!asset_row)
 			throw new Error("insert_asset: failed to insert asset");
-
-		const domain_tree_path = await select.domain_tree(id_domain);
-		const domain_path = domain_tree_path
-			.map(domain => domain.slug)
-			.join("/");
-
-		const file_path = `${public_root}/${domain_path}/${slug}`;
 
 		if (await Bun.file(file_path).exists())
 			throw new Error(`insert_asset: file already exists at path ${file_path}`);
