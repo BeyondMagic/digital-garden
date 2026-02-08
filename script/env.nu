@@ -6,7 +6,7 @@
 export-env {
 
 	# The folder where assets will be stored.
-	$env.CDN = (^git rev-parse --show-toplevel | str trim) + "/cdn/"
+	$env.PUBLIC_ROOT = (^git rev-parse --show-toplevel | str trim) + "/public/"
 
 	# The domain of the website it will be running on.
 	$env.DOMAIN = "localhost:3001"

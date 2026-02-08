@@ -28,6 +28,15 @@ export const [
 	port
 ] = process.env.DOMAIN.split(":");
 
-assert(process.env.CDN, "CDN environment variable is not set");
+assert(process.env.PUBLIC_ROOT, "PUBLIC_ROOT environment variable is not set");
 
-export const cdn = process.env.CDN;
+export const public_root = process.env.PUBLIC_ROOT;
+
+export const setup = {
+	is_dev,
+	is_debug,
+	color,
+	hostname,
+	port,
+	public_root,
+}

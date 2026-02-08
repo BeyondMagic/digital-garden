@@ -6,7 +6,7 @@
 import { sql } from "bun";
 import { symlink } from "node:fs/promises";
 import { select } from "@/database/query/select";
-import { cdn } from "@/setup";
+import { public_root, setup } from "@/setup";
 
 /**
  * @typedef {Object} RowIdentifier
@@ -147,13 +147,14 @@ export async function asset({
 			.map(domain => domain.slug)
 			.join("/");
 
-		const file_path = `${cdn}/${domain_path}/${slug}`;
+		const file_path = `${public_root}/${domain_path}/${slug}`;
 
 		if (await Bun.file(file_path).exists())
 			throw new Error(`insert_asset: file already exists at path ${file_path}`);
 
 		if ("blob" in data && data.blob instanceof Blob)
 			await Bun.write(file_path, data.blob);
+
 		else if ("path" in data && typeof data.path === "string") {
 
 			if (!(await Bun.file(data.path).exists()))
