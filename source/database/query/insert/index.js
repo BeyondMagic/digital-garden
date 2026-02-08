@@ -105,7 +105,7 @@ export async function insert_module({
  */
 
 /**
- * @typedef {AssetInput & AssetData & RowIdentifier} Asset - Full row asset data, including the generated ID.
+ * @typedef {AssetInput & RowIdentifier} Asset - Full row asset data, including the generated ID.
  */
 
 /**
