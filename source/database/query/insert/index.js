@@ -4,6 +4,7 @@
  */
 
 import { sql } from "bun";
+import { symlink } from "node:fs/promises";
 import { select } from "@/database/query/select";
 import { cdn } from "@/setup";
 
@@ -99,22 +100,22 @@ export async function insert_module({
  */
 
 /**
- * @typedef {Object} AssetBlob
- * @property {Blob} blob - The binary data of the asset.
+ * @typedef {Object} AssetData
+ * @property {{blob: Blob} | {path: string}} data - The binary data of the asset.
  */
 
 /**
- * @typedef {AssetInput & AssetBlob & RowIdentifier} Asset - Full row asset data, including the generated ID.
+ * @typedef {AssetInput & AssetData & RowIdentifier} Asset - Full row asset data, including the generated ID.
  */
 
 /**
- * @param {AssetInput & AssetBlob} asset Asset information to insert.
+ * @param {AssetInput & AssetData} asset Asset information to insert.
  * @returns {Promise<number>} Inserted asset ID.
  */
 export async function asset({
 	id_domain,
 	slug,
-	blob,
+	data,
 }) {
 
 	if (typeof id_domain !== "number" || id_domain <= 0)
@@ -151,7 +152,17 @@ export async function asset({
 		if (await Bun.file(file_path).exists())
 			throw new Error(`insert_asset: file already exists at path ${file_path}`);
 
-		await Bun.write(file_path, blob);
+		if ("blob" in data && data.blob instanceof Blob)
+			await Bun.write(file_path, data.blob);
+		else if ("path" in data && typeof data.path === "string") {
+
+			if (!(await Bun.file(data.path).exists()))
+				throw new Error(`insert_asset: source file does not exist at path ${data.path}`);
+
+			await symlink(data.path, file_path);
+		}
+		else
+			throw new TypeError("insert_asset: data must have either a blob or path property");
 
 		return asset_row.id;
 	})
