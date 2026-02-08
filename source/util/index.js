@@ -22,12 +22,13 @@ const MODULE_SLUG_MAX_BYTE =
 	1;
 const MODULE_SLUG_LENGTH = 8;
 
+
 /**
  * Check whether a filesystem path exists.
  * @param {string} path
  * @returns {Promise<boolean>}
  */
-async function path_exists(path) {
+export async function path_exists(path) {
 	try {
 		await access(path, constants.F_OK);
 		return true;

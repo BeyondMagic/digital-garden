@@ -8,7 +8,7 @@ import { dirname, join } from "node:path";
 import { $ } from "bun";
 
 import { assert, create_debug, create_info, create_warn } from "@/logger/index.js";
-import { util } from "@/module/git/util.js";
+import { util } from "@/util";
 
 const debug = create_debug(import.meta.file);
 const info = create_info(import.meta.file);
