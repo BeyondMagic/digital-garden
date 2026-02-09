@@ -7,6 +7,9 @@
 import { is_debug, color } from "@/setup";
 import { basename, dirname } from "node:path";
 
+const HEADER_TYPE_LENGTH = 12;
+const FILE_CONTEXT_LENGTH = 24;
+
 /**
  * Debug log with a file context.
  * @param {string} file The file to log messages for.
@@ -14,15 +17,18 @@ import { basename, dirname } from "node:path";
  * @param {{ step: { max: number, current: number } }} [options] Optional step info.
  */
 export function debug(file, message, options) {
+
+	const header = color.debug + '[DEBUG]'.padEnd(HEADER_TYPE_LENGTH) + ` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+
 	if (typeof message === "object" && message !== null) {
-		console.debug(`${color.debug}[DEBUG] [${file}] Object:${color.reset}`);
+		console.debug(`${header} Object:${color.reset}`);
 		console.table(message);
 		return;
 	}
 	if (options?.step)
-		console.debug(`${color.debug}[DEBUG] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
+		console.debug(`${header} ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
-		console.debug(`${color.debug}[DEBUG] [${file}] ${message}${color.reset}`);
+		console.debug(`${header} ${message}${color.reset}`);
 }
 
 /**
@@ -33,15 +39,18 @@ export function debug(file, message, options) {
  * @returns {void}
  */
 export function info(file, message, options) {
+
+	const header = color.info + '[INFO]'.padEnd(HEADER_TYPE_LENGTH) + ` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+
 	if (typeof message === "object" && message !== null) {
-		console.info(`${color.info}[INFO] [${file}] Object:${color.reset}`);
+		console.info(`${header} Object:${color.reset}`);
 		console.table(message);
 		return;
 	}
 	if (options?.step)
-		console.info(`${color.info}[INFO] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
+		console.info(`${header} ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
-		console.info(`${color.info}[INFO] [${file}] ${message}${color.reset}`);
+		console.info(`${header} ${message}${color.reset}`);
 }
 
 /**
@@ -52,15 +61,18 @@ export function info(file, message, options) {
  * @returns {void}
  */
 export function warn(file, message, options) {
+
+	const header = color.warn + '[WARN]'.padEnd(HEADER_TYPE_LENGTH) + ` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+
 	if (typeof message === "object" && message !== null) {
-		console.warn(`${color.warn}[WARN] [${file}] Object:${color.reset}`);
+		console.warn(`${header} Object:${color.reset}`);
 		console.table(message);
 		return;
 	}
 	if (options?.step)
-		console.warn(`${color.warn}[WARN] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
+		console.warn(`${header} ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
-		console.warn(`${color.warn}[WARN] [${file}] ${message}${color.reset}`);
+		console.warn(`${header} ${message}${color.reset}`);
 }
 
 /**
@@ -70,7 +82,14 @@ export function warn(file, message, options) {
  * @returns {Error}
  */
 export function error(file, message) {
-	return Error(`${color.error}[ERROR] [${file}] ${message}${color.reset}`);
+	const header = color.error + '[ERROR]'.padEnd(HEADER_TYPE_LENGTH) + ` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+
+	if (typeof message === "object" && message !== null) {
+		console.error(`${header} Object:${color.reset}`);
+		console.table(message);
+		return new Error(`${header} Object: ${JSON.stringify(message)}${color.reset}`);
+	}
+	return Error(`${header} ${message}${color.reset}`);
 }
 
 /**
@@ -80,7 +99,14 @@ export function error(file, message) {
  * @returns {void}
  */
 export function critical(file, message) {
-	console.error(`${color.critical}[CRITICAL] [${file}] ${message}${color.reset}`);
+	const header = color.critical + '[CRITICAL]'.padEnd(HEADER_TYPE_LENGTH) + ` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+
+	if (typeof message === "object" && message !== null) {
+		console.error(`${header} Object:${color.reset}`);
+		console.table(message);
+		return;
+	}
+	console.error(`${header} ${message}${color.reset}`);
 }
 
 /**
@@ -122,8 +148,8 @@ export function create_debug(path) {
 		dir,
 		name
 	] = [
+			basename(dirname(path)),
 			basename(path),
-			basename(dirname(path))
 		];
 
 	const file = dir + '/' + name;
@@ -150,8 +176,8 @@ export function create_error(path) {
 		dir,
 		name
 	] = [
+			basename(dirname(path)),
 			basename(path),
-			basename(dirname(path))
 		]
 
 	const file = dir + '/' + name;
@@ -177,8 +203,8 @@ export function create_info(path) {
 		dir,
 		name
 	] = [
+			basename(dirname(path)),
 			basename(path),
-			basename(dirname(path))
 		]
 
 	const file = dir + '/' + name;
@@ -199,8 +225,8 @@ export function create_warn(path) {
 		dir,
 		name
 	] = [
+			basename(dirname(path)),
 			basename(path),
-			basename(dirname(path))
 		]
 
 	const file = dir + '/' + name;
@@ -221,8 +247,8 @@ export function create_critical(path) {
 		dir,
 		name
 	] = [
+			basename(dirname(path)),
 			basename(path),
-			basename(dirname(path))
 		]
 
 	const file = dir + '/' + name;
