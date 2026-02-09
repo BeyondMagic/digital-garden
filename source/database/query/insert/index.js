@@ -192,8 +192,40 @@ export async function domain({
 	return result[0].id;
 }
 
+/**
+ * @param {LanguageInput} language Language information to insert.
+ * @returns {Promise<number>} Inserted language ID.
+ */
+export async function language({
+	id_asset,
+	slug,
+}) {
+	if (typeof id_asset !== "number" || id_asset <= 0)
+		throw new TypeError("language: id_asset must be a positive number");
+
+	if (typeof slug !== "string" || slug.trim().length === 0)
+		throw new TypeError("language: slug must be a non-empty string");
+
+	const result = await sql`
+		INSERT INTO language (
+			id_asset,
+			slug
+		) VALUES (
+			${id_asset},
+			${slug}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_language: failed to insert language");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
 	domain,
+	language,
 };
