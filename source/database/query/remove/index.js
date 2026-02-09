@@ -6,7 +6,11 @@
 import { sql } from "bun";
 
 /**
- * @param {{id: number}} param0 - Asset information to remove.
+ * @import { RowIdentifier } from "@/database/query";
+ */
+
+/**
+ * @param {RowIdentifier} param0
  */
 export async function asset({
 	id,
@@ -34,6 +38,19 @@ export async function asset({
 	})
 }
 
+/**
+ * @param {RowIdentifier} param0
+ */
+export async function domain({
+	id,
+}) {
+	await sql`
+		DELETE FROM domain
+		WHERE id = ${id}
+	`;
+}
+
 export const remove = {
 	asset,
+	domain,
 };
