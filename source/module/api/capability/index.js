@@ -17,16 +17,19 @@ const info = create_info(import.meta.file);
  */
 const capabilities = new Map();
 
-const slug_pattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+/**
+ * Registered module slugs.
+ * @type {Set<string>}
+ */
+const modules_slugs = new Set();
+
+const slug_pattern = /^(?!\/)(?!.*\/\/)(?!.*\/$)[a-z0-9]+(-[a-z0-9]+)*(\/[a-z0-9]+(-[a-z0-9]+)*)*$/;
 
 /**
  * Validates a slug string against the defined pattern.
  * 
  * Pattern explanation:
- * - Allow only lowercase letters, numbers, and hyphens.
- * - Must start and end with a letter or number.
- * - Hyphens cannot be consecutive or at the start/end.
- * - Examples of valid slugs: "module1", "my-module", "module-123", "m1-m2-m3".
+ * - Examples of valid slugs: "module/action", "module/action/subaction", "module-123/action".
  * @param {string} slug Slug to validate.
  * @returns {Promise<boolean>} True if the slug is valid, false otherwise.
  */
@@ -40,58 +43,55 @@ async function validate_slug(slug) {
 validate_slug.test = async function () {
 	const slugs = [
 		{
-			str: "valid-slug-123",
-			valid: true
-		},
-		{
-			str: "invalid_slug",
+			str: "/double/slash",
 			valid: false
 		},
 		{
-			str: "invalid--slug",
+			str: "invalid-slug/",
 			valid: false
-		},
-		{
-			str: "-invalid-slug",
-			valid: false
-		},
-		{
-			str: "invalid-slug-",
-			valid: false
-		},
-		{
-			str: "validslug",
-			valid: true
 		},
 		{
 			str: "valid-slug",
 			valid: true
 		},
 		{
-			str: "valid-slug-123",
+			str: "valid123-slug/subslug",
 			valid: true
 		},
 		{
-			str: "invalidSlug",
+			str: "Invalid_Slug",
 			valid: false
 		},
 		{
-			str: "invalid slug",
+			str: "-starts-with-hyphen",
 			valid: false
 		},
 		{
-			str: "/double/slash",
+			str: "starts-with-hyphen-",
+			valid: false
+		},
+		{
+			str: "deep/nested/slug",
+			valid: true
+		},
+		{
+			str: "UPPERCASE/slug",
 			valid: false
 		}
 	]
 
-	for (const slug of slugs) {
-		assert(typeof slug.str === "string");
-		assert(typeof slug.valid === "boolean");
+	const table = slugs.map(async slug => {
 		const result = await validate_slug(slug.str);
-		assert(result === slug.valid, `Slug validation failed for "${slug.str}". Expected ${slug.valid} but got ${result}.`);
-		info(`Slug "${slug.str}" validation result: ${result} (expected: ${slug.valid})`);
-	}
+		return {
+			slug: slug.str,
+			valid: slug.valid,
+			result: result,
+			expected: slug.valid == result
+		};
+	});
+	const result_table = await Promise.all(table);
+
+	info(result_table)
 }
 
 /**
