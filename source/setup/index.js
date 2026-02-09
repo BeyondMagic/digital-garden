@@ -25,10 +25,13 @@ assert(process.env.DOMAIN, "DOMAIN environment variable is not set");
 
 export const domain = process.env.DOMAIN;
 
-export const [
-	hostname,
-	port
-] = domain.split(":");
+const domains = domain.split(":");
+
+assert(domains[0], "Hostname must be a string");
+assert(domains[1], "Port must be a string");
+
+export const hostname = domains[0];
+export const port = domains[1];
 
 assert(process.env.PUBLIC_ROOT, "PUBLIC_ROOT environment variable is not set");
 
