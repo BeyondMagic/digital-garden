@@ -31,8 +31,7 @@
  */
 
 /**
- * @typedef {Object} AssetData
- * @property {{blob: Blob} | {path: string}} data - The binary data of the asset.
+ * @typedef {{blob: Blob} | {path: string}} AssetData - The binary/symlink data of the asset.
  */
 
 /**

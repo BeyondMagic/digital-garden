@@ -4,14 +4,18 @@
  */
 
 import { sql } from "bun";
-import { build_asset_path } from "@/database/query/util";
-import { symlink } from "node:fs/promises";
+import {
+	build_asset_path,
+	build_temp_path,
+	cleanup_asset_paths,
+	prepare_asset_file,
+} from "@/database/query/util";
+import { rename, rm } from "node:fs/promises";
 
 /** @import { Asset, AssetData } from "@/database/query"; */
 
 /**
- * @param {Asset & AssetData} asset Asset information to update.
- * @returns {Promise<void>}
+ * @param {Asset & {data: AssetData}} asset Asset information to update.
  */
 export async function asset({
 	id,
@@ -42,31 +46,38 @@ export async function asset({
 		if (old_path === new_path)
 			throw new Error("update_asset: new path is the same as the old path");
 
-		await sql`
-			UPDATE asset SET
-				id_domain = ${id_domain},
-				slug = ${slug},
-				path = ${new_path}
-			WHERE id = ${id}
-		`;
-
 		if (await Bun.file(new_path).exists())
 			throw new Error(`update_asset: file already exists at path ${new_path}`);
 
-		if ("blob" in data && data.blob instanceof Blob)
-			await Bun.write(new_path, data.blob);
+		const temp_path = build_temp_path(new_path);
 
-		else if ("path" in data && typeof data.path === "string") {
+		if (await Bun.file(temp_path).exists())
+			throw new Error(`update_asset: temp file already exists at path ${temp_path}`);
 
-			if (!(await Bun.file(data.path).exists()))
-				throw new Error(`update_asset: source file does not exist at path ${data.path}`);
+		let has_renamed = false;
 
-			await symlink(data.path, new_path);
+		try {
+			await prepare_asset_file(data, temp_path, "update_asset");
+
+			await sql`
+				UPDATE asset SET
+					id_domain = ${id_domain},
+					slug = ${slug},
+					path = ${new_path}
+				WHERE id = ${id}
+			`;
+
+			await rename(temp_path, new_path);
+			has_renamed = true;
+
+			await rm(old_path, { force: true });
+		} catch (error) {
+			await cleanup_asset_paths({
+				temp_path: has_renamed ? null : temp_path,
+				new_path: has_renamed ? new_path : null
+			});
+			throw error;
 		}
-		else
-			throw new TypeError("update_asset: data must have either a blob or path property");
-
-		await Bun.file(old_path).delete();
 	})
 }
 

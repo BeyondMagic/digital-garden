@@ -5,8 +5,14 @@
  */
 
 import { sql } from "bun";
+import { randomUUID } from "node:crypto";
+import { rm, symlink } from "node:fs/promises";
+import { basename, dirname } from "node:path";
 import { select } from "@/database/query/select";
 import { public_root } from "@/setup";
+import { join } from 'node:path';
+
+/** @import { AssetData } from "@/database/query"; */
 
 /**
  * Check if a database object exists.
@@ -48,7 +54,59 @@ export async function build_asset_path(id_domain, slug) {
 	return file_path;
 }
 
+/**
+ * Build a unique temporary path for an asset operation.
+ * @param {string} target_path Final asset path.
+ * @returns {string} Temporary path for staging the asset.
+ */
+export function build_temp_path(target_path) {
+	const directory = dirname(target_path);
+	const file_name = basename(target_path);
+	const tmp_path = join(directory, `${file_name}.tmp-${randomUUID()}`);
+	return tmp_path;
+}
+
+/**
+ * Prepare an asset file at a temporary path.
+ * @param {AssetData} data Asset content or source path.
+ * @param {string} temp_path Temporary path to write or link.
+ * @param {string} error_prefix Error prefix for thrown errors.
+ * @returns {Promise<void>}
+ */
+export async function prepare_asset_file(data, temp_path, error_prefix = "asset") {
+	if ("blob" in data && data.blob instanceof Blob) {
+		await Bun.write(temp_path, data.blob);
+		return;
+	}
+
+	if ("path" in data && typeof data.path === "string") {
+		if (!(await Bun.file(data.path).exists()))
+			throw new Error(`${error_prefix}: source file does not exist at path ${data.path}`);
+
+		await symlink(data.path, temp_path);
+		return;
+	}
+
+	throw new TypeError(`${error_prefix}: data must have either a blob or path property`);
+}
+
+/**
+ * Cleanup temporary or target asset paths after a failed operation.
+ * @param {{ temp_path?: string | null, new_path?: string | null }} options Cleanup options.
+ * @returns {Promise<void>}
+ */
+export async function cleanup_asset_paths({ temp_path, new_path }) {
+	if (temp_path)
+		await rm(temp_path, { force: true });
+
+	if (new_path)
+		await rm(new_path, { force: true });
+}
+
 export const utils = {
 	exists,
 	build_asset_path,
+	build_temp_path,
+	prepare_asset_file,
+	cleanup_asset_paths,
 };

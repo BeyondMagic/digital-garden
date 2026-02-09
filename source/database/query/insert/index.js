@@ -4,10 +4,15 @@
  */
 
 import { sql } from "bun";
-import { symlink } from "node:fs/promises";
-import { build_asset_path } from "@/database/query/util";
+import {
+	build_asset_path,
+	build_temp_path,
+	cleanup_asset_paths,
+	prepare_asset_file,
+} from "@/database/query/util";
+import { rename } from "node:fs/promises";
 
-/** @import {ModuleInput, RowIdentifier, AssetInput, AssetData, DomainInput} from "@/database/query/index"; */
+/** @import {ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query/index"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -74,7 +79,7 @@ export async function insert_module({
 }
 
 /**
- * @param {AssetInput & AssetData} asset Asset information to insert.
+ * @param {AssetInput & {data: AssetData}} asset Asset information to insert.
  * @returns {Promise<number>} Inserted asset ID.
  */
 export async function asset({
@@ -92,41 +97,47 @@ export async function asset({
 	const id = await sql.begin(async sql => {
 
 		const file_path = await build_asset_path(id_domain, slug);
-
-		/** @type {Array<{id: number}>} */
-		const [asset_row] = await sql`
-			INSERT INTO asset (
-				id_domain,
-				slug,
-				path
-			) VALUES (
-				${id_domain},
-				${slug},
-				${file_path}
-			)
-			RETURNING id
-		`;
-
-		if (!asset_row)
-			throw new Error("insert_asset: failed to insert asset");
+		const temp_path = build_temp_path(file_path);
 
 		if (await Bun.file(file_path).exists())
 			throw new Error(`insert_asset: file already exists at path ${file_path}`);
 
-		if ("blob" in data && data.blob instanceof Blob)
-			await Bun.write(file_path, data.blob);
+		if (await Bun.file(temp_path).exists())
+			throw new Error(`insert_asset: temp file already exists at path ${temp_path}`);
 
-		else if ("path" in data && typeof data.path === "string") {
+		let has_renamed = false;
 
-			if (!(await Bun.file(data.path).exists()))
-				throw new Error(`insert_asset: source file does not exist at path ${data.path}`);
+		try {
+			await prepare_asset_file(data, temp_path, "insert_asset");
 
-			await symlink(data.path, file_path);
+			/** @type {Array<{id: number}>} */
+			const [asset_row] = await sql`
+				INSERT INTO asset (
+					id_domain,
+					slug,
+					path
+				) VALUES (
+					${id_domain},
+					${slug},
+					${file_path}
+				)
+				RETURNING id
+			`;
+
+			if (!asset_row)
+				throw new Error("insert_asset: failed to insert asset");
+
+			await rename(temp_path, file_path);
+			has_renamed = true;
+
+			return asset_row.id;
+		} catch (error) {
+			await cleanup_asset_paths({
+				temp_path: has_renamed ? null : temp_path,
+				new_path: has_renamed ? file_path : null
+			});
+			throw error;
 		}
-		else
-			throw new TypeError("insert_asset: data must have either a blob or path property");
-
-		return asset_row.id;
 	})
 
 	return id;
