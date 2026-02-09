@@ -7,14 +7,14 @@
 import { domain, hostname, is_dev, port } from "@/setup";
 import { serve } from "bun";
 import { create_debug, create_info } from "@/logger";
-import { capability } from "@/module/api/capability";
+import { get as get_capability } from "@/module/api/capability";
 
 const debug = create_debug(import.meta.file);
 const info = create_info(import.meta.file);
 
 debug("Starting the server...", { step: { current: 1, max: 2 } });
 
-/** @import { AsyncResponseFunction, HTTPMethod } from "@/module/api" */
+/** @import { Capability, HTTPMethod } from "@/module/api" */
 
 /**
  * 
@@ -44,15 +44,21 @@ async function fetch(req, server) {
 
         info(`API Slug\t→ ${slug}`);
 
-        /** @type {AsyncResponseFunction<any>} */
-        let handler;
+        /** @type {Capability<any>} */
+        let capability;
         try {
-            handler = await capability.get(method, slug);
+            capability = await get_capability(method, slug);
         } catch {
             return new Response("Server/Module API not found", { status: 404, headers: { "content-type": "text/plain" } });
         }
 
-        const response = await handler(req);
+        /** @type {Response} */
+        let response;
+        try {
+            response = await capability.handler(req);
+        } catch {
+            return new Response("Error executing API handler", { status: 500, headers: { "content-type": "text/plain" } });
+        }
 
         if (!(response instanceof Response))
             return new Response("Invalid response from API handler", { status: 500, headers: { "content-type": "text/plain" } });
