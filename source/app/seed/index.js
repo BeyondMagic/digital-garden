@@ -19,6 +19,10 @@ import { insert } from "@/database/query/insert"
 import { remove } from "@/database/query/remove"
 import { json_to_response } from "@/module/api";
 import { capability } from "@/module/api/capability";
+import { create_debug, create_info } from "@/logger";
+
+const debug = create_debug(import.meta.file);
+const info = create_info(import.meta.file);
 
 /**
  * @param {Request} request
@@ -132,5 +136,16 @@ const capabilities = [
 	}
 ]
 
-for (const cap of capabilities)
-	capability.register(cap.method, cap.slug, cap);
+export async function setup() {
+	debug("Setting up server capabilities...", { step: { current: 1, max: 2 } });
+
+	for (const cap of capabilities)
+		capability.register(cap.method, cap.slug, cap);
+
+	debug("Server capabilities setup complete.", { step: { current: 2, max: 2 } });
+}
+
+export const seed = {
+	capabilities,
+	setup
+}
