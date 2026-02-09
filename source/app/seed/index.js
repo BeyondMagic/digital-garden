@@ -17,6 +17,7 @@
 
 import { insert } from "@/database/query/insert"
 import { json_to_response } from "@/module/api";
+import { capability } from "@/module/api/capability";
 
 /**
  * @param {Request} request
@@ -123,3 +124,6 @@ const capabilities = [
 		output: null
 	}
 ]
+
+for (const cap of capabilities)
+	capability.register(cap.method, cap.slug, cap);
