@@ -11,9 +11,13 @@ import { is_debug, color } from "@/setup";
  * @param {string} file The file to log messages for.
  * @param {any} message The message to log.
  * @param {{ step: { max: number, current: number } }} [options] Optional step info.
- * @returns {void}
  */
 export function debug(file, message, options) {
+	if (typeof message === "object" && message !== null) {
+		console.debug(`${color.debug}[DEBUG] [${file}] Object:${color.reset}`);
+		console.table(message);
+		return;
+	}
 	if (options?.step)
 		console.debug(`${color.debug}[DEBUG] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
@@ -28,6 +32,11 @@ export function debug(file, message, options) {
  * @returns {void}
  */
 export function info(file, message, options) {
+	if (typeof message === "object" && message !== null) {
+		console.info(`${color.info}[INFO] [${file}] Object:${color.reset}`);
+		console.table(message);
+		return;
+	}
 	if (options?.step)
 		console.info(`${color.info}[INFO] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
@@ -42,6 +51,11 @@ export function info(file, message, options) {
  * @returns {void}
  */
 export function warn(file, message, options) {
+	if (typeof message === "object" && message !== null) {
+		console.warn(`${color.warn}[WARN] [${file}] Object:${color.reset}`);
+		console.table(message);
+		return;
+	}
 	if (options?.step)
 		console.warn(`${color.warn}[WARN] [${file}] ${message} ${options.step.current}/${options.step.max}${color.reset}`);
 	else
