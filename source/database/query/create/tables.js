@@ -20,12 +20,7 @@ async function domain() {
 			CONSTRAINT domain_no_circular_parent CHECK (id_domain_parent IS NULL OR id_domain_parent <> id_domain_redirect),
 			CONSTRAINT domain_no_circular_redirect CHECK (id_domain_redirect IS NULL OR id_domain_redirect <> id_domain_parent),
 			CONSTRAINT domain_slug_not_empty CHECK (char_length(btrim(slug)) > 0),
-			-- This constraint ensures that root domains (without a parent) must be of kind 'SUBDOMAIN', while non-root domains can be of any kind.
-			CONSTRAINT domain_root_kind_check CHECK (
-				(id_domain_parent IS NULL AND kind = 'SUBDOMAIN') OR
-				(id_domain_parent IS NOT NULL)
-			),
-			CONSTRAINT domain_slug_format CHECK (slug NOT LIKE '%/%' AND slug NOT LIKE '%\0%'),
+			CONSTRAINT domain_slug_format CHECK (slug NOT LIKE '%/%'),
 			CONSTRAINT domain_subdomain_slug_format CHECK (
 				(kind = 'SUBDOMAIN' AND slug NOT LIKE '%.%') OR
 				(kind = 'ROUTER')
@@ -47,9 +42,8 @@ async function asset() {
 			path VARCHAR(4096) NOT NULL,
 			CONSTRAINT asset_unique_domain_slug UNIQUE(id_domain, slug),
 			CONSTRAINT asset_slug_not_empty CHECK (char_length(btrim(slug)) > 0),
-			CONSTRAINT asset_slug_format CHECK (slug NOT LIKE '%/%' AND slug NOT LIKE '%\0%'),
+			CONSTRAINT asset_slug_format CHECK (slug NOT LIKE '%/%'),
 			CONSTRAINT asset_path_not_empty CHECK (char_length(btrim(path)) > 0),
-			CONSTRAINT asset_path_format CHECK (path NOT LIKE '%\0%'),
 			CONSTRAINT asset_path_unique UNIQUE(path)
 		);
 	`;
