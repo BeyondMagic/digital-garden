@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -371,6 +371,49 @@ export async function tag_requirement({
 	return result[0].id;
 }
 
+/**
+ * @param {TagInformationInput} tag_information Tag information to insert.
+ * @returns {Promise<number>} Inserted tag information ID.
+ */
+export async function tag_information({
+	id_tag,
+	id_language,
+	name,
+	description,
+}) {
+	if (typeof id_tag !== "number" || id_tag <= 0)
+		throw new TypeError("tag_information: id_tag must be a positive number");
+
+	if (typeof id_language !== "number" || id_language <= 0)
+		throw new TypeError("tag_information: id_language must be a positive number");
+
+	if (typeof name !== "string" || name.trim().length === 0)
+		throw new TypeError("tag_information: name must be a non-empty string");
+
+	if (typeof description !== "string")
+		throw new TypeError("tag_information: description must be a string");
+
+	const result = await sql`
+		INSERT INTO tag_information (
+			id_tag,
+			id_language,
+			name,
+			description
+		) VALUES (
+			${id_tag},
+			${id_language},
+			${name},
+			${description}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_tag_information: failed to insert tag information");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
@@ -380,4 +423,5 @@ export const insert = {
 	asset_information,
 	tag,
 	tag_requirement,
+	tag_information,
 };
