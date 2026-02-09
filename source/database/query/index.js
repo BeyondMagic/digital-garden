@@ -51,6 +51,16 @@
  * @typedef {DomainInput & RowIdentifier} Domain - Full row domain data.
  */
 
+/**
+ * @typedef {Object} LanguageInput
+ * @property {string} id_asset - ID of the asset the language is associated with.
+ * @property {string} slug - Unique slug for the language within the asset, like 'xx-YY' (e.g. 'en-US').
+ */
+
+/**
+ * @typedef {LanguageInput & RowIdentifier} Language - Full row language data, including the generated ID.
+ */
+
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
 import { reset } from "@/database/query/reset";
