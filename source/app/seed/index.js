@@ -7,7 +7,6 @@
  * TO-DO: main capabilitieas:
  * - POST/domain/add
  * - PUT/domain/update
- * - GET/domain/id
  */
 
 /**
@@ -19,10 +18,9 @@ import { insert } from "@/database/query/insert"
 import { remove } from "@/database/query/remove"
 import { json_to_response } from "@/module/api";
 import { capability } from "@/module/api/capability";
-import { create_debug, create_info } from "@/logger";
+import { create_debug } from "@/logger";
 
-const debug = create_debug(import.meta.file);
-const info = create_info(import.meta.file);
+const debug = create_debug(import.meta.path);
 
 /**
  * @param {Request} request

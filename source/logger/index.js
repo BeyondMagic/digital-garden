@@ -5,6 +5,7 @@
  */
 
 import { is_debug, color } from "@/setup";
+import { basename, dirname } from "node:path";
 
 /**
  * Debug log with a file context.
@@ -110,18 +111,27 @@ export function assert(condition, message = 'Assertion Failed') {
 /**
  * Factory to bind a file to the debug function.
  * Returns a normal function to preserve expected typing behavior.
- * @param {string} file
+ * @param {string} path
  * @returns {DebugFunction}
  */
-export function create_debug(file) {
+export function create_debug(path) {
 	if (!is_debug)
 		return () => { };
 
+	const [
+		dir,
+		name
+	] = [
+			basename(path),
+			basename(dirname(path))
+		];
+
+	const file = dir + '/' + name;
+
 	/** @type {DebugFunction} */
-	function bound_debug(message, options) {
+	return function (message, options) {
 		return debug(file, message, options);
-	}
-	return bound_debug;
+	};
 }
 
 /**
@@ -132,15 +142,24 @@ export function create_debug(file) {
 /**
  * Factory to bind a file to the error function.
  * Returns a normal function to preserve expected typing behavior.
- * @param {string} file
+ * @param {string} path
  * @returns {ErrorFunction}
  */
-export function create_error(file) {
+export function create_error(path) {
+	const [
+		dir,
+		name
+	] = [
+			basename(path),
+			basename(dirname(path))
+		]
+
+	const file = dir + '/' + name;
+
 	/** @type {ErrorFunction} */
-	function bound_error(message) {
+	return function (message) {
 		return error(file, message);
-	}
-	return bound_error;
+	};
 }
 
 /**
@@ -150,39 +169,66 @@ export function create_error(file) {
 
 /**
  * Factory to bind a file to the info function.
- * @param {string} file
+ * @param {string} path
  * @returns {LogFunction}
  */
-export function create_info(file) {
+export function create_info(path) {
+	const [
+		dir,
+		name
+	] = [
+			basename(path),
+			basename(dirname(path))
+		]
+
+	const file = dir + '/' + name;
+
 	/** @type {LogFunction} */
-	function bound_info(message, options) {
+	return function (message, options) {
 		return info(file, message, options);
-	}
-	return bound_info;
+	};
 }
 
 /**
  * Factory to bind a file to the warn function.
- * @param {string} file
+ * @param {string} path
  * @returns {LogFunction}
  */
-export function create_warn(file) {
+export function create_warn(path) {
+	const [
+		dir,
+		name
+	] = [
+			basename(path),
+			basename(dirname(path))
+		]
+
+	const file = dir + '/' + name;
+
 	/** @type {LogFunction} */
-	function bound_warn(message, options) {
+	return function (message, options) {
 		return warn(file, message, options);
-	}
-	return bound_warn;
+	};
 }
 
 /**
  * Factory to bind a file to the critical function.
- * @param {string} file
+ * @param {string} path
  * @returns {LogFunction}
  */
-export function create_critical(file) {
+export function create_critical(path) {
+	const [
+		dir,
+		name
+	] = [
+			basename(path),
+			basename(dirname(path))
+		]
+
+	const file = dir + '/' + name;
+
 	/** @type {LogFunction} */
-	function bound_critical(message) {
+	return function (message) {
 		return critical(file, message);
-	}
-	return bound_critical;
+	};
 }

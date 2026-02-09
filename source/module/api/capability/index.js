@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { assert, create_info } from "@/logger";
+import { create_info } from "@/logger";
 
-const info = create_info(import.meta.file);
+const info = create_info(import.meta.path);
 
 /**
  * @import { HTTPMethod, Capability } from "@/module/api"

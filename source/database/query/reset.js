@@ -9,9 +9,9 @@ import { create_warn, create_info, create_critical } from "@/logger";
 import { exists } from '@/database/query/util';
 import { assert } from '@/logger';
 
-const warn = create_warn(import.meta.file);
-const info = create_info(import.meta.file);
-const critical = create_critical(import.meta.file);
+const warn = create_warn(import.meta.path);
+const info = create_info(import.meta.path);
+const critical = create_critical(import.meta.path);
 
 /**
  * * WARNING: This script must be run ONLY against a test database.

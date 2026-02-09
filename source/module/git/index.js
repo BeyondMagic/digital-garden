@@ -10,9 +10,9 @@ import { $ } from "bun";
 import { assert, create_debug, create_info, create_warn } from "@/logger/index.js";
 import { util } from "@/util";
 
-const debug = create_debug(import.meta.file);
-const info = create_info(import.meta.file);
-const warn = create_warn(import.meta.file);
+const debug = create_debug(import.meta.path);
+const info = create_info(import.meta.path);
+const warn = create_warn(import.meta.path);
 
 /**
  * Clone a repository into the given directory.

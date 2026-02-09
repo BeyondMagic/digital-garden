@@ -11,8 +11,8 @@ import { randomBytes } from "node:crypto";
 
 import { assert, create_debug, create_info } from "@/logger";
 
-const debug = create_debug(import.meta.file);
-const info = create_info(import.meta.file);
+const debug = create_debug(import.meta.path);
+const info = create_info(import.meta.path);
 
 const MODULE_SLUG_ALPHABET =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
