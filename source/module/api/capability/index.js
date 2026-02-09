@@ -8,12 +8,12 @@ import { assert, create_info } from "@/logger";
 const info = create_info(import.meta.file);
 
 /**
- * @import { AsyncResponseFunction, HTTPMethod } from "@/module/api"
+ * @import { HTTPMethod, Capability } from "@/module/api"
  * */
 
 /**
  * Capability registry to store and manage module capabilities.
- * @type {Map<string, AsyncResponseFunction<any>>}
+ * @type {Map<string, Capability<any>>}
  */
 const capabilities = new Map();
 
@@ -106,9 +106,9 @@ async function invalid_slug_message(slug) {
 /**
  * @param {HTTPMethod} method
  * @param {string} slug 
- * @param {AsyncResponseFunction<any>} handler 
+ * @param {Capability<any>} capability 
  */
-export async function register(method, slug, handler) {
+export async function register(method, slug, capability) {
 
 	if (!await validate_slug(slug))
 		throw new Error(await invalid_slug_message(slug));
@@ -118,16 +118,13 @@ export async function register(method, slug, handler) {
 	if (capabilities.has(id))
 		throw new Error(`Capability with id "${id}" is already registered.`);
 
-	if (typeof handler !== "function")
-		throw new TypeError(`Handler for capability "${id}" must be a function.`);
-
-	capabilities.set(id, handler);
+	capabilities.set(id, capability);
 }
 
 /**
  * @param {HTTPMethod} method
  * @param {string} slug
- * @returns {Promise<AsyncResponseFunction<any>>}
+ * @returns {Promise<Capability<any>>}
  */
 export async function get(method, slug) {
 
@@ -174,10 +171,10 @@ export async function create_register(module_slug) {
 	 * Registers a capability handler for a specific module.
 	 * @param {HTTPMethod} method HTTP method for the capability.
 	 * @param {string} slug Unique identifier for the capability within the module.
-	 * @param {AsyncResponseFunction<any>} handler Function that implements the capability's functionality.
+	 * @param {Capability<any>} capability The capability information object containing details about the capability, including the handler function.
 	 */
-	return async function (method, slug, handler) {
-		return await register(method, module_slug + "/" + slug, handler);
+	return async function (method, slug, capability) {
+		return await register(method, module_slug + "/" + slug, capability);
 	}
 }
 
@@ -190,7 +187,7 @@ export async function create_get(module_slug) {
 	 * Retrieves a capability handler for a specific module.
 	 * @param {HTTPMethod} method HTTP method for the capability.
 	 * @param {string} slug Unique identifier for the capability within the module.
-	 * @returns {Promise<AsyncResponseFunction<any>>} The capability handler function.
+	 * @returns {Promise<Capability<any>>} The capability handler function.
 	 */
 	return async function (method, slug) {
 		return await get(method, module_slug + "/" + slug);
