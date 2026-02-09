@@ -174,7 +174,8 @@ export async function create_register(module_slug) {
 	 * @param {Capability<any>} capability The capability information object containing details about the capability, including the handler function.
 	 */
 	return async function (method, slug, capability) {
-		return await register(method, module_slug + "/" + slug, capability);
+		const resolved_slug = "module/" + module_slug + "/" + slug;
+		return await register(method, resolved_slug, capability);
 	}
 }
 
@@ -190,7 +191,8 @@ export async function create_get(module_slug) {
 	 * @returns {Promise<Capability<any>>} The capability handler function.
 	 */
 	return async function (method, slug) {
-		return await get(method, module_slug + "/" + slug);
+		const resolved_slug = "module/" + module_slug + "/" + slug;
+		return await get(method, resolved_slug);
 	}
 }
 
@@ -205,7 +207,8 @@ export async function create_remove(module_slug) {
 	 * @param {string} slug Unique identifier for the capability within the module.
 	 */
 	return async function (method, slug) {
-		return await remove(method, module_slug + "/" + slug);
+		const resolved_slug = "module/" + module_slug + "/" + slug;
+		return await remove(method, resolved_slug);
 	}
 }
 
