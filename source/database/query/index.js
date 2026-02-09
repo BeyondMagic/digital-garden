@@ -95,6 +95,28 @@
  * @typedef {TagInput & RowIdentifier} Tag - Full row tag data, including the generated ID.
  */
 
+/**
+ * @typedef {Object} TagRequirementInput
+ * @property {number} id_tag - ID of the tag that has the requirement.
+ * @property {number} id_tag_for - ID of the tag that is required by the tag.
+ */
+
+/**
+ * @typedef {TagRequirementInput & RowIdentifier} TagRequirement - Full row tag requirement data, including the generated ID.
+ */
+
+/**
+ * @typedef {Object} TagInformationInput
+ * @property {number} id_tag - ID of the tag the information is associated with.
+ * @property {number} id_language - ID of the language the information is in.
+ * @property {string} name - Name of the tag in the specified language.
+ * @property {string} description - Description of the tag in the specified language.
+ */
+
+/**
+ * @typedef {TagInformationInput & RowIdentifier} TagInformation - Full row tag information data, including the generated ID.
+ */
+
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
 import { reset } from "@/database/query/reset";
