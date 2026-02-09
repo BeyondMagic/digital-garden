@@ -5,7 +5,7 @@
 
 "use strict";
 
-import { capability } from "@/module/api/capability";
+import { create_get, create_register, create_remove } from "@/module/api/capability";
 
 /**
  * @typedef {('GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD' | 'TRACE' | 'CONNECT')} HTTPMethod - HTTP methods for defining capabilities.
@@ -58,7 +58,7 @@ import { capability } from "@/module/api/capability";
  * @param {Object} data - The input data for the capability, expected to match the defined input schema.
  * @returns {Promise<Response>} - A promise that resolves to a Response object containing the result of the capability execution.
  */
-async function json_to_response(data) {
+export async function json_to_response(data) {
 	return new Response(JSON.stringify(data), {
 		headers: { "Content-Type": "application/json" }
 	});
@@ -174,10 +174,11 @@ export class Module {
 export const api = {
 	Module,
 	capability: {
-		create_register: capability.create_register,
-		create_get: capability.create_get,
-		create_remove: capability.create_remove,
-	}
+		create_register,
+		create_get,
+		create_remove,
+	},
+	json_to_response
 };
 
 globalThis["digital-garden"] = api;
