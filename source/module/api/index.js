@@ -36,6 +36,10 @@ import { capability } from "@/module/api/capability";
  */
 
 /**
+ * @typedef {'server' | 'garden' | 'domain' | 'content' | null} Scope - Scope types for module capabilities.
+ */
+
+/**
  * @template T
  * @typedef {Object} Capability - Information about a module capability of adapter action.
  * @property {string} name - Human-readable name of the capability.
@@ -137,10 +141,6 @@ export class Module {
 	 */
 	// @ts-ignore -- ignore ts error for static field for jsdoc.
 	static subresource_integrity = null;
-
-	/**
-	 * @typedef {'server' | 'garden' | 'domain' | 'content' | null} Scope - Scope types for module capabilities.
-	 */
 
 	/**
 	 * List of capabilities provided by the module.
