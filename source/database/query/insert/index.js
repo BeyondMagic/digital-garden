@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -223,9 +223,53 @@ export async function language({
 	return result[0].id;
 }
 
+/**
+ * @param {LanguageInformationInput} language_information Language information to insert.
+ * @returns {Promise<number>} Inserted language information ID.
+ */
+export async function language_information({
+	id_language_for,
+	id_language_from,
+	name,
+	description,
+}) {
+	if (typeof id_language_for !== "number" || id_language_for <= 0)
+		throw new TypeError("language_information: id_language_for must be a positive number");
+
+	if (typeof id_language_from !== "number" || id_language_from <= 0)
+		throw new TypeError("language_information: id_language_from must be a positive number");
+
+	if (typeof name !== "string" || name.trim().length === 0)
+		throw new TypeError("language_information: name must be a non-empty string");
+
+	if (typeof description !== "string")
+		throw new TypeError("language_information: description must be a string");
+
+	const result = await sql`
+		INSERT INTO language_information (
+			id_language_for,
+			id_language_from,
+			name,
+			description
+		) VALUES (
+			${id_language_for},
+			${id_language_from},
+			${name},
+			${description}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_language_information: failed to insert language information");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
 	domain,
 	language,
+	language_information,
 };

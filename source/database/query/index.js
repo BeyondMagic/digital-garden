@@ -61,6 +61,18 @@
  * @typedef {LanguageInput & RowIdentifier} Language - Full row language data, including the generated ID.
  */
 
+/**
+ * @typedef {Object} LanguageInformationInput
+ * @property {number} id_language_for - ID of the language the information is associated with.
+ * @property {number} id_language_from - ID of the language the information is from.
+ * @property {string} name - Name of the language in the 'from' language (e.g. "English").
+ * @property {string} description - Description of the language in the 'from' language.
+ */
+
+/**
+ * @typedef {LanguageInformationInput & RowIdentifier} LanguageInformation - Full row language information data, including the generated ID.
+ */
+
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
 import { reset } from "@/database/query/reset";
