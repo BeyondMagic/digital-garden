@@ -41,7 +41,6 @@
 
 /**
  * @typedef {Object} DomainInput
- * @property {number} id_domain - ID of the domain the asset belongs to.
  * @property {number | null} id_domain_parent - ID of the parent domain (nullable).
  * @property {number | null} id_domain_redirect - ID of the domain to redirect to (nullable).
  * @property {string} kind - Kind of the domain (e.g., "SUBDOMAIN", "ROUTER").
