@@ -45,7 +45,17 @@ import { capability } from "@/module/api/capability";
  * @property {Scope} scope - Scope of the capability, requires **ID target** and **token** if set.
  * @property {AsyncResponseFunction<T>} handler - Function that implements the capability's functionality, receives context and parameters as arguments.
  * @property {string | null} deprecation - Message providing details about the deprecation.
+
+/**
+ * Converts a JavaScript object to a JSON response.
+ * @param {Object} data - The input data for the capability, expected to match the defined input schema.
+ * @returns {Promise<Response>} - A promise that resolves to a Response object containing the result of the capability execution.
  */
+async function json_to_response(data) {
+	return new Response(JSON.stringify(data), {
+		headers: { "Content-Type": "application/json" }
+	});
+}
 
 /**
  * Base class for all modules.
