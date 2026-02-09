@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -262,6 +262,49 @@ export async function language_information({
 
 	if (result.length === 0)
 		throw new Error("insert_language_information: failed to insert language information");
+
+	return result[0].id;
+}
+
+/**
+ * @param {AssetInformationInput} asset_information Asset information to insert.
+ * @returns {Promise<number>} Inserted asset information ID.
+ */
+export async function asset_information({
+	id_asset,
+	id_language,
+	name,
+	description,
+}) {
+	if (typeof id_asset !== "number" || id_asset <= 0)
+		throw new TypeError("asset_information: id_asset must be a positive number");
+
+	if (typeof id_language !== "number" || id_language <= 0)
+		throw new TypeError("asset_information: id_language must be a positive number");
+
+	if (typeof name !== "string" || name.trim().length === 0)
+		throw new TypeError("asset_information: name must be a non-empty string");
+
+	if (typeof description !== "string")
+		throw new TypeError("asset_information: description must be a string");
+
+	const result = await sql`
+		INSERT INTO asset_information (
+			id_asset,
+			id_language,
+			name,
+			description
+		) VALUES (
+			${id_asset},
+			${id_language},
+			${name},
+			${description}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_asset_information: failed to insert asset information");
 
 	return result[0].id;
 }
