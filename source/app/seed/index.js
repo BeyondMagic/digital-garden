@@ -11,11 +11,12 @@
  */
 
 /**
- * @import { DomainInput } from "@/database/query"
+ * @import { RowIdentifier, DomainInput } from "@/database/query"
  * @import { Capability } from "@/module/api"
  */
 
 import { insert } from "@/database/query/insert"
+import { remove } from "@/database/query/remove"
 import { json_to_response } from "@/module/api";
 import { capability } from "@/module/api/capability";
 
@@ -53,8 +54,14 @@ async function add_domain(request) {
  * @returns {Promise<Response>}
  */
 async function remove_domain(request) {
-	// TO-DO
-	return new Response("Not implemented", { status: 501, headers: { "content-type": "text/plain" } });
+
+	const body = /** @type {{id_domain: number}} */ (await request.json());
+
+	await remove.domain({
+		id: body.id_domain,
+	});
+
+	return new Response(null, { status: 204 });
 }
 
 /**
