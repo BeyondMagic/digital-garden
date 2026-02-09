@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -414,6 +414,37 @@ export async function tag_information({
 	return result[0].id;
 }
 
+/**
+ * @param {DomainTagInput} domain_tag Domain tag information to insert.
+ * @returns {Promise<number>} Inserted domain tag ID.
+ */
+export async function domain_tag({
+	id_domain,
+	id_tag,
+}) {
+	if (typeof id_domain !== "number" || id_domain <= 0)
+		throw new TypeError("domain_tag: id_domain must be a positive number");
+
+	if (typeof id_tag !== "number" || id_tag <= 0)
+		throw new TypeError("domain_tag: id_tag must be a positive number");
+
+	const result = await sql`
+		INSERT INTO domain_tag (
+			id_domain,
+			id_tag
+		) VALUES (
+			${id_domain},
+			${id_tag}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_domain_tag: failed to insert domain tag");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
@@ -424,4 +455,5 @@ export const insert = {
 	tag,
 	tag_requirement,
 	tag_information,
+	domain_tag,
 };

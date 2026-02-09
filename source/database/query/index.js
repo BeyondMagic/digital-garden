@@ -117,6 +117,16 @@
  * @typedef {TagInformationInput & RowIdentifier} TagInformation - Full row tag information data, including the generated ID.
  */
 
+/**
+ * @typedef {Object} DomainTagInput
+ * @property {number} id_domain - ID of the domain the tag is associated with.
+ * @property {number} id_tag - ID of the tag associated with the domain.
+ */
+
+/**
+ * @typedef {DomainTagInput & RowIdentifier} DomainTag - Full row domain tag data, including the generated ID.
+ */
+
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
 import { reset } from "@/database/query/reset";
