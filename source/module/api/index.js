@@ -45,6 +45,9 @@ import { capability } from "@/module/api/capability";
  * @property {Scope} scope - Scope of the capability, requires **ID target** and **token** if set.
  * @property {AsyncResponseFunction<T>} handler - Function that implements the capability's functionality, receives context and parameters as arguments.
  * @property {string | null} deprecation - Message providing details about the deprecation.
+ * @property {Object | null} input - Schema defining the expected input parameters for the capability, used for validation and documentation purposes.
+ * @property {Object | null} output - Schema defining the expected output structure for the capability, used for validation and documentation purposes.
+ */
 
 /**
  * Converts a JavaScript object to a JSON response.
