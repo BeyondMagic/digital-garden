@@ -118,6 +118,8 @@ export async function register(method, slug, capability) {
 	if (capabilities.has(id))
 		throw new Error(`Capability with id "${id}" is already registered.`);
 
+	info(`Registering capability\t→ ${id}`);
+
 	capabilities.set(id, capability);
 }
 
@@ -127,6 +129,8 @@ export async function register(method, slug, capability) {
  * @returns {Promise<Capability<any>>}
  */
 export async function get(method, slug) {
+
+	info(`Getting capability\t→ ${method}/${slug}`);
 
 	if (!await validate_slug(slug))
 		throw new Error(await invalid_slug_message(slug));
@@ -167,6 +171,11 @@ export async function create_register(module_slug) {
 	if (!await validate_slug(module_slug))
 		throw new Error(await invalid_slug_message(module_slug));
 
+	if (modules_slugs.has(module_slug))
+		throw new Error(`Module slug "${module_slug}" is already registered.`);
+
+	modules_slugs.add(module_slug);
+
 	/**
 	 * Registers a capability handler for a specific module.
 	 * @param {HTTPMethod} method HTTP method for the capability.
@@ -184,6 +193,10 @@ export async function create_register(module_slug) {
  * @param {string} module_slug Module capability slug.
  */
 export async function create_remove(module_slug) {
+
+	if (!await validate_slug(module_slug))
+		throw new Error(await invalid_slug_message(module_slug));
+
 	/**
 	 * Removes a capability handler for a specific module.
 	 * @param {HTTPMethod} method HTTP method for the capability.
