@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -309,10 +309,43 @@ export async function asset_information({
 	return result[0].id;
 }
 
+/**
+ * @param {TagInput} tag Tag information to insert.
+ * @returns {Promise<number>} Inserted tag ID.
+ */
+export async function tag({
+	id_asset,
+	slug,
+}) {
+	if (typeof id_asset !== "number" || id_asset <= 0)
+		throw new TypeError("tag: id_asset must be a positive number");
+
+	if (typeof slug !== "string" || slug.trim().length === 0)
+		throw new TypeError("tag: slug must be a non-empty string");
+
+	const result = await sql`
+		INSERT INTO tag (
+			id_asset,
+			slug
+		) VALUES (
+			${id_asset},
+			${slug}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_tag: failed to insert tag");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
 	domain,
 	language,
 	language_information,
+	asset_information,
+	tag,
 };

@@ -85,6 +85,16 @@
  * @typedef {AssetInformationInput & RowIdentifier} AssetInformation - Full row asset information data, including the generated ID.
  */
 
+/**
+ * @typedef {Object} TagInput
+ * @property {number} id_asset - ID of the asset the tag is associated with.
+ * @property {string} slug - Unique slug for the tag within the asset.
+ */
+
+/**
+ * @typedef {TagInput & RowIdentifier} Tag - Full row tag data, including the generated ID.
+ */
+
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
 import { reset } from "@/database/query/reset";
