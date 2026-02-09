@@ -5,7 +5,7 @@
 
 "use strict";
 
-import { create_get, create_register, create_remove } from "@/module/api/capability";
+import { get, create_register, create_remove } from "@/module/api/capability";
 
 /**
  * @typedef {('GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD' | 'TRACE' | 'CONNECT')} HTTPMethod - HTTP methods for defining capabilities.
@@ -167,6 +167,7 @@ export class Module {
 	 */
 }
 
+
 /**
  * @description Namespace for the digital garden module system, exposing the base Module class and other relevant types and utilities for module development.
  * @global
@@ -174,8 +175,8 @@ export class Module {
 export const api = {
 	Module,
 	capability: {
+		get,
 		create_register,
-		create_get,
 		create_remove,
 	},
 	json_to_response
@@ -183,4 +184,4 @@ export const api = {
 
 globalThis["digital-garden"] = api;
 
-module.exports = api;
+// module.exports = api;
