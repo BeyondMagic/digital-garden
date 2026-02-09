@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -445,6 +445,79 @@ export async function domain_tag({
 	return result[0].id;
 }
 
+/**
+ * @param {ContentInput} content Content information to insert.
+ * @returns {Promise<number>} Inserted content ID.
+ */
+export async function content({
+	id_domain,
+	id_language,
+	date,
+	status,
+	title,
+	title_sub,
+	synopsis,
+	body,
+	requests,
+}) {
+	if (typeof id_domain !== "number" || id_domain <= 0)
+		throw new TypeError("content: id_domain must be a positive number");
+
+	if (typeof id_language !== "number" || id_language <= 0)
+		throw new TypeError("content: id_language must be a positive number");
+
+	if (!(date instanceof Date))
+		throw new TypeError("content: date must be a Date object");
+
+	if (typeof status !== "string" || status.trim().length === 0)
+		throw new TypeError("content: status must be a non-empty string");
+
+	if (typeof title !== "string" || title.trim().length === 0)
+		throw new TypeError("content: title must be a non-empty string");
+
+	if (typeof title_sub !== "string")
+		throw new TypeError("content: title_sub must be a string");
+
+	if (typeof synopsis !== "string")
+		throw new TypeError("content: synopsis must be a string");
+
+	if (typeof body !== "string")
+		throw new TypeError("content: body must be a string");
+
+	if (typeof requests !== "number" || requests < 0)
+		throw new TypeError("content: requests must be a non-negative number");
+
+	const result = await sql`
+		INSERT INTO content (
+			id_domain,
+			id_language,
+			date,
+			status,
+			title,
+			title_sub,
+			synopsis,
+			body,
+			requests
+		) VALUES (
+			${id_domain},
+			${id_language},
+			${date},
+			${status},
+			${title},
+			${title_sub},
+			${synopsis},
+			${body},
+			${requests}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_content: failed to insert content");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
@@ -456,4 +529,5 @@ export const insert = {
 	tag_requirement,
 	tag_information,
 	domain_tag,
+	content
 };

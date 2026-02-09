@@ -39,12 +39,16 @@
  */
 
 /**
+ * @typedef {"PUBLIC" | "PRIVATE" | "ARCHIVED" | "DELETED"} SubjectStatus - Possible statuses for domains, assets, and tags.
+ */
+
+/**
  * @typedef {Object} DomainInput
  * @property {number | null} id_domain_parent - ID of the parent domain (nullable).
  * @property {number | null} id_domain_redirect - ID of the domain to redirect to (nullable).
  * @property {"SUBDOMAIN" | "ROUTER"} kind - Kind of the domain.
  * @property {string} slug - Unique slug for the domain.
- * @property {"PUBLIC" | "PRIVATE" | "ARCHIVED" | "DELETED"} status - Status of the domain.
+ * @property {SubjectStatus} status - Status of the domain.
  */
 
 /**
@@ -125,6 +129,23 @@
 
 /**
  * @typedef {DomainTagInput & RowIdentifier} DomainTag - Full row domain tag data, including the generated ID.
+ */
+
+/**
+ * @typedef {Object} ContentInput
+ * @property {number} id_domain - ID of the domain the content is associated with.
+ * @property {number} id_language - ID of the language the content is in.
+ * @property {Date} date - Date of the content.
+ * @property {SubjectStatus} status - Status of the content.
+ * @property {string} title - Title of the content.
+ * @property {string} title_sub - Subtitle of the content.
+ * @property {string} synopsis - Synopsis of the content.
+ * @property {string} body - Body of the content.
+ * @property {number} requests - Number of requests for the content.
+ */
+
+/**
+ * @typedef {ContentInput & RowIdentifier} Content - Full row content data, including the generated ID.
  */
 
 import { create } from "@/database/query/create";
