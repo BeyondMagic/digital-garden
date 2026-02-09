@@ -175,8 +175,8 @@ async function domain_tag() {
 	`;
 }
 
-content.exists = async function () {
-	return exists("content");
+domain_tag.exists = async function () {
+	return exists("domain_tag");
 }
 
 async function content() {
