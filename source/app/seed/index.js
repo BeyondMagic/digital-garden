@@ -83,7 +83,7 @@ async function update_domain(request) {
 const capabilities = [
 	{
 		method: "POST",
-		slug: "add-domain",
+		slug: "domain/add",
 		scope: "garden",
 		name: "Add Domain",
 		description: "Adds a new domain to the garden.",
@@ -103,7 +103,7 @@ const capabilities = [
 	},
 	{
 		method: "DELETE",
-		slug: "remove-domain",
+		slug: "domain/remove",
 		scope: "garden",
 		name: "Remove Domain",
 		description: "Removes a domain from the garden.",
@@ -117,7 +117,7 @@ const capabilities = [
 	},
 	{
 		method: "PUT",
-		slug: "update-domain",
+		slug: "domain/update",
 		scope: "garden",
 		name: "Update Domain",
 		description: "Updates domain info in the garden.",
