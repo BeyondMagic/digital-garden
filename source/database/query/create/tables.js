@@ -1,10 +1,10 @@
 /*
  * SPDX-FileCopyrightText: 2025-2026 João V. Farias (beyondmagic) <beyondmagic@mail.ru>
- *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 import { sql } from "bun";
+import { exists } from "@/database/query/util";
 
 async function domain() {
 	await sql`
@@ -20,6 +20,7 @@ async function domain() {
 			CONSTRAINT domain_no_circular_parent CHECK (id_domain_parent IS NULL OR id_domain_parent <> id_domain_redirect),
 			CONSTRAINT domain_no_circular_redirect CHECK (id_domain_redirect IS NULL OR id_domain_redirect <> id_domain_parent),
 			CONSTRAINT domain_slug_not_empty CHECK (char_length(btrim(slug)) > 0),
+			-- This constraint ensures that root domains (without a parent) must be of kind 'SUBDOMAIN', while non-root domains can be of any kind.
 			CONSTRAINT domain_root_kind_check CHECK (
 				(id_domain_parent IS NULL AND kind = 'SUBDOMAIN') OR
 				(id_domain_parent IS NOT NULL)
@@ -31,6 +32,10 @@ async function domain() {
 			)
 		);
 	`;
+}
+
+domain.exists = async function () {
+	return exists("domain");
 }
 
 async function asset() {
@@ -50,6 +55,10 @@ async function asset() {
 	`;
 }
 
+asset.exists = async function () {
+	return exists("asset");
+}
+
 async function language() {
 	await sql`
 		CREATE TABLE language (
@@ -60,6 +69,10 @@ async function language() {
 			CONSTRAINT language_slug_format CHECK (slug ~ '^[a-z]{2}(-[A-Z]{2})?$')
 		);
 	`;
+}
+
+language.exists = async function () {
+	return exists("language");
 }
 
 async function language_information() {
@@ -77,6 +90,10 @@ async function language_information() {
 	`;
 }
 
+language_information.exists = async function () {
+	return exists("language_information");
+}
+
 async function asset_information() {
 	await sql`
 		CREATE TABLE asset_information (
@@ -92,6 +109,10 @@ async function asset_information() {
 	`;
 }
 
+asset_information.exists = async function () {
+	return exists("asset_information");
+}
+
 async function tag() {
 	await sql`
 		CREATE TABLE tag (
@@ -104,6 +125,10 @@ async function tag() {
 	`;
 }
 
+tag.exists = async function () {
+	return exists("tag");
+}
+
 async function tag_requirement() {
 	await sql`
 		CREATE TABLE tag_requirement (
@@ -114,6 +139,10 @@ async function tag_requirement() {
 			CONSTRAINT tag_requirement_no_self_reference CHECK (id_tag <> id_tag_for)
 		);
 	`;
+}
+
+tag_requirement.exists = async function () {
+	return exists("tag_requirement");
 }
 
 async function tag_information() {
@@ -131,6 +160,10 @@ async function tag_information() {
 	`;
 }
 
+tag_information.exists = async function () {
+	return exists("tag_information");
+}
+
 async function domain_tag() {
 	await sql`
 		CREATE TABLE domain_tag (
@@ -140,6 +173,10 @@ async function domain_tag() {
 			CONSTRAINT domain_tag_unique_pair UNIQUE(id_domain, id_tag)
 		);
 	`;
+}
+
+content.exists = async function () {
+	return exists("content");
 }
 
 async function content() {
@@ -164,6 +201,10 @@ async function content() {
 	`;
 }
 
+content.exists = async function () {
+	return exists("content");
+}
+
 async function content_link() {
 	await sql`
 		CREATE TABLE content_link (
@@ -175,6 +216,10 @@ async function content_link() {
 	`;
 }
 
+content_link.exists = async function () {
+	return exists("content_link");
+}
+
 async function garden() {
 	await sql`
 		CREATE TABLE garden (
@@ -183,6 +228,10 @@ async function garden() {
 			id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE
 		);
 	`;
+}
+
+garden.exists = async function () {
+	return exists("garden");
 }
 
 async function garden_information() {
@@ -198,6 +247,10 @@ async function garden_information() {
 			CONSTRAINT garden_information_description_not_empty CHECK (char_length(btrim(description)) > 0)
 		);
 	`;
+}
+
+garden_information.exists = async function () {
+	return exists("garden_information");
 }
 
 async function author() {
@@ -219,6 +272,10 @@ async function author() {
 	`;
 }
 
+author.exists = async function () {
+	return exists("author");
+}
+
 async function author_connection() {
 	await sql`
 		CREATE TABLE author_connection (
@@ -234,6 +291,10 @@ async function author_connection() {
 	`;
 }
 
+author_connection.exists = async function () {
+	return exists("author_connection");
+}
+
 async function author_domain() {
 	await sql`
 		CREATE TABLE author_domain (
@@ -243,6 +304,10 @@ async function author_domain() {
 			CONSTRAINT author_domain_unique_pair UNIQUE(id_author, id_domain)
 		);
 	`;
+}
+
+author_domain.exists = async function () {
+	return exists("author_domain");
 }
 
 async function author_garden() {
@@ -256,6 +321,9 @@ async function author_garden() {
 	`;
 }
 
+author_garden.exists = async function () {
+	return exists("author_garden");
+}
 async function author_content() {
 	await sql`
 		CREATE TABLE author_content (
@@ -265,6 +333,10 @@ async function author_content() {
 			CONSTRAINT author_content_unique_pair UNIQUE(id_author, id_content)
 		);
 	`;
+}
+
+author_content.exists = async function () {
+	return exists("author_content");
 }
 
 async function module() {
@@ -287,6 +359,10 @@ async function module() {
 			CONSTRAINT module_version_patch_non_negative CHECK (version_patch IS NULL OR version_patch >= 0)
 		);
 	`;
+}
+
+module.exists = async function () {
+	return exists("module");
 }
 
 export const tables = {
