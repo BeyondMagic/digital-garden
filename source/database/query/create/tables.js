@@ -203,8 +203,8 @@ async function content_link() {
 	await sql`
 		CREATE TABLE content_link (
 			id SERIAL PRIMARY KEY,
-			id_from INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
-			id_to INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
+			id_content_from INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
+			id_content_to INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
 			CONSTRAINT content_link_unique_pair UNIQUE(id_from, id_to)
 		);
 	`;

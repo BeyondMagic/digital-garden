@@ -148,6 +148,16 @@
  * @typedef {ContentInput & RowIdentifier} Content - Full row content data, including the generated ID.
  */
 
+/**
+ * @typedef {Object} ContentLinkInput
+ * @property {number} id_content_from - ID of the content that has the link.
+ * @property {number} id_content_to - ID of the content that is linked to.
+ */
+
+/**
+ * @typedef {ContentLinkInput & RowIdentifier} ContentLink - Full row content link data, including the generated ID.
+ */
+
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
 import { remove } from "@/database/query/remove";

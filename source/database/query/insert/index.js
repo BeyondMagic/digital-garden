@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -518,6 +518,37 @@ export async function content({
 	return result[0].id;
 }
 
+/**
+ * @param {ContentLinkInput} content_link Content link information to insert.
+ * @returns {Promise<number>} Inserted content link ID.
+ */
+export async function content_link({
+	id_content_from,
+	id_content_to,
+}) {
+	if (typeof id_content_from !== "number" || id_content_from <= 0)
+		throw new TypeError("content_link: id_content_from must be a positive number");
+
+	if (typeof id_content_to !== "number" || id_content_to <= 0)
+		throw new TypeError("content_link: id_content_to must be a positive number");
+
+	const result = await sql`
+		INSERT INTO content_link (
+			id_content_from,
+			id_content_to
+		) VALUES (
+			${id_content_from},
+			${id_content_to}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_content_link: failed to insert content link");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
@@ -529,5 +560,6 @@ export const insert = {
 	tag_requirement,
 	tag_information,
 	domain_tag,
-	content
+	content,
+	content_link,
 };
