@@ -40,7 +40,7 @@ async function validate_slug(slug) {
 	return true;
 }
 
-validate_slug.test = async function () {
+validate_slug.test = async () => {
 	const slugs = [
 		{
 			str: "/double/slash",

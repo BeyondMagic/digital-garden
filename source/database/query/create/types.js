@@ -12,7 +12,7 @@ async function domain() {
 	`;
 }
 
-domain.exists = async function () {
+domain.exists = async () => {
 	return util.exists('type_domain', 'type');
 }
 
@@ -22,7 +22,7 @@ async function subject_status() {
 	`;
 }
 
-subject_status.exists = async function () {
+subject_status.exists = async () => {
 	return util.exists('type_subject_status', 'type');
 }
 
