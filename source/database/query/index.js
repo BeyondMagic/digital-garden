@@ -150,9 +150,9 @@
 
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
+import { remove } from "@/database/query/remove";
 import { reset } from "@/database/query/reset";
 import { select } from "@/database/query/select";
-import { remove } from "@/database/query/remove";
 
 export const query = {
 	create,
