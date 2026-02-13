@@ -158,6 +158,16 @@
  * @typedef {ContentLinkInput & RowIdentifier} ContentLink - Full row content link data, including the generated ID.
  */
 
+/**
+ * @typedef {Object} GardenInput
+ * @property {number} id_domain - ID of the domain the garden is associated with.
+ * @property {number} id_asset - ID of the asset the garden is associated with.
+ */
+
+/**
+ * @typedef {GardenInput & RowIdentifier} Garden - Full row garden data, including the generated ID.
+ */
+
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
 import { remove } from "@/database/query/remove";

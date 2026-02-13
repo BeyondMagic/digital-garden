@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -549,6 +549,37 @@ export async function content_link({
 	return result[0].id;
 }
 
+/**
+ * @param {GardenInput} garden Garden information to insert.
+ * @returns {Promise<number>} Inserted garden ID.
+ */
+export async function garden({
+	id_domain,
+	id_asset,
+}) {
+	if (typeof id_domain !== "number" || id_domain <= 0)
+		throw new TypeError("garden: id_domain must be a positive number");
+
+	if (typeof id_asset !== "number" || id_asset <= 0)
+		throw new TypeError("garden: id_asset must be a positive number");
+
+	const result = await sql`
+		INSERT INTO garden (
+			id_domain,
+			id_asset
+		) VALUES (
+			${id_domain},
+			${id_asset}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_garden: failed to insert garden");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
@@ -562,4 +593,5 @@ export const insert = {
 	domain_tag,
 	content,
 	content_link,
+	garden,
 };
