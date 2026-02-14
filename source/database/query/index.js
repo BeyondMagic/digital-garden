@@ -144,8 +144,12 @@
  */
 
 /**
- * @typedef {ContentInput & RowIdentifier} Content - Full row content data, including the generated ID.
+ * @typedef {Object} ContentAttributes
  * @property {number} requests - Number of requests for the content.
+ */
+
+/**
+ * @typedef {ContentInput & ContentAttributes & RowIdentifier} Content - Full row content data, including the generated ID.
  */
 
 /**
@@ -165,8 +169,12 @@
  */
 
 /**
- * @typedef {GardenInput & {id: true}} Garden - Full row garden data, including the generated ID.
- * @property {true} id - The ID of the garden is always 1, as there is only one garden.
+ * @typedef {Object} GardenIdentifier
+ * @property {true} id - The garden identifier is always true, as there is only one garden.
+ */
+
+/**
+ * @typedef {GardenInput & GardenIdentifier} Garden - Full row garden data, including the generated ID.
  */
 
 /**
@@ -190,9 +198,13 @@
  */
 
 /**
- * @typedef {AuthorInput & RowIdentifier} Author - Full row author data, including the generated ID.
+ * @typedef {Object} AuthorStatistics
  * @property {number} pages - Number of pages the author has contributed to.
  * @property {number} contents - Number of contents the author has contributed to.
+ */
+
+/**
+ * @typedef {AuthorInput & RowIdentifier & AuthorStatistics} Author - Full row author data, including the generated ID.
  */
 
 /**
@@ -215,8 +227,12 @@
  */
 
 /**
- * @typedef {AuthorDomainInput & RowIdentifier} AuthorDomain - Full row author domain data, including the generated ID.
- * @property {Date} granted_at - Timestamp of when the access was granted.
+ * @typedef {Object} Granted - Information about a granted permission or contribution.
+ * @property {Date} granted_at - Timestamp of when the contribution was made.
+ */
+
+/**
+ * @typedef {AuthorDomainInput & RowIdentifier & Granted} AuthorDomain - Full row author domain data, including the generated ID.
  */
 
 /**
@@ -226,8 +242,7 @@
  */
 
 /**
- * @typedef {AuthorContentInput & RowIdentifier} AuthorContent - Full row author content data, including the generated ID.
- * @property {Date} granted_at - Timestamp of when the contribution was made.
+ * @typedef {AuthorContentInput & RowIdentifier & Granted} AuthorContent - Full row author content data, including the generated ID.
  */
 
 import { create } from "@/database/query/create";
