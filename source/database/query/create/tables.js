@@ -217,9 +217,10 @@ content_link.exists = async () => {
 async function garden() {
 	await sql`
 		CREATE TABLE garden (
-			id SERIAL PRIMARY KEY,
+			id BOOLEAN NOT NULL DEFAULT TRUE PRIMARY KEY,
 			id_domain INTEGER NOT NULL UNIQUE REFERENCES domain(id) ON DELETE CASCADE,
-			id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE
+			id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
+			CONSTRAINT configuration_only_one_row CHECK (id = TRUE)
 		);
 	`;
 }
