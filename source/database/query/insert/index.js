@@ -157,8 +157,8 @@ export async function domain({
 	if (typeof kind !== "string" || kind.trim().length === 0)
 		throw new TypeError("domain: kind must be a non-empty string");
 
-	if (typeof slug !== "string" || slug.trim().length === 0)
-		throw new TypeError("domain: slug must be a non-empty string");
+	if (slug !== null && (typeof slug !== "string" || slug.trim().length === 0))
+		throw new TypeError("domain: slug must be a non-empty string or null");
 
 	if (typeof status !== "string" || status.trim().length === 0)
 		throw new TypeError("domain: status must be a non-empty string");
