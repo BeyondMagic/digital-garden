@@ -1,18 +1,20 @@
 /*
  * SPDX-FileCopyrightText: 2025-2026 João V. Farias (beyondmagic) <beyondmagic@mail.ru>
- *
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { domain, hostname, is_dev, port } from "@/setup";
+import { hostname, is_dev, port } from "@/setup";
 import { serve } from "bun";
-import { create_debug, create_info } from "@/logger";
+import { create_debug, create_info, create_error, create_critical } from "@/logger";
 import { get as get_capability } from "@/module/api/capability";
+import { seed } from "@/app/seed";
+import { create } from "@/database/query/create";
+import { reset } from "@/database/query/reset";
 
-const debug = create_debug(import.meta.file);
-const info = create_info(import.meta.file);
-
-debug("Starting the server...", { step: { current: 1, max: 2 } });
+const debug = create_debug(import.meta.path);
+const info = create_info(import.meta.path);
+const error = create_error(import.meta.path);
+const critical = create_critical(import.meta.path);
 
 /** @import { Capability, HTTPMethod } from "@/module/api" */
 
@@ -27,20 +29,22 @@ async function fetch(req, server) {
     const method = /** @type {HTTPMethod} */ (req.method);
 
     debug(`${method}\t\t→ ${url}`);
+    const host = /** @type {string} */ (url.host.split(":")[0]);
+    info(`Host\t\t→ ${host}`);
 
-    const subdomains = url.host.replace(domain, "").split(".").filter(Boolean);
-    info(`Subdomains\t→ [${subdomains.join(", ") || "None"}]`);
+    const subdomains = host.replace(hostname, "").split(".").filter(Boolean);
+    info(`Subdomains\t→ [${subdomains.join(", ") || ""}]`);
 
     const routers = url.pathname.split("/").filter(Boolean);
-    info(`Routers\t→ [${routers.join(", ") || "None"}]`);
+    info(`Routers\t→ [${routers.join(", ") || ""}]`);
 
     const domains = [...subdomains.reverse(), ...routers].reverse();
-    info(`Domains\t→ [${domains.join(", ") || "None"}]`);
+    info(`Domains\t→ [${domains.join(", ") || ""}]`);
 
     // API logic
-    if (subdomains.length === 1 && subdomains[0] === "api" && routers.length >= 1 && routers.length <= 2) {
+    if (subdomains.length === 1 && subdomains[0] === "api" && routers.length >= 1) {
 
-        const slug = [method, ...routers].join('/');
+        const slug = routers.join('/');
 
         info(`API Slug\t→ ${slug}`);
 
@@ -49,15 +53,24 @@ async function fetch(req, server) {
         try {
             capability = await get_capability(method, slug);
         } catch {
+            error(`Capability not found\t→ ${slug}`);
             return new Response("Server/Module API not found", { status: 404, headers: { "content-type": "text/plain" } });
+        }
+
+        // TO-DO: handle scope and token.
+        if (capability.scope) {
+            info(`Capability scope\t→ ${capability.scope}`);
+            // TO-DO: validate token and scope.
         }
 
         /** @type {Response} */
         let response;
         try {
             response = await capability.handler(req);
-        } catch {
-            return new Response("Error executing API handler", { status: 500, headers: { "content-type": "text/plain" } });
+        } catch (err) {
+            const error = /** @type {Error} */ (err);
+            critical(`Error executing API handler\t→ ${slug}\n${error.stack}`);
+            return new Response(`Error executing API handler: ${error.stack}`, { status: 500, headers: { "content-type": "text/plain" } });
         }
 
         if (!(response instanceof Response))
@@ -69,6 +82,12 @@ async function fetch(req, server) {
     return new Response("Not Found", { status: 404, headers: { "content-type": "text/plain" } });
 }
 
+critical("Starting the server...", { step: { current: 1, max: 2 } });
+
+await reset.database();
+await create.schema();
+await seed.setup()
+
 const server = serve({
     hostname,
     port,
@@ -76,4 +95,4 @@ const server = serve({
     development: is_dev
 })
 
-info(`Listening on ${server.url}`, { step: { current: 2, max: 2 } });
+critical(`Listening on ${server.url}`, { step: { current: 2, max: 2 } });
