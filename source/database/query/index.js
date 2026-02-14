@@ -47,7 +47,7 @@
  * @property {number | null} id_domain_parent - ID of the parent domain (nullable).
  * @property {number | null} id_domain_redirect - ID of the domain to redirect to (nullable).
  * @property {"SUBDOMAIN" | "ROUTER"} kind - Kind of the domain.
- * @property {string} slug - Unique slug for the domain.
+ * @property {string | null} slug - Unique slug for the domain.
  * @property {SubjectStatus} status - Status of the domain.
  */
 

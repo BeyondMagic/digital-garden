@@ -34,6 +34,12 @@ async function domain() {
 			CONSTRAINT domain_slug_format CHECK (slug NOT LIKE '%/%')
 		);
 	`;
+
+	await sql`
+		CREATE UNIQUE INDEX IF NOT EXISTS domain_single_root
+		ON domain ((1))
+		WHERE id_domain_parent IS NULL AND slug IS NULL;
+	`
 }
 
 domain.exists = async () => {
