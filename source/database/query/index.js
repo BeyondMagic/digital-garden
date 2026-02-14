@@ -166,6 +166,7 @@
  * @typedef {Object} GardenInput
  * @property {number} id_domain - ID of the domain the garden is associated with.
  * @property {number} id_asset - ID of the asset the garden is associated with.
+ * @property {number} id_author - ID of the author that created the garden.
  */
 
 /**

@@ -548,6 +548,7 @@ export async function content_link({
 export async function garden({
 	id_domain,
 	id_asset,
+	id_author,
 }) {
 	if (typeof id_domain !== "number" || id_domain <= 0)
 		throw new TypeError("garden: id_domain must be a positive number");
@@ -555,13 +556,18 @@ export async function garden({
 	if (typeof id_asset !== "number" || id_asset <= 0)
 		throw new TypeError("garden: id_asset must be a positive number");
 
+	if (typeof id_author !== "number" || id_author <= 0)
+		throw new TypeError("garden: id_author must be a positive number");
+
 	const result = await sql`
 		INSERT INTO garden (
 			id_domain,
-			id_asset
+			id_asset,
+			id_author
 		) VALUES (
 			${id_domain},
-			${id_asset}
+			${id_asset},
+			${id_author}
 		)
 		RETURNING id
 	`;
