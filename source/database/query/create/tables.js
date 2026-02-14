@@ -7,7 +7,7 @@ import { sql } from "bun";
 import { exists } from "@/database/query/util";
 
 async function domain() {
-	await sql`
+	await sql`	
 		CREATE TABLE IF NOT EXISTS domain (
 			id SERIAL PRIMARY KEY,
 			id_domain_parent INTEGER REFERENCES domain(id),
@@ -105,6 +105,98 @@ async function asset_information() {
 
 asset_information.exists = async () => {
 	return exists("asset_information");
+}
+
+async function author() {
+	await sql`
+		CREATE TABLE author (
+			id SERIAL PRIMARY KEY,
+			id_asset INTEGER REFERENCES asset(id),
+			email VARCHAR(256) UNIQUE NOT NULL,
+			name VARCHAR(256) NOT NULL,
+			password VARCHAR(512) NOT NULL,
+			pages INTEGER NOT NULL DEFAULT 0,
+			contents INTEGER NOT NULL DEFAULT 0,
+			CONSTRAINT author_email_not_empty CHECK (char_length(btrim(email)) > 0),
+			CONSTRAINT author_name_not_empty CHECK (char_length(btrim(name)) > 0),
+			CONSTRAINT author_password_not_empty CHECK (char_length(btrim(password)) > 0),
+			CONSTRAINT author_pages_non_negative CHECK (pages >= 0),
+			CONSTRAINT author_contents_non_negative CHECK (contents >= 0)
+		);
+	`;
+}
+
+author.exists = async () => {
+	return exists("author");
+}
+
+async function author_connection() {
+	await sql`
+		CREATE TABLE author_connection (
+			id SERIAL PRIMARY KEY,
+			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+			device VARCHAR(256) NOT NULL,
+			token VARCHAR(512) UNIQUE NOT NULL,
+			logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			last_active_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			CONSTRAINT author_connection_device_not_empty CHECK (char_length(btrim(device)) > 0),
+			CONSTRAINT author_connection_token_not_empty CHECK (char_length(btrim(token)) > 0)
+		);
+	`;
+}
+
+author_connection.exists = async () => {
+	return exists("author_connection");
+}
+
+async function author_domain() {
+	await sql`
+		CREATE TABLE author_domain (
+			id SERIAL PRIMARY KEY,
+			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+			granted_at TIMESTAMP NOT NULL,
+			CONSTRAINT author_domain_unique_pair UNIQUE(id_author, id_domain)
+		);
+	`;
+}
+
+author_domain.exists = async () => {
+	return exists("author_domain");
+}
+
+async function garden() {
+	await sql`
+		CREATE TABLE garden (
+			id BOOLEAN NOT NULL DEFAULT TRUE PRIMARY KEY,
+			id_domain INTEGER NOT NULL UNIQUE REFERENCES domain(id) ON DELETE CASCADE,
+			id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
+			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+			CONSTRAINT configuration_only_one_row CHECK (id = TRUE)
+		);
+	`;
+}
+
+garden.exists = async () => {
+	return exists("garden");
+}
+
+async function garden_information() {
+	await sql`
+		CREATE TABLE garden_information (
+			id SERIAL PRIMARY KEY,
+			id_language INTEGER NOT NULL REFERENCES language(id) ON DELETE CASCADE,
+			name VARCHAR(64) NOT NULL,
+			description TEXT NOT NULL,
+			CONSTRAINT garden_information_unique_language UNIQUE(id_language),
+			CONSTRAINT garden_information_name_not_empty CHECK (char_length(btrim(name)) > 0),
+			CONSTRAINT garden_information_description_not_empty CHECK (char_length(btrim(description)) > 0)
+		);
+	`;
+}
+
+garden_information.exists = async () => {
+	return exists("garden_information");
 }
 
 async function tag() {
@@ -205,7 +297,7 @@ async function content_link() {
 			id SERIAL PRIMARY KEY,
 			id_content_from INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
 			id_content_to INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
-			CONSTRAINT content_link_unique_pair UNIQUE(id_from, id_to)
+			CONSTRAINT content_link_unique_pair UNIQUE(id_content_from, id_content_to)
 		);
 	`;
 }
@@ -214,113 +306,6 @@ content_link.exists = async () => {
 	return exists("content_link");
 }
 
-async function garden() {
-	await sql`
-		CREATE TABLE garden (
-			id BOOLEAN NOT NULL DEFAULT TRUE PRIMARY KEY,
-			id_domain INTEGER NOT NULL UNIQUE REFERENCES domain(id) ON DELETE CASCADE,
-			id_asset INTEGER NOT NULL REFERENCES asset(id) ON DELETE CASCADE,
-			CONSTRAINT configuration_only_one_row CHECK (id = TRUE)
-		);
-	`;
-}
-
-garden.exists = async () => {
-	return exists("garden");
-}
-
-async function garden_information() {
-	await sql`
-		CREATE TABLE garden_information (
-			id SERIAL PRIMARY KEY,
-			id_garden INTEGER NOT NULL REFERENCES garden(id) ON DELETE CASCADE,
-			id_language INTEGER NOT NULL REFERENCES language(id) ON DELETE CASCADE,
-			name VARCHAR(64) NOT NULL,
-			description TEXT NOT NULL,
-			CONSTRAINT garden_information_unique_pair UNIQUE(id_garden, id_language),
-			CONSTRAINT garden_information_name_not_empty CHECK (char_length(btrim(name)) > 0),
-			CONSTRAINT garden_information_description_not_empty CHECK (char_length(btrim(description)) > 0)
-		);
-	`;
-}
-
-garden_information.exists = async () => {
-	return exists("garden_information");
-}
-
-async function author() {
-	await sql`
-		CREATE TABLE author (
-			id SERIAL PRIMARY KEY,
-			id_asset INTEGER REFERENCES asset(id),
-			email VARCHAR(256) UNIQUE NOT NULL,
-			name VARCHAR(256) NOT NULL,
-			password VARCHAR(512) NOT NULL,
-			pages INTEGER NOT NULL DEFAULT 0,
-			contents INTEGER NOT NULL DEFAULT 0,
-			CONSTRAINT author_email_not_empty CHECK (char_length(btrim(email)) > 0),
-			CONSTRAINT author_name_not_empty CHECK (char_length(btrim(name)) > 0),
-			CONSTRAINT author_password_not_empty CHECK (char_length(btrim(password)) > 0),
-			CONSTRAINT author_pages_non_negative CHECK (pages >= 0),
-			CONSTRAINT author_contents_non_negative CHECK (contents >= 0)
-		);
-	`;
-}
-
-author.exists = async () => {
-	return exists("author");
-}
-
-async function author_connection() {
-	await sql`
-		CREATE TABLE author_connection (
-			id SERIAL PRIMARY KEY,
-			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
-			device VARCHAR(256) NOT NULL,
-			token VARCHAR(512) UNIQUE NOT NULL,
-			logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			last_active_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			CONSTRAINT author_connection_device_not_empty CHECK (char_length(btrim(device)) > 0),
-			CONSTRAINT author_connection_token_not_empty CHECK (char_length(btrim(token)) > 0)
-		);
-	`;
-}
-
-author_connection.exists = async () => {
-	return exists("author_connection");
-}
-
-async function author_domain() {
-	await sql`
-		CREATE TABLE author_domain (
-			id SERIAL PRIMARY KEY,
-			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
-			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
-			granted_at TIMESTAMP NOT NULL,
-			CONSTRAINT author_domain_unique_pair UNIQUE(id_author, id_domain)
-		);
-	`;
-}
-
-author_domain.exists = async () => {
-	return exists("author_domain");
-}
-
-async function author_garden() {
-	await sql`
-		CREATE TABLE author_garden (
-			id SERIAL PRIMARY KEY,
-			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
-			id_garden INTEGER NOT NULL REFERENCES garden(id) ON DELETE CASCADE,
-			granted_at TIMESTAMP NOT NULL,
-			CONSTRAINT author_garden_unique_pair UNIQUE(id_author, id_garden)
-		);
-	`;
-}
-
-author_garden.exists = async () => {
-	return exists("author_garden");
-}
 async function author_content() {
 	await sql`
 		CREATE TABLE author_content (
@@ -375,12 +360,11 @@ export const tables = {
 	domain_tag,
 	content,
 	content_link,
-	garden,
-	garden_information,
 	author,
 	author_connection,
-	author_garden,
 	author_domain,
+	garden,
+	garden_information,
 	author_content,
 	module,
 };
