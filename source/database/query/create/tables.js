@@ -277,7 +277,7 @@ async function content() {
 			title_sub VARCHAR(512) NOT NULL,
 			synopsis VARCHAR(512) NOT NULL,
 			body TEXT NOT NULL,
-			requests INTEGER NOT NULL DEFAULT 0,
+			requests INTEGER NOT NULL,
 			CONSTRAINT content_unique_pair UNIQUE(id_domain, id_language),
 			CONSTRAINT content_title_not_empty CHECK (char_length(btrim(title)) > 0),
 			CONSTRAINT content_synopsis_not_empty CHECK (char_length(btrim(synopsis)) > 0),

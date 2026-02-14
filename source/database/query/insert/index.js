@@ -458,7 +458,6 @@ export async function content({
 	title_sub,
 	synopsis,
 	body,
-	requests,
 }) {
 	if (typeof id_domain !== "number" || id_domain <= 0)
 		throw new TypeError("content: id_domain must be a positive number");
@@ -484,8 +483,7 @@ export async function content({
 	if (typeof body !== "string")
 		throw new TypeError("content: body must be a string");
 
-	if (typeof requests !== "number" || requests < 0)
-		throw new TypeError("content: requests must be a non-negative number");
+	const requests = 0;
 
 	const result = await sql`
 		INSERT INTO content (

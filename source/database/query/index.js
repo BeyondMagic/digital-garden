@@ -141,11 +141,11 @@
  * @property {string} title_sub - Subtitle of the content.
  * @property {string} synopsis - Synopsis of the content.
  * @property {string} body - Body of the content.
- * @property {number} requests - Number of requests for the content.
  */
 
 /**
  * @typedef {ContentInput & RowIdentifier} Content - Full row content data, including the generated ID.
+ * @property {number} requests - Number of requests for the content.
  */
 
 /**
@@ -165,7 +165,8 @@
  */
 
 /**
- * @typedef {GardenInput & RowIdentifier} Garden - Full row garden data, including the generated ID.
+ * @typedef {GardenInput & {id: true}} Garden - Full row garden data, including the generated ID.
+ * @property {true} id - The ID of the garden is always 1, as there is only one garden.
  */
 
 /**
