@@ -137,8 +137,8 @@ async function author_connection() {
 			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
 			device VARCHAR(256) NOT NULL,
 			token VARCHAR(512) UNIQUE NOT NULL,
-			logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			last_active_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			logged_at TIMESTAMP NOT NULL,
+			last_active_at TIMESTAMP NOT NULL,
 			CONSTRAINT author_connection_device_not_empty CHECK (char_length(btrim(device)) > 0),
 			CONSTRAINT author_connection_token_not_empty CHECK (char_length(btrim(token)) > 0)
 		);

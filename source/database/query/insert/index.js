@@ -681,8 +681,6 @@ export async function author_connection({
 	id_author,
 	device,
 	token,
-	logged_at,
-	last_active_at,
 }) {
 	if (typeof id_author !== "number" || id_author <= 0)
 		throw new TypeError("author_connection: id_author must be a positive number");
@@ -692,12 +690,6 @@ export async function author_connection({
 
 	if (typeof token !== "string" || token.trim().length === 0)
 		throw new TypeError("author_connection: token must be a non-empty string");
-
-	if (!(logged_at instanceof Date))
-		throw new TypeError("author_connection: logged_at must be a Date object");
-
-	if (!(last_active_at instanceof Date))
-		throw new TypeError("author_connection: last_active_at must be a Date object");
 
 	const result = await sql`
 		INSERT INTO author_connection (
@@ -710,8 +702,8 @@ export async function author_connection({
 			${id_author},
 			${device},
 			${token},
-			${logged_at},
-			${last_active_at}
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP
 		)
 		RETURNING id
 	`;

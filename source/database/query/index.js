@@ -199,12 +199,12 @@
  * @property {number} id_author - ID of the author that has the connection.
  * @property {string} device - Device identifier for the connection (e.g. "web", "mobile").
  * @property {string} token - Authentication token for the connection.
- * @property {Date} logged_at - Timestamp of when the connection was established.
- * @property {Date} last_active_at - Timestamp of the last activity on the connection.
  */
 
 /**
  * @typedef {AuthorConnectionInput & RowIdentifier} AuthorConnection - Full row author connection data, including the generated ID.
+ * @property {Date} logged_at - Timestamp of when the connection was established.
+ * @property {Date} last_active_at - Timestamp of the last activity on the connection.
  */
 
 /**
