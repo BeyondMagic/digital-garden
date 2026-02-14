@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -678,6 +678,55 @@ export async function author({
 	return result[0].id;
 }
 
+/**
+ * @param {AuthorConnectionInput} author_connection Author connection information to insert.
+ * @returns {Promise<number>} Inserted author connection ID.
+ */
+export async function author_connection({
+	id_author,
+	device,
+	token,
+	logged_at,
+	last_active_at,
+}) {
+	if (typeof id_author !== "number" || id_author <= 0)
+		throw new TypeError("author_connection: id_author must be a positive number");
+
+	if (typeof device !== "string" || device.trim().length === 0)
+		throw new TypeError("author_connection: device must be a non-empty string");
+
+	if (typeof token !== "string" || token.trim().length === 0)
+		throw new TypeError("author_connection: token must be a non-empty string");
+
+	if (!(logged_at instanceof Date))
+		throw new TypeError("author_connection: logged_at must be a Date object");
+
+	if (!(last_active_at instanceof Date))
+		throw new TypeError("author_connection: last_active_at must be a Date object");
+
+	const result = await sql`
+		INSERT INTO author_connection (
+			id_author,
+			device,
+			token,
+			logged_at,
+			last_active_at
+		) VALUES (
+			${id_author},
+			${device},
+			${token},
+			${logged_at},
+			${last_active_at}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_author_connection: failed to insert author connection");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
@@ -694,4 +743,5 @@ export const insert = {
 	garden,
 	garden_information,
 	author,
+	author_connection,
 };
