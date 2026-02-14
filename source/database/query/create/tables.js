@@ -326,6 +326,7 @@ async function author_content() {
 			id SERIAL PRIMARY KEY,
 			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
 			id_content INTEGER NOT NULL REFERENCES content(id) ON DELETE CASCADE,
+			granted_at TIMESTAMP NOT NULL,
 			CONSTRAINT author_content_unique_pair UNIQUE(id_author, id_content)
 		);
 	`;

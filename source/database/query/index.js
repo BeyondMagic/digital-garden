@@ -229,6 +229,17 @@
  * @property {Date} granted_at - Timestamp of when the access was granted.
  */
 
+/**
+ * @typedef {Object} AuthorContentInput
+ * @property {number} id_author - ID of the author that contributed to the content.
+ * @property {number} id_content - ID of the content the author contributed to.
+ */
+
+/**
+ * @typedef {AuthorContentInput & RowIdentifier} AuthorContent - Full row author content data, including the generated ID.
+ * @property {Date} granted_at - Timestamp of when the contribution was made.
+ */
+
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
 import { remove } from "@/database/query/remove";
