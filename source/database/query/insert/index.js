@@ -640,6 +640,8 @@ export async function author({
 	const pages = 0;
 	const contents = 0;
 
+	const hashed_password = await Bun.password.hash(password);
+
 	const result = await sql`
 		INSERT INTO author (
 			id_asset,
@@ -652,7 +654,7 @@ export async function author({
 			${id_asset},
 			${email},
 			${name},
-			${password},
+			${hashed_password},
 			${pages},
 			${contents}
 		)
