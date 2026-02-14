@@ -12,16 +12,16 @@
  * @typedef {Object} ModuleInput - Information about a module.
  * @property {string} repository - Repository URL of the module.
  * @property {string} commit - Git commit hash of the module version.
- * @property {string} branch - Git branch of the module.
  * @property {number | null} version_major - Major version number of the module.
  * @property {number | null} version_minor - Minor version number of the module.
  * @property {number | null} version_patch - Patch version number of the module.
- * @property {Date} last_heartbeat - Timestamp of the last heartbeat received from the module.
  * @property {boolean} enabled - Whether the module is enabled or not.
  */
 
 /**
  * @typedef {ModuleInput & RowIdentifier} Module - Full row module data, including the generated ID.
+ * @property {string} branch - Git branch of the module.
+ * @property {Date} last_heartbeat - Timestamp of the last heartbeat received from the module.
  */
 
 /**

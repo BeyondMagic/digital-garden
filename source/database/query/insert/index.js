@@ -21,11 +21,9 @@ import { rename } from "node:fs/promises";
 export async function insert_module({
 	repository,
 	commit,
-	branch,
 	version_major,
 	version_minor,
 	version_patch,
-	last_heartbeat,
 	enabled,
 }) {
 	if (typeof repository !== "string" || repository.trim().length === 0)
@@ -33,9 +31,6 @@ export async function insert_module({
 
 	if (typeof commit !== "string" || commit.length !== 40)
 		throw new TypeError("insert_module: commit must be a 40-char git SHA");
-
-	if (typeof branch !== "string" || branch.trim().length === 0)
-		throw new TypeError("insert_module: branch must be a non-empty string");
 
 	if (typeof version_major !== "number" || version_major < 0)
 		throw new TypeError("insert_module: version_major must be a non-negative number");
@@ -46,8 +41,7 @@ export async function insert_module({
 	if (typeof version_patch !== "number" || version_patch < 0)
 		throw new TypeError("insert_module: version_patch must be a non-negative number");
 
-	if (last_heartbeat !== undefined && !(last_heartbeat instanceof Date))
-		throw new TypeError("insert_module: last_heartbeat must be a Date object if provided");
+	const branch = "main";
 
 	const result = await sql`
 		INSERT INTO module (
@@ -66,7 +60,7 @@ export async function insert_module({
 			${version_major},
 			${version_minor},
 			${version_patch},
-			${last_heartbeat},
+			CURRENT_TIMESTAMP,
 			${enabled}
 		)
 		RETURNING id
