@@ -4,12 +4,6 @@
  */
 
 /**
- * TO-DO: main capabilitieas:
- * - POST/domain/add
- * - PUT/domain/update
- */
-
-/**
  * @import { RowIdentifier, DomainInput } from "@/database/query"
  * @import { Capability } from "@/module/api"
  */
@@ -135,12 +129,14 @@ const capabilities = [
 ]
 
 export async function setup() {
-	debug("Setting up server capabilities...", { step: { current: 1, max: 2 } });
+	debug("Setting up server capabilities...", { step: { current: 1, max: 3 } });
 
 	for (const cap of capabilities)
 		capability.register(cap.method, cap.slug, cap);
 
-	debug("Server capabilities setup complete.", { step: { current: 2, max: 2 } });
+	debug("Server capabilities setup complete.", { step: { current: 2, max: 3 } });
+
+	// set up initial domains
 }
 
 export const seed = {
