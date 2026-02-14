@@ -180,6 +180,20 @@
  * @typedef {GardenInformationInput & RowIdentifier} GardenInformation - Full row garden information data, including the generated ID.
  */
 
+/**
+ * @typedef {Object} AuthorInput
+ * @property {number} id_asset - ID of the asset the author is associated with.
+ * @property {string} email - Email of the author.
+ * @property {string} name - Name of the author.
+ * @property {string} password - Hashed password of the author.
+ * @property {number} pages - Number of pages the author has contributed to.
+ * @property {number} contents - Number of contents the author has contributed to.
+ */
+
+/**
+ * @typedef {AuthorInput & RowIdentifier} Author - Full row author data, including the generated ID.
+ */
+
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
 import { remove } from "@/database/query/remove";

@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -623,6 +623,61 @@ export async function garden_information({
 	return result[0].id;
 }
 
+/**
+ * @param {AuthorInput} author Author information to insert.
+ * @returns {Promise<number>} Inserted author ID.
+ */
+export async function author({
+	id_asset,
+	email,
+	name,
+	password,
+	pages,
+	contents,
+}) {
+	if (typeof id_asset !== "number" || id_asset <= 0)
+		throw new TypeError("author: id_asset must be a positive number");
+
+	if (typeof email !== "string" || email.trim().length === 0)
+		throw new TypeError("author: email must be a non-empty string");
+
+	if (typeof name !== "string" || name.trim().length === 0)
+		throw new TypeError("author: name must be a non-empty string");
+
+	if (typeof password !== "string" || password.trim().length === 0)
+		throw new TypeError("author: password must be a non-empty string");
+
+	if (typeof pages !== "number" || pages < 0)
+		throw new TypeError("author: pages must be a non-negative number");
+
+	if (typeof contents !== "number" || contents < 0)
+		throw new TypeError("author: contents must be a non-negative number");
+
+	const result = await sql`
+		INSERT INTO author (
+			id_asset,
+			email,
+			name,
+			password,
+			pages,
+			contents
+		) VALUES (
+			${id_asset},
+			${email},
+			${name},
+			${password},
+			${pages},
+			${contents}
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_author: failed to insert author");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
@@ -638,4 +693,5 @@ export const insert = {
 	content_link,
 	garden,
 	garden_information,
+	author,
 };
