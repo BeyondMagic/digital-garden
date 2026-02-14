@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {AuthorDomainInput, AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {AuthorGardenInput, AuthorDomainInput, AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -760,6 +760,39 @@ export async function author_domain({
 	return result[0].id;
 }
 
+/**
+ * @param {AuthorGardenInput} param0 Author garden information to insert.
+ * @returns {Promise<number>} Inserted author garden ID.
+ */
+export async function author_garden({
+	id_author,
+	id_garden,
+}) {
+	if (typeof id_author !== "number" || id_author <= 0)
+		throw new TypeError("author_garden: id_author must be a positive number");
+
+	if (typeof id_garden !== "number" || id_garden <= 0)
+		throw new TypeError("author_garden: id_garden must be a positive number");
+
+	const result = await sql`
+		INSERT INTO author_garden (
+			id_author,
+			id_garden,
+			granted_at
+		) VALUES (
+			${id_author},
+			${id_garden},
+			CURRENT_TIMESTAMP
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_author_garden: failed to insert author garden");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
@@ -778,4 +811,5 @@ export const insert = {
 	author,
 	author_connection,
 	author_domain,
+	author_garden,
 };

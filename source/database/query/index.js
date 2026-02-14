@@ -218,6 +218,17 @@
  * @property {Date} granted_at - Timestamp of when the access was granted.
  */
 
+/**
+ * @typedef {Object} AuthorGardenInput
+ * @property {number} id_author - ID of the author that has access to the garden.
+ * @property {number} id_garden - ID of the garden the author has access to.
+ */
+
+/**
+ * @typedef {AuthorGardenInput & RowIdentifier} AuthorGarden - Full row author garden data, including the generated ID.
+ * @property {Date} granted_at - Timestamp of when the access was granted.
+ */
+
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
 import { remove } from "@/database/query/remove";

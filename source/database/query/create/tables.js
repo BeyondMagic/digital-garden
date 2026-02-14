@@ -311,6 +311,7 @@ async function author_garden() {
 			id SERIAL PRIMARY KEY,
 			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
 			id_garden INTEGER NOT NULL REFERENCES garden(id) ON DELETE CASCADE,
+			granted_at TIMESTAMP NOT NULL,
 			CONSTRAINT author_garden_unique_pair UNIQUE(id_author, id_garden)
 		);
 	`;
