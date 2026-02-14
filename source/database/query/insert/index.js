@@ -632,8 +632,6 @@ export async function author({
 	email,
 	name,
 	password,
-	pages,
-	contents,
 }) {
 	if (typeof id_asset !== "number" || id_asset <= 0)
 		throw new TypeError("author: id_asset must be a positive number");
@@ -647,11 +645,8 @@ export async function author({
 	if (typeof password !== "string" || password.trim().length === 0)
 		throw new TypeError("author: password must be a non-empty string");
 
-	if (typeof pages !== "number" || pages < 0)
-		throw new TypeError("author: pages must be a non-negative number");
-
-	if (typeof contents !== "number" || contents < 0)
-		throw new TypeError("author: contents must be a non-negative number");
+	const pages = 0;
+	const contents = 0;
 
 	const result = await sql`
 		INSERT INTO author (

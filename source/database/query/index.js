@@ -186,12 +186,12 @@
  * @property {string} email - Email of the author.
  * @property {string} name - Name of the author.
  * @property {string} password - Hashed password of the author.
- * @property {number} pages - Number of pages the author has contributed to.
- * @property {number} contents - Number of contents the author has contributed to.
  */
 
 /**
  * @typedef {AuthorInput & RowIdentifier} Author - Full row author data, including the generated ID.
+ * @property {number} pages - Number of pages the author has contributed to.
+ * @property {number} contents - Number of contents the author has contributed to.
  */
 
 /**
@@ -215,17 +215,6 @@
 
 /**
  * @typedef {AuthorDomainInput & RowIdentifier} AuthorDomain - Full row author domain data, including the generated ID.
- * @property {Date} granted_at - Timestamp of when the access was granted.
- */
-
-/**
- * @typedef {Object} AuthorGardenInput
- * @property {number} id_author - ID of the author that has access to the garden.
- * @property {number} id_garden - ID of the garden the author has access to.
- */
-
-/**
- * @typedef {AuthorGardenInput & RowIdentifier} AuthorGarden - Full row author garden data, including the generated ID.
  * @property {Date} granted_at - Timestamp of when the access was granted.
  */
 
