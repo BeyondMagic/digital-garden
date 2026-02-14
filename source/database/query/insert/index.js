@@ -827,7 +827,6 @@ export async function author_content({
 }
 
 export const insert = {
-	module: insert_module,
 	asset,
 	domain,
 	language,
@@ -846,4 +845,5 @@ export const insert = {
 	author_domain,
 	author_garden,
 	author_content,
+	module: insert_module,
 };
