@@ -13,18 +13,25 @@ async function domain() {
 			id_domain_parent INTEGER REFERENCES domain(id),
 			id_domain_redirect INTEGER REFERENCES domain(id),
 			kind TYPE_DOMAIN NOT NULL,
-			slug VARCHAR(32) NOT NULL,
+			slug VARCHAR(32),
 			status TYPE_SUBJECT_STATUS NOT NULL,
 			CONSTRAINT domain_no_self_parent CHECK (id_domain_parent IS NULL OR id_domain_parent <> id),
 			CONSTRAINT domain_unique_slug_kind_parent UNIQUE(slug, kind, id_domain_parent),
 			CONSTRAINT domain_no_circular_parent CHECK (id_domain_parent IS NULL OR id_domain_parent <> id_domain_redirect),
 			CONSTRAINT domain_no_circular_redirect CHECK (id_domain_redirect IS NULL OR id_domain_redirect <> id_domain_parent),
+			CONSTRAINT domain_root_or_child_shape CHECK (
+				(
+					id_domain_parent IS NULL AND
+					slug IS NULL AND
+					kind = 'SUBDOMAIN'
+				) OR (
+					id_domain_parent IS NOT NULL AND
+					slug IS NOT NULL AND
+					kind IN ('SUBDOMAIN', 'ROUTER')
+				)
+			),
 			CONSTRAINT domain_slug_not_empty CHECK (char_length(btrim(slug)) > 0),
-			CONSTRAINT domain_slug_format CHECK (slug NOT LIKE '%/%'),
-			CONSTRAINT domain_subdomain_slug_format CHECK (
-				(kind = 'SUBDOMAIN' AND slug NOT LIKE '%.%') OR
-				(kind = 'ROUTER')
-			)
+			CONSTRAINT domain_slug_format CHECK (slug NOT LIKE '%/%')
 		);
 	`;
 }
