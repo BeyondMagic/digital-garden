@@ -728,7 +728,7 @@ export async function author_connection({
 }
 
 /**
- * @param {AuthorDomainInput} param0 Author domain information to insert.
+ * @param {AuthorDomainInput} author_domain Author domain information to insert.
  * @returns {Promise<number>} Inserted author domain ID.
  */
 export async function author_domain({
@@ -761,7 +761,7 @@ export async function author_domain({
 }
 
 /**
- * @param {AuthorGardenInput} param0 Author garden information to insert.
+ * @param {AuthorGardenInput} author_garden Author garden information to insert.
  * @returns {Promise<number>} Inserted author garden ID.
  */
 export async function author_garden({
