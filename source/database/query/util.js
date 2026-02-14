@@ -103,7 +103,7 @@ export async function cleanup_asset_paths({ temp_path, new_path }) {
 		await rm(new_path, { force: true });
 }
 
-export const utils = {
+export const util = {
 	exists,
 	build_asset_path,
 	build_temp_path,
