@@ -12,7 +12,7 @@ import {
 } from "@/database/query/util";
 import { rename } from "node:fs/promises";
 
-/** @import {AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+/** @import {AuthorDomainInput, AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @param {ModuleInput} module Module information to insert.
@@ -727,6 +727,39 @@ export async function author_connection({
 	return result[0].id;
 }
 
+/**
+ * @param {AuthorDomainInput} param0 Author domain information to insert.
+ * @returns {Promise<number>} Inserted author domain ID.
+ */
+export async function author_domain({
+	id_author,
+	id_domain,
+}) {
+	if (typeof id_author !== "number" || id_author <= 0)
+		throw new TypeError("author_domain: id_author must be a positive number");
+
+	if (typeof id_domain !== "number" || id_domain <= 0)
+		throw new TypeError("author_domain: id_domain must be a positive number");
+
+	const result = await sql`
+		INSERT INTO author_domain (
+			id_author,
+			id_domain,
+			granted_at
+		) VALUES (
+			${id_author},
+			${id_domain},
+			CURRENT_TIMESTAMP
+		)
+		RETURNING id
+	`;
+
+	if (result.length === 0)
+		throw new Error("insert_author_domain: failed to insert author domain");
+
+	return result[0].id;
+}
+
 export const insert = {
 	module: insert_module,
 	asset,
@@ -744,4 +777,5 @@ export const insert = {
 	garden_information,
 	author,
 	author_connection,
+	author_domain,
 };

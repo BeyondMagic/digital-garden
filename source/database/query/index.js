@@ -207,6 +207,17 @@
  * @typedef {AuthorConnectionInput & RowIdentifier} AuthorConnection - Full row author connection data, including the generated ID.
  */
 
+/**
+ * @typedef {Object} AuthorDomainInput
+ * @property {number} id_author - ID of the author that has access to the domain.
+ * @property {number} id_domain - ID of the domain the author has access to.
+ */
+
+/**
+ * @typedef {AuthorDomainInput & RowIdentifier} AuthorDomain - Full row author domain data, including the generated ID.
+ * @property {Date} granted_at - Timestamp of when the access was granted.
+ */
+
 import { create } from "@/database/query/create";
 import { insert } from "@/database/query/insert";
 import { remove } from "@/database/query/remove";

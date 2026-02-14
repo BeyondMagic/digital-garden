@@ -295,6 +295,7 @@ async function author_domain() {
 			id SERIAL PRIMARY KEY,
 			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
 			id_domain INTEGER NOT NULL REFERENCES domain(id) ON DELETE CASCADE,
+			granted_at TIMESTAMP NOT NULL,
 			CONSTRAINT author_domain_unique_pair UNIQUE(id_author, id_domain)
 		);
 	`;
