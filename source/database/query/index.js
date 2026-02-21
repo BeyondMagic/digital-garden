@@ -189,7 +189,6 @@
 
 /**
  * @typedef {Object} GardenInformationInput
- * @property {number} id_garden - ID of the garden the information is associated with.
  * @property {number} id_language - ID of the language the information is in.
  * @property {string} name - Name of the garden in the specified language.
  * @property {string} description - Description of the garden in the specified language.

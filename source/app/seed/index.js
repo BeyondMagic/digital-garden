@@ -143,7 +143,6 @@ export async function tables() {
 		});
 
 		await insert.garden_information({
-			id_garden: 1,
 			id_language: language_en_id,
 			name: "My Digital Garden",
 			description: "Welcome to my digital garden! This is a space where I cultivate and share my thoughts, ideas, and projects. Feel free to explore and connect with me!",

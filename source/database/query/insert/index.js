@@ -603,16 +603,11 @@ export async function garden({ id_domain, id_asset, id_author, sql = sql_exec })
  * @returns {Promise<number>} Inserted garden information ID.
  */
 export async function garden_information({
-	id_garden,
 	id_language,
 	name,
 	description,
 	sql = sql_exec
 }) {
-	if (typeof id_garden !== "number" || id_garden <= 0)
-		throw new TypeError(
-			"garden_information: id_garden must be a positive number",
-		);
 
 	if (typeof id_language !== "number" || id_language <= 0)
 		throw new TypeError(
@@ -627,12 +622,10 @@ export async function garden_information({
 
 	const result = await sql`
 		INSERT INTO garden_information (
-			id_garden,
 			id_language,
 			name,
 			description
 		) VALUES (
-			${id_garden},
 			${id_language},
 			${name},
 			${description}
