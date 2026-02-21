@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { rename } from "node:fs/promises";
 import { sql } from "bun";
 import {
 	build_asset_path,
@@ -10,7 +11,6 @@ import {
 	cleanup_asset_paths,
 	prepare_asset_file,
 } from "@/database/query/util";
-import { rename } from "node:fs/promises";
 
 /** @import {AuthorContentInput, AuthorDomainInput, AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
@@ -33,13 +33,19 @@ export async function insert_module({
 		throw new TypeError("insert_module: commit must be a 40-char git SHA");
 
 	if (typeof version_major !== "number" || version_major < 0)
-		throw new TypeError("insert_module: version_major must be a non-negative number");
+		throw new TypeError(
+			"insert_module: version_major must be a non-negative number",
+		);
 
 	if (typeof version_minor !== "number" || version_minor < 0)
-		throw new TypeError("insert_module: version_minor must be a non-negative number");
+		throw new TypeError(
+			"insert_module: version_minor must be a non-negative number",
+		);
 
 	if (typeof version_patch !== "number" || version_patch < 0)
-		throw new TypeError("insert_module: version_patch must be a non-negative number");
+		throw new TypeError(
+			"insert_module: version_patch must be a non-negative number",
+		);
 
 	const branch = "main";
 
@@ -76,20 +82,14 @@ export async function insert_module({
  * @param {AssetInput & {data: AssetData}} asset Asset information to insert.
  * @returns {Promise<number>} Inserted asset ID.
  */
-export async function asset({
-	id_domain,
-	slug,
-	data,
-}) {
-
+export async function asset({ id_domain, slug, data }) {
 	if (typeof id_domain !== "number" || id_domain <= 0)
 		throw new TypeError("asset: id_domain must be a positive number");
 
 	if (typeof slug !== "string" || slug.trim().length === 0)
 		throw new TypeError("asset: slug must be a non-empty string");
 
-	const id = await sql.begin(async sql => {
-
+	const id = await sql.begin(async (sql) => {
 		const file_path = await build_asset_path(id_domain, slug);
 		const temp_path = build_temp_path(file_path);
 
@@ -97,7 +97,9 @@ export async function asset({
 			throw new Error(`insert_asset: file already exists at path ${file_path}`);
 
 		if (await Bun.file(temp_path).exists())
-			throw new Error(`insert_asset: temp file already exists at path ${temp_path}`);
+			throw new Error(
+				`insert_asset: temp file already exists at path ${temp_path}`,
+			);
 
 		let has_renamed = false;
 
@@ -118,8 +120,7 @@ export async function asset({
 				RETURNING id
 			`;
 
-			if (!asset_row)
-				throw new Error("insert_asset: failed to insert asset");
+			if (!asset_row) throw new Error("insert_asset: failed to insert asset");
 
 			await rename(temp_path, file_path);
 			has_renamed = true;
@@ -128,11 +129,11 @@ export async function asset({
 		} catch (error) {
 			await cleanup_asset_paths({
 				temp_path: has_renamed ? null : temp_path,
-				new_path: has_renamed ? file_path : null
+				new_path: has_renamed ? file_path : null,
 			});
 			throw error;
 		}
-	})
+	});
 
 	return id;
 }
@@ -148,11 +149,21 @@ export async function domain({
 	slug,
 	status,
 }) {
-	if (id_domain_parent !== null && (typeof id_domain_parent !== "number" || id_domain_parent <= 0))
-		throw new TypeError("domain: id_domain_parent must be a positive number or null");
+	if (
+		id_domain_parent !== null &&
+		(typeof id_domain_parent !== "number" || id_domain_parent <= 0)
+	)
+		throw new TypeError(
+			"domain: id_domain_parent must be a positive number or null",
+		);
 
-	if (id_domain_redirect !== null && (typeof id_domain_redirect !== "number" || id_domain_redirect <= 0))
-		throw new TypeError("domain: id_domain_redirect must be a positive number or null");
+	if (
+		id_domain_redirect !== null &&
+		(typeof id_domain_redirect !== "number" || id_domain_redirect <= 0)
+	)
+		throw new TypeError(
+			"domain: id_domain_redirect must be a positive number or null",
+		);
 
 	if (typeof kind !== "string" || kind.trim().length === 0)
 		throw new TypeError("domain: kind must be a non-empty string");
@@ -190,10 +201,7 @@ export async function domain({
  * @param {LanguageInput} language Language information to insert.
  * @returns {Promise<number>} Inserted language ID.
  */
-export async function language({
-	id_asset,
-	slug,
-}) {
+export async function language({ id_asset, slug }) {
 	if (typeof id_asset !== "number" || id_asset <= 0)
 		throw new TypeError("language: id_asset must be a positive number");
 
@@ -228,13 +236,19 @@ export async function language_information({
 	description,
 }) {
 	if (typeof id_language_for !== "number" || id_language_for <= 0)
-		throw new TypeError("language_information: id_language_for must be a positive number");
+		throw new TypeError(
+			"language_information: id_language_for must be a positive number",
+		);
 
 	if (typeof id_language_from !== "number" || id_language_from <= 0)
-		throw new TypeError("language_information: id_language_from must be a positive number");
+		throw new TypeError(
+			"language_information: id_language_from must be a positive number",
+		);
 
 	if (typeof name !== "string" || name.trim().length === 0)
-		throw new TypeError("language_information: name must be a non-empty string");
+		throw new TypeError(
+			"language_information: name must be a non-empty string",
+		);
 
 	if (typeof description !== "string")
 		throw new TypeError("language_information: description must be a string");
@@ -255,7 +269,9 @@ export async function language_information({
 	`;
 
 	if (result.length === 0)
-		throw new Error("insert_language_information: failed to insert language information");
+		throw new Error(
+			"insert_language_information: failed to insert language information",
+		);
 
 	return result[0].id;
 }
@@ -271,10 +287,14 @@ export async function asset_information({
 	description,
 }) {
 	if (typeof id_asset !== "number" || id_asset <= 0)
-		throw new TypeError("asset_information: id_asset must be a positive number");
+		throw new TypeError(
+			"asset_information: id_asset must be a positive number",
+		);
 
 	if (typeof id_language !== "number" || id_language <= 0)
-		throw new TypeError("asset_information: id_language must be a positive number");
+		throw new TypeError(
+			"asset_information: id_language must be a positive number",
+		);
 
 	if (typeof name !== "string" || name.trim().length === 0)
 		throw new TypeError("asset_information: name must be a non-empty string");
@@ -298,7 +318,9 @@ export async function asset_information({
 	`;
 
 	if (result.length === 0)
-		throw new Error("insert_asset_information: failed to insert asset information");
+		throw new Error(
+			"insert_asset_information: failed to insert asset information",
+		);
 
 	return result[0].id;
 }
@@ -307,10 +329,7 @@ export async function asset_information({
  * @param {TagInput} tag Tag information to insert.
  * @returns {Promise<number>} Inserted tag ID.
  */
-export async function tag({
-	id_asset,
-	slug,
-}) {
+export async function tag({ id_asset, slug }) {
 	if (typeof id_asset !== "number" || id_asset <= 0)
 		throw new TypeError("tag: id_asset must be a positive number");
 
@@ -328,8 +347,7 @@ export async function tag({
 		RETURNING id
 	`;
 
-	if (result.length === 0)
-		throw new Error("insert_tag: failed to insert tag");
+	if (result.length === 0) throw new Error("insert_tag: failed to insert tag");
 
 	return result[0].id;
 }
@@ -338,15 +356,14 @@ export async function tag({
  * @param {TagRequirementInput} tag_requirement Tag requirement information to insert.
  * @returns {Promise<number>} Inserted tag requirement ID.
  */
-export async function tag_requirement({
-	id_tag,
-	id_tag_for,
-}) {
+export async function tag_requirement({ id_tag, id_tag_for }) {
 	if (typeof id_tag !== "number" || id_tag <= 0)
 		throw new TypeError("tag_requirement: id_tag must be a positive number");
 
 	if (typeof id_tag_for !== "number" || id_tag_for <= 0)
-		throw new TypeError("tag_requirement: id_tag_for must be a positive number");
+		throw new TypeError(
+			"tag_requirement: id_tag_for must be a positive number",
+		);
 
 	const result = await sql`
 		INSERT INTO tag_requirement (
@@ -379,7 +396,9 @@ export async function tag_information({
 		throw new TypeError("tag_information: id_tag must be a positive number");
 
 	if (typeof id_language !== "number" || id_language <= 0)
-		throw new TypeError("tag_information: id_language must be a positive number");
+		throw new TypeError(
+			"tag_information: id_language must be a positive number",
+		);
 
 	if (typeof name !== "string" || name.trim().length === 0)
 		throw new TypeError("tag_information: name must be a non-empty string");
@@ -412,10 +431,7 @@ export async function tag_information({
  * @param {DomainTagInput} domain_tag Domain tag information to insert.
  * @returns {Promise<number>} Inserted domain tag ID.
  */
-export async function domain_tag({
-	id_domain,
-	id_tag,
-}) {
+export async function domain_tag({ id_domain, id_tag }) {
 	if (typeof id_domain !== "number" || id_domain <= 0)
 		throw new TypeError("domain_tag: id_domain must be a positive number");
 
@@ -514,15 +530,16 @@ export async function content({
  * @param {ContentLinkInput} content_link Content link information to insert.
  * @returns {Promise<number>} Inserted content link ID.
  */
-export async function content_link({
-	id_content_from,
-	id_content_to,
-}) {
+export async function content_link({ id_content_from, id_content_to }) {
 	if (typeof id_content_from !== "number" || id_content_from <= 0)
-		throw new TypeError("content_link: id_content_from must be a positive number");
+		throw new TypeError(
+			"content_link: id_content_from must be a positive number",
+		);
 
 	if (typeof id_content_to !== "number" || id_content_to <= 0)
-		throw new TypeError("content_link: id_content_to must be a positive number");
+		throw new TypeError(
+			"content_link: id_content_to must be a positive number",
+		);
 
 	const result = await sql`
 		INSERT INTO content_link (
@@ -545,11 +562,7 @@ export async function content_link({
  * @param {GardenInput} garden Garden information to insert.
  * @returns {Promise<number>} Inserted garden ID.
  */
-export async function garden({
-	id_domain,
-	id_asset,
-	id_author,
-}) {
+export async function garden({ id_domain, id_asset, id_author }) {
 	if (typeof id_domain !== "number" || id_domain <= 0)
 		throw new TypeError("garden: id_domain must be a positive number");
 
@@ -589,10 +602,14 @@ export async function garden_information({
 	description,
 }) {
 	if (typeof id_garden !== "number" || id_garden <= 0)
-		throw new TypeError("garden_information: id_garden must be a positive number");
+		throw new TypeError(
+			"garden_information: id_garden must be a positive number",
+		);
 
 	if (typeof id_language !== "number" || id_language <= 0)
-		throw new TypeError("garden_information: id_language must be a positive number");
+		throw new TypeError(
+			"garden_information: id_language must be a positive number",
+		);
 
 	if (typeof name !== "string" || name.trim().length === 0)
 		throw new TypeError("garden_information: name must be a non-empty string");
@@ -616,7 +633,9 @@ export async function garden_information({
 	`;
 
 	if (result.length === 0)
-		throw new Error("insert_garden_information: failed to insert garden information");
+		throw new Error(
+			"insert_garden_information: failed to insert garden information",
+		);
 
 	return result[0].id;
 }
@@ -625,12 +644,7 @@ export async function garden_information({
  * @param {AuthorInput} author Author information to insert.
  * @returns {Promise<number>} Inserted author ID.
  */
-export async function author({
-	id_asset,
-	email,
-	name,
-	password,
-}) {
+export async function author({ id_asset, email, name, password }) {
 	if (typeof id_asset !== "number" || id_asset <= 0)
 		throw new TypeError("author: id_asset must be a positive number");
 
@@ -677,13 +691,11 @@ export async function author({
  * @param {AuthorConnectionInput} author_connection Author connection information to insert.
  * @returns {Promise<number>} Inserted author connection ID.
  */
-export async function author_connection({
-	id_author,
-	device,
-	token,
-}) {
+export async function author_connection({ id_author, device, token }) {
 	if (typeof id_author !== "number" || id_author <= 0)
-		throw new TypeError("author_connection: id_author must be a positive number");
+		throw new TypeError(
+			"author_connection: id_author must be a positive number",
+		);
 
 	if (typeof device !== "string" || device.trim().length === 0)
 		throw new TypeError("author_connection: device must be a non-empty string");
@@ -709,7 +721,9 @@ export async function author_connection({
 	`;
 
 	if (result.length === 0)
-		throw new Error("insert_author_connection: failed to insert author connection");
+		throw new Error(
+			"insert_author_connection: failed to insert author connection",
+		);
 
 	return result[0].id;
 }
@@ -718,10 +732,7 @@ export async function author_connection({
  * @param {AuthorDomainInput} author_domain Author domain information to insert.
  * @returns {Promise<number>} Inserted author domain ID.
  */
-export async function author_domain({
-	id_author,
-	id_domain,
-}) {
+export async function author_domain({ id_author, id_domain }) {
 	if (typeof id_author !== "number" || id_author <= 0)
 		throw new TypeError("author_domain: id_author must be a positive number");
 
@@ -751,10 +762,7 @@ export async function author_domain({
  * @param {AuthorContentInput} author_content Author content information to insert.
  * @returns {Promise<number>} Inserted author content ID.
  */
-export async function author_content({
-	id_author,
-	id_content,
-}) {
+export async function author_content({ id_author, id_content }) {
 	if (typeof id_author !== "number" || id_author <= 0)
 		throw new TypeError("author_content: id_author must be a positive number");
 
