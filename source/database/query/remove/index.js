@@ -15,7 +15,7 @@ const info = create_info(import.meta.path);
 const critical = create_critical(import.meta.path);
 
 /**
- * @import { RowIdentifier } from "@/database/query";
+ * @import { RowIdentifier, Asset } from "@/database/query";
  */
 
 /**
@@ -41,33 +41,52 @@ export async function garden() {
 	}
 
 	// TO-DO: require input from CLI to confirm this action, to prevent accidental execution against a production database.
+	const assets_ids = await sql`
+		SELECT id
+		FROM asset
+	`;
 
-	// TO-DO: select all assets and delete their files from the filesystem as well, to avoid orphaned files after reset.
+	// TO-DO: restore assets if one failed to delete, to avoid orphaned files after reset. This is a safety measure in case of partial failures during asset deletion.
+	for (const { id } of assets_ids) {
+		try {
+			await asset({ id });
+		} catch (e) {
+			warn(`Failed to delete asset with id ${id} during garden reset. Continuing with schema reset.`, { error: e });
+		}
+	}
 
 	try {
-		await sql`ROLLBACK`;
-		await sql`
-			SELECT pg_terminate_backend(pg_stat_activity.pid)
-			FROM pg_stat_activity
-			WHERE pg_stat_activity.datname = 'rpg'
-			  AND pid <> pg_backend_pid()
-		`;
+		await sql.begin(async (sql) => {
 
-		// Drop the public schema and all its content.
-		await sql`DROP SCHEMA IF EXISTS public CASCADE`;
+			await sql`ROLLBACK`;
+			await sql`
+				SELECT pg_terminate_backend(pg_stat_activity.pid)
+				FROM pg_stat_activity
+				WHERE pg_stat_activity.datname = 'rpg'
+				  AND pid <> pg_backend_pid()
+			`;
 
-		await sql`CREATE SCHEMA IF NOT EXISTS public`;
+			// Drop the public schema and all its content.
+			await sql`DROP SCHEMA IF EXISTS public CASCADE`;
 
-		// Restore common grants; adjust if your DB role setup differs
-		await sql`GRANT ALL ON SCHEMA public TO postgres`;
-		await sql`GRANT ALL ON SCHEMA public TO public`;
+			await sql`CREATE SCHEMA IF NOT EXISTS public`;
 
-		// set to public schema.
-		await sql`SET search_path TO public`;
+			// Restore common grants; adjust if your DB role setup differs
+			await sql`GRANT ALL ON SCHEMA public TO postgres`;
+			await sql`GRANT ALL ON SCHEMA public TO public`;
 
-		assert(await exists('public', 'schema'), 'Schema "public" was not recreated successfully after reset.');
+			// set to public schema.
+			await sql`SET search_path TO public`;
 
-		info("Database schema 'public' reset complete.", { step: { current: 2, max: 2 } });
+			assert(
+				await exists("public", "schema"),
+				'Schema "public" was not recreated successfully after reset.',
+			);
+
+			info("Database schema 'public' reset complete.", {
+				step: { current: 2, max: 2 },
+			});
+		})
 	} catch (e) {
 		critical("Database reset failed. See error below.");
 		throw e;
