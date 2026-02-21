@@ -54,7 +54,7 @@ export async function build_asset_path(id_domain, slug) {
 		.map(domain => domain.slug)
 		.join("/");
 
-	const file_path = `${public_root}/${domain_path}/${slug}`;
+	const file_path = join(public_root, domain_path, slug);
 	return file_path;
 }
 
