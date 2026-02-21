@@ -130,22 +130,15 @@ async function fetch(req, server) {
         return await app.handle_asset(last);
     }
 
-    if (is_api) {
+    else if (is_api) {
         const slug = routers.join("/");
         return await app.handle_api({ request: req, method, slug });
     }
 
-    if (is_valid_domain_tree) {
-        return new Response("<h1>Page response placeholder</h1>", {
-            status: 200,
-            headers: { "content-type": "text/html" },
-        });
-    }
+    else if (is_valid_domain_tree)
+        return await app.handle_request(req);
 
-    return new Response("Not Found", {
-        status: 404,
-        headers: { "content-type": "text/plain" },
-    });
+    throw new Error("Unexpected request type: does not match asset, API, or page patterns");
 }
 
 critical("server: Starting the server...", { step: { current: 1, max: 2 } });

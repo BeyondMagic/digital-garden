@@ -111,8 +111,20 @@ export async function handle_api({ request, method, slug }) {
 	return response;
 }
 
+/**
+ * @param {Request} req - The incoming HTTP request object.
+ * @returns {Promise<Response>} - A Promise resolving to the HTTP response.
+ */
+export async function handle_request(req) {
+	return new Response("<h1>Page response placeholder</h1>", {
+		status: 200,
+		headers: { "content-type": "text/html" },
+	});
+}
+
 export const app = {
 	setup,
 	handle_asset,
 	handle_api,
+	handle_request,
 };
