@@ -5,9 +5,10 @@
  */
 
 import { sql } from "bun";
+import { assert } from "@/logger";
 
 
-/** @import { Asset, Domain } from "@/database/query" */
+/** @import { Asset, Domain, DomainKind } from "@/database/query" */
 
 /**
  * Build the domain tree (root to leaf) for a given domain id.
@@ -36,18 +37,31 @@ export async function domain_tree(id_domain) {
 
 	return rows;
 }
-
 /**
  * Build the domain tree (root to leaf) for a given array of slugs.
+ * @todo Should check slug and type of each segment (subdomain/router) to ensure the correct tree is built.
  * @example
  * const tree = await domain_tree_by_slugs(["archive_v1.tar.gz", "love-love", "fanfics", "alt", "writing"]);
  * console.log(tree);
- * @param {Array<string>} slugs
+ * @param {Array<{value: string, kind: DomainKind}>} slugs
  * @returns {Promise<Array<Domain>>}
  */
 export async function domain_tree_by_slugs(slugs) {
-	if (!Array.isArray(slugs) || slugs.some(slug => typeof slug !== "string" || slug.trim().length === 0))
-		throw new TypeError("domain_tree_by_slugs: slugs must be an array of non-empty strings");
+	assert(
+		(
+			!Array.isArray(slugs) ||
+			slugs.some((slug) => (
+				typeof slug !== "object" ||
+				slug === null ||
+				typeof slug.value !== "string" ||
+				slug.value.trim().length === 0 ||
+				typeof slug.kind !== "string" ||
+				!["SUBDOMAIN", "ROUTER"].includes(slug.kind)
+			))
+		),
+		"domain_tree_by_slugs: slugs must be an array of non-empty strings with a valid kind (SUBDOMAIN or ROUTER)"
+	)
+
 
 	/** @type {Array<Domain>} */
 	const tree = [];
@@ -65,8 +79,7 @@ export async function domain_tree_by_slugs(slugs) {
 		INNER JOIN garden ON garden.id_domain = domain.id
 	`;
 
-	if (!root_domain)
-		return tree;
+	if (!root_domain) return tree;
 
 	tree.push(root_domain);
 
@@ -80,8 +93,7 @@ export async function domain_tree_by_slugs(slugs) {
 			WHERE slug = ${slug} AND id_domain_parent IS NOT DISTINCT FROM ${parent_id}
 		`;
 
-		if (!rows[0])
-			break;
+		if (!rows[0]) break;
 
 		const domain_row = rows[0];
 		tree.push(domain_row);
