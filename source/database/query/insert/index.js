@@ -4,7 +4,7 @@
  */
 
 import { rename } from "node:fs/promises";
-import { sql } from "bun";
+import { sql as sql_exec } from "bun";
 import {
 	build_asset_path,
 	build_temp_path,
@@ -15,7 +15,12 @@ import {
 /** @import {AuthorContentInput, AuthorDomainInput, AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
- * @param {ModuleInput} module Module information to insert.
+ * @typedef {Object} SQLObject
+ * @property {Bun.SQL} sql SQL statement to execute.
+ */
+
+/**
+ * @param {ModuleInput & SQLObject} module Module information to insert.
  * @returns {Promise<number>} Inserted module ID.
  */
 export async function insert_module({
@@ -25,6 +30,7 @@ export async function insert_module({
 	version_minor,
 	version_patch,
 	enabled,
+	sql
 }) {
 	if (typeof repository !== "string" || repository.trim().length === 0)
 		throw new TypeError("insert_module: repository must be a non-empty string");
@@ -79,10 +85,10 @@ export async function insert_module({
 }
 
 /**
- * @param {AssetInput & {data: AssetData}} asset Asset information to insert.
+ * @param {AssetInput & {data: AssetData} & SQLObject} asset Asset information to insert.
  * @returns {Promise<number>} Inserted asset ID.
  */
-export async function asset({ id_domain, slug, data }) {
+export async function asset({ id_domain, slug, data, sql = sql_exec }) {
 	if (typeof id_domain !== "number" || id_domain <= 0)
 		throw new TypeError("asset: id_domain must be a positive number");
 
@@ -139,7 +145,7 @@ export async function asset({ id_domain, slug, data }) {
 }
 
 /**
- * @param {DomainInput} domain Domain information to insert.
+ * @param {DomainInput & SQLObject} domain Domain information to insert.
  * @returns {Promise<number>} Inserted domain ID.
  */
 export async function domain({
@@ -148,6 +154,7 @@ export async function domain({
 	kind,
 	slug,
 	status,
+	sql = sql_exec,
 }) {
 	if (
 		id_domain_parent !== null &&
@@ -198,10 +205,10 @@ export async function domain({
 }
 
 /**
- * @param {LanguageInput} language Language information to insert.
+ * @param {LanguageInput & SQLObject} language Language information to insert.
  * @returns {Promise<number>} Inserted language ID.
  */
-export async function language({ id_asset, slug }) {
+export async function language({ id_asset, slug, sql = sql_exec }) {
 	if (typeof id_asset !== "number" || id_asset <= 0)
 		throw new TypeError("language: id_asset must be a positive number");
 
@@ -226,7 +233,7 @@ export async function language({ id_asset, slug }) {
 }
 
 /**
- * @param {LanguageInformationInput} language_information Language information to insert.
+ * @param {LanguageInformationInput & SQLObject} language_information Language information to insert.
  * @returns {Promise<number>} Inserted language information ID.
  */
 export async function language_information({
@@ -234,6 +241,7 @@ export async function language_information({
 	id_language_from,
 	name,
 	description,
+	sql = sql_exec,
 }) {
 	if (typeof id_language_for !== "number" || id_language_for <= 0)
 		throw new TypeError(
@@ -277,7 +285,7 @@ export async function language_information({
 }
 
 /**
- * @param {AssetInformationInput} asset_information Asset information to insert.
+ * @param {AssetInformationInput & SQLObject} asset_information Asset information to insert.
  * @returns {Promise<number>} Inserted asset information ID.
  */
 export async function asset_information({
@@ -285,6 +293,7 @@ export async function asset_information({
 	id_language,
 	name,
 	description,
+	sql = sql_exec,
 }) {
 	if (typeof id_asset !== "number" || id_asset <= 0)
 		throw new TypeError(
@@ -326,10 +335,10 @@ export async function asset_information({
 }
 
 /**
- * @param {TagInput} tag Tag information to insert.
+ * @param {TagInput & SQLObject} tag Tag information to insert.
  * @returns {Promise<number>} Inserted tag ID.
  */
-export async function tag({ id_asset, slug }) {
+export async function tag({ id_asset, slug, sql = sql_exec }) {
 	if (typeof id_asset !== "number" || id_asset <= 0)
 		throw new TypeError("tag: id_asset must be a positive number");
 
@@ -353,10 +362,10 @@ export async function tag({ id_asset, slug }) {
 }
 
 /**
- * @param {TagRequirementInput} tag_requirement Tag requirement information to insert.
+ * @param {TagRequirementInput & SQLObject} tag_requirement Tag requirement information to insert.
  * @returns {Promise<number>} Inserted tag requirement ID.
  */
-export async function tag_requirement({ id_tag, id_tag_for }) {
+export async function tag_requirement({ id_tag, id_tag_for, sql = sql_exec }) {
 	if (typeof id_tag !== "number" || id_tag <= 0)
 		throw new TypeError("tag_requirement: id_tag must be a positive number");
 
@@ -383,7 +392,7 @@ export async function tag_requirement({ id_tag, id_tag_for }) {
 }
 
 /**
- * @param {TagInformationInput} tag_information Tag information to insert.
+ * @param {TagInformationInput & SQLObject} tag_information Tag information to insert.
  * @returns {Promise<number>} Inserted tag information ID.
  */
 export async function tag_information({
@@ -391,6 +400,7 @@ export async function tag_information({
 	id_language,
 	name,
 	description,
+	sql = sql_exec,
 }) {
 	if (typeof id_tag !== "number" || id_tag <= 0)
 		throw new TypeError("tag_information: id_tag must be a positive number");
@@ -428,10 +438,10 @@ export async function tag_information({
 }
 
 /**
- * @param {DomainTagInput} domain_tag Domain tag information to insert.
+ * @param {DomainTagInput & SQLObject} domain_tag Domain tag information to insert.
  * @returns {Promise<number>} Inserted domain tag ID.
  */
-export async function domain_tag({ id_domain, id_tag }) {
+export async function domain_tag({ id_domain, id_tag, sql = sql_exec }) {
 	if (typeof id_domain !== "number" || id_domain <= 0)
 		throw new TypeError("domain_tag: id_domain must be a positive number");
 
@@ -456,7 +466,7 @@ export async function domain_tag({ id_domain, id_tag }) {
 }
 
 /**
- * @param {ContentInput} content Content information to insert.
+ * @param {ContentInput & SQLObject} content Content information to insert.
  * @returns {Promise<number>} Inserted content ID.
  */
 export async function content({
@@ -468,6 +478,7 @@ export async function content({
 	title_sub,
 	synopsis,
 	body,
+	sql,
 }) {
 	if (typeof id_domain !== "number" || id_domain <= 0)
 		throw new TypeError("content: id_domain must be a positive number");
@@ -527,10 +538,10 @@ export async function content({
 }
 
 /**
- * @param {ContentLinkInput} content_link Content link information to insert.
+ * @param {ContentLinkInput & SQLObject} content_link Content link information to insert.
  * @returns {Promise<number>} Inserted content link ID.
  */
-export async function content_link({ id_content_from, id_content_to }) {
+export async function content_link({ id_content_from, id_content_to, sql = sql_exec }) {
 	if (typeof id_content_from !== "number" || id_content_from <= 0)
 		throw new TypeError(
 			"content_link: id_content_from must be a positive number",
@@ -559,10 +570,10 @@ export async function content_link({ id_content_from, id_content_to }) {
 }
 
 /**
- * @param {GardenInput} garden Garden information to insert.
+ * @param {GardenInput & SQLObject} garden Garden information to insert.
  * @returns {Promise<number>} Inserted garden ID.
  */
-export async function garden({ id_domain, id_asset, id_author }) {
+export async function garden({ id_domain, id_asset, id_author, sql = sql_exec }) {
 	if (typeof id_domain !== "number" || id_domain <= 0)
 		throw new TypeError("garden: id_domain must be a positive number");
 
@@ -592,7 +603,7 @@ export async function garden({ id_domain, id_asset, id_author }) {
 }
 
 /**
- * @param {GardenInformationInput} garden_information Garden information to insert.
+ * @param {GardenInformationInput & SQLObject} garden_information Garden information to insert.
  * @returns {Promise<number>} Inserted garden information ID.
  */
 export async function garden_information({
@@ -600,6 +611,7 @@ export async function garden_information({
 	id_language,
 	name,
 	description,
+	sql = sql_exec
 }) {
 	if (typeof id_garden !== "number" || id_garden <= 0)
 		throw new TypeError(
@@ -641,10 +653,10 @@ export async function garden_information({
 }
 
 /**
- * @param {AuthorInput} author Author information to insert.
+ * @param {AuthorInput & SQLObject} author Author information to insert.
  * @returns {Promise<number>} Inserted author ID.
  */
-export async function author({ id_asset, email, name, password }) {
+export async function author({ id_asset, email, name, password, sql = sql_exec }) {
 	if (typeof id_asset !== "number" || id_asset <= 0)
 		throw new TypeError("author: id_asset must be a positive number");
 
@@ -688,10 +700,10 @@ export async function author({ id_asset, email, name, password }) {
 }
 
 /**
- * @param {AuthorConnectionInput} author_connection Author connection information to insert.
+ * @param {AuthorConnectionInput & SQLObject} author_connection Author connection information to insert.
  * @returns {Promise<number>} Inserted author connection ID.
  */
-export async function author_connection({ id_author, device, token }) {
+export async function author_connection({ id_author, device, token, sql = sql_exec }) {
 	if (typeof id_author !== "number" || id_author <= 0)
 		throw new TypeError(
 			"author_connection: id_author must be a positive number",
@@ -729,10 +741,10 @@ export async function author_connection({ id_author, device, token }) {
 }
 
 /**
- * @param {AuthorDomainInput} author_domain Author domain information to insert.
+ * @param {AuthorDomainInput & SQLObject} author_domain Author domain information to insert.
  * @returns {Promise<number>} Inserted author domain ID.
  */
-export async function author_domain({ id_author, id_domain }) {
+export async function author_domain({ id_author, id_domain, sql = sql_exec }) {
 	if (typeof id_author !== "number" || id_author <= 0)
 		throw new TypeError("author_domain: id_author must be a positive number");
 
@@ -759,10 +771,10 @@ export async function author_domain({ id_author, id_domain }) {
 }
 
 /**
- * @param {AuthorContentInput} author_content Author content information to insert.
+ * @param {AuthorContentInput & SQLObject} author_content Author content information to insert.
  * @returns {Promise<number>} Inserted author content ID.
  */
-export async function author_content({ id_author, id_content }) {
+export async function author_content({ id_author, id_content, sql = sql_exec }) {
 	if (typeof id_author !== "number" || id_author <= 0)
 		throw new TypeError("author_content: id_author must be a positive number");
 
