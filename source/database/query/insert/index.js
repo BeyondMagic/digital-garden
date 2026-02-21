@@ -12,11 +12,15 @@ import {
 	prepare_asset_file,
 } from "@/database/query/util";
 
+import { create_info } from "@/logger";
+
+const info = create_info(import.meta.path);
+
 /** @import {AuthorContentInput, AuthorDomainInput, AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @typedef {Object} SQLObject
- * @property {Bun.SQL} sql SQL statement to execute.
+ * @property {Bun.SQL} [sql] SQL statement to execute.
  */
 
 /**
@@ -96,8 +100,11 @@ export async function asset({ id_domain, slug, data, sql = sql_exec }) {
 		throw new TypeError("asset: slug must be a non-empty string");
 
 	const id = await sql.begin(async (sql) => {
+		info(`Inserting asset for domain ID ${id_domain} with slug "${slug}"`);
 		const file_path = await build_asset_path(id_domain, slug);
+		info(`Built asset path\t→ ${file_path}`);
 		const temp_path = build_temp_path(file_path);
+		info(`Asset temp path\t→ ${temp_path}`);
 
 		if (await Bun.file(file_path).exists())
 			throw new Error(`insert_asset: file already exists at path ${file_path}`);
@@ -110,8 +117,10 @@ export async function asset({ id_domain, slug, data, sql = sql_exec }) {
 		let has_renamed = false;
 
 		try {
+			info(`Preparing asset file for upload...`);
 			await prepare_asset_file(data, temp_path, "insert_asset");
 
+			info(`Inserting asset record into database...`);
 			/** @type {Array<{id: number}>} */
 			const [asset_row] = await sql`
 				INSERT INTO asset (
@@ -128,6 +137,7 @@ export async function asset({ id_domain, slug, data, sql = sql_exec }) {
 
 			if (!asset_row) throw new Error("insert_asset: failed to insert asset");
 
+			info(`Renaming temp file to final path...`);
 			await rename(temp_path, file_path);
 			has_renamed = true;
 
