@@ -44,7 +44,7 @@ export async function handle_asset(last) {
 		error(
 			`Asset not found\t→ slug: ${last.slug}, id_domain: ${last.id_domain}`,
 		);
-		return new Response("Asset not found", {
+		return new Response("Asset/page not found", {
 			status: 404,
 			headers: { "content-type": "text/plain" },
 		});
@@ -123,7 +123,7 @@ export async function handle_api({ request, method, slug }) {
  * @returns {Promise<Response>} - A Promise resolving to the HTTP response.
  */
 export async function handle_request(req) {
-	return new Response("<h1>Page response placeholder</h1>", {
+	return new Response(`<h1>Page response placeholder<img width="50" height="50" src="admin-profile-picture.png"/></h1>`, {
 		status: 200,
 		headers: { "content-type": "text/html" },
 	});
