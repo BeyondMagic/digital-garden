@@ -33,6 +33,7 @@ export async function tables() {
 	debug("Seeding tables..", { step: { current: 1, max: 2 } });
 
 	try {
+		// Root domain
 		const domain_root = await insert.domain({
 			id_domain_parent: null,
 			id_domain_redirect: null,
@@ -41,12 +42,40 @@ export async function tables() {
 			status: "PRIVATE",
 		});
 
-		const asset_admin_profile_picture_path = make_asset_path("../public/image/digital-garden-girl.png");
+		// English (US) Language
+		const asset_en_flag_id = await insert.asset({
+			id_domain: domain_root,
+			slug: "en-flag.svg",
+			data: {
+				path: make_asset_path("../public/image/flag-us.svg"),
+			}
+		});
+
+		const language_en_id = await insert.language({
+			id_asset: asset_en_flag_id,
+			slug: "en-US",
+		});
+
+		await insert.language_information({
+			id_language_for: language_en_id,
+			id_language_from: language_en_id,
+			name: "American English",
+			description: "The English language as primarily used in the United States.",
+		});
+
+		await insert.asset_information({
+			id_asset: asset_en_flag_id,
+			id_language: language_en_id,
+			name: "Simplified Flag of the United States",
+			description: "A rectangular emoji-like flag of the United States, with 13 horizontal stripes of red and white, and a blue canton containing 50 white stars.",
+		});
+
+		// Admin Information
 		const asset_admin_profile_picture = await insert.asset({
 			id_domain: domain_root,
 			slug: "admin-profile-picture.png",
 			data: {
-				path: asset_admin_profile_picture_path,
+				path: make_asset_path("../public/image/digital-garden-girl.png"),
 			},
 		});
 
@@ -57,11 +86,36 @@ export async function tables() {
 			password: "admin",
 		});
 
+		// Content of the root domain
+		await insert.content({
+			id_domain: domain_root,
+			id_language: language_en_id,
+			status: "PUBLIC",
+			title: "Welcome to My Digital Garden",
+			title_sub: "Cultivating and Sharing My Thoughts, Ideas, and Projects",
+			synopsis: "Welcome to my digital garden! This is a space where I cultivate and share my thoughts, ideas, and projects. Feel free to explore and connect with me!",
+			body: `
+				<h1>
+					Page response placeholder!!!
+				</h1>
+				<img width="50" height="50" src="admin-profile-picture.png"/>
+			`
+		});
+
+		// Default garden
 		await insert.garden({
 			id_domain: domain_root,
 			id_asset: asset_admin_profile_picture,
 			id_author: author_admin,
 		});
+
+		await insert.garden_information({
+			id_garden: 1,
+			id_language: language_en_id,
+			name: "My Digital Garden",
+			description: "Welcome to my digital garden! This is a space where I cultivate and share my thoughts, ideas, and projects. Feel free to explore and connect with me!",
+		});
+
 	} catch (err) {
 		critical("Error seeding tables.", { step: { current: 2, max: 2 } });
 		critical(err);
