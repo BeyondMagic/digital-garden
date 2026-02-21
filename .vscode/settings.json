@@ -21,5 +21,9 @@
 	"code-runner.executorMap": {
 		"javascript": "./script/index.nu bun"
 	},
-	"dbmlERDPreviewer.preferredTheme": "dark"
+	"dbmlERDPreviewer.preferredTheme": "dark",
+	"editor.codeActionsOnSave": {
+    	"source.organizeImports.biome": "explicit",
+    	"source.fixAll.biome": "explicit"
+  	}
 }
