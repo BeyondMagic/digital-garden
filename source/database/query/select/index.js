@@ -131,22 +131,21 @@ export async function count(name) {
 /**
  * Fetch an asset by its slug and domain ID.
  * @param {AssetInput} input
- * @returns {Promise<Asset | null>} The asset matching the slug and domain ID, or null if not found.
+ * @returns {Promise<Asset>} The asset matching the slug and domain ID, or null if not found.
  */
 export async function asset({ slug, id_domain }) {
-	if (typeof slug !== "string" || slug.trim().length === 0)
-		throw new TypeError("asset: slug must be a non-empty string");
+	assert(typeof slug === "string" && slug.trim().length > 0, "asset: slug must be a non-empty string");
+	assert(typeof id_domain === "number" && id_domain > 0, "asset: id_domain must be a positive number");
 
-	if (typeof id_domain !== "number" || id_domain <= 0)
-		throw new TypeError("asset: id_domain must be a positive number");
-
-	const result = await sql`
+	const [row] = await sql`
 		SELECT id, id_domain, slug, path
 		FROM asset
 		WHERE slug = ${slug} AND id_domain = ${id_domain}
 	`;
 
-	return result[0] || null;
+	assert(row, `asset: no asset found with slug "${slug}" and id_domain ${id_domain}`);
+
+	return row;
 }
 
 export const select = {
