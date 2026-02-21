@@ -20,6 +20,7 @@ const critical = create_critical(import.meta.path);
 
 /**
  * @import { HTTPMethod } from "@/module/api"
+ * @import { DomainKind } from "@/database/query"
  */
 
 /**
@@ -78,11 +79,16 @@ async function fetch(req, server) {
     const routers = url.pathname.split("/").filter(Boolean);
     info(`Routers\t→ [${routers.join(", ") || ""}]`);
 
-    const domains = [...subdomains.reverse(), ...routers].reverse();
+    const slugs =/** @type {Array<{ value: string, kind: DomainKind }>} */ ([
+        ...subdomains.map((value) => ({ value, kind: "SUBDOMAIN" })),
+        ...routers.map((value) => ({ value, kind: "ROUTER" })),
+    ]);
+
+    const domains = slugs.map((slug) => slug.value);
     info(`Domains\t→ [${domains.join(", ") || ""}]`);
     info(`Domains length\t→ ${domains.length}`);
 
-    const domain_tree = await select.domain_tree_by_slugs(domains);
+    const domain_tree = await select.domain_tree_by_slugs(slugs);
     info(`Domain tree length\t→ ${domain_tree.length}`);
 
     const { is_valid_domain_tree, is_asset_request, is_api } =
@@ -105,6 +111,7 @@ async function fetch(req, server) {
         return new Response(null, { status: 404 });
     }
 
+    // To-do: should only get here if the rest of the tree is valid (routers and subdomains actually match correctly up until the asset)
     if (is_asset_request) {
         const last_domain = domain_tree[domain_tree.length - 1];
         const last_slug = routers[routers.length - 1];
