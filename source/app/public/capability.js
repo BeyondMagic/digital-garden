@@ -12,7 +12,7 @@ import { insert } from "@/database/query/insert";
 import { remove } from "@/database/query/remove";
 import { create_debug } from "@/logger";
 import { json_to_response } from "@/module/api";
-import { capability } from "@/module/api/capability";
+import { capability as api } from "@/module/api/capability";
 
 const debug = create_debug(import.meta.path);
 
@@ -127,7 +127,7 @@ export async function setup() {
 	debug("Setting up server capabilities...", { step: { current: 1, max: 3 } });
 
 	for (const cap of capabilities)
-		capability.register(cap.method, cap.slug, cap);
+		api.register(cap.method, cap.slug, cap);
 
 	debug("Server capabilities setup complete.", {
 		step: { current: 2, max: 3 },
@@ -136,7 +136,6 @@ export async function setup() {
 	// set up initial domains
 }
 
-export const seed = {
-	capabilities,
+export const capability = {
 	setup,
 };
