@@ -3,15 +3,17 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { sql } from "bun";
 import { insert } from "@/database/query/insert";
 import { select } from "@/database/query/select";
-import { create_critical, create_debug, create_info } from "@/logger";
+import { create_critical, create_debug } from "@/logger";
 
 const debug = create_debug(import.meta.path);
 const critical = create_critical(import.meta.path);
-const info = create_info(import.meta.path);
 
+/**
+ * @param {string} path - The relative path to the asset file.
+ * @returns {string} The absolute path to the asset file.
+ */
 function make_asset_path(path) {
 	return `${import.meta.dir}/${path}`;
 }
@@ -55,7 +57,7 @@ export async function tables() {
 			password: "admin",
 		});
 
-		insert.garden({
+		await insert.garden({
 			id_domain: domain_root,
 			id_asset: asset_admin_profile_picture,
 			id_author: author_admin,
