@@ -33,19 +33,26 @@ export async function setup() {
  * @returns {Promise<Response>}
  */
 export async function handle_asset(last) {
+	info(`Asset request\t→ slug: ${last.slug}, id_domain: ${last.id_domain}`); // Log the asset request details
+
 	const asset = await select.asset({
 		slug: last.slug,
 		id_domain: last.id_domain,
 	});
 
-	const file = Bun.file(asset.path);
-	if (!(await file.exists())) {
-		critical(`Asset file not found at path\t→ ${asset.path}`);
-		return new Response("Asset file not found", {
+	if (!asset) {
+		error(
+			`Asset not found\t→ slug: ${last.slug}, id_domain: ${last.id_domain}`,
+		);
+		return new Response("Asset not found", {
 			status: 404,
 			headers: { "content-type": "text/plain" },
 		});
 	}
+
+	const file = Bun.file(asset.path);
+	if (!(await file.exists()))
+		throw new Error(`Asset file not found at path: ${asset.path}`);
 
 	// To-do: based on the file extension, set automatic content-type.
 	const file_extension = asset.path.split(".").pop();

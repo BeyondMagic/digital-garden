@@ -117,7 +117,7 @@ export async function count(name) {
 /**
  * Fetch an asset by its slug and domain ID.
  * @param {AssetInput} input
- * @returns {Promise<Asset>}
+ * @returns {Promise<Asset | null>} The asset matching the slug and domain ID, or null if not found.
  */
 export async function asset({ slug, id_domain }) {
 	if (typeof slug !== "string" || slug.trim().length === 0)
@@ -132,7 +132,7 @@ export async function asset({ slug, id_domain }) {
 		WHERE slug = ${slug} AND id_domain = ${id_domain}
 	`;
 
-	return result[0];
+	return result[0] || null;
 }
 
 export const select = {
