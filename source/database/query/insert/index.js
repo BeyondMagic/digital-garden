@@ -12,10 +12,6 @@ import {
 	prepare_asset_file,
 } from "@/database/query/util";
 
-import { create_info } from "@/logger";
-
-const info = create_info(import.meta.path);
-
 /** @import {AuthorContentInput, AuthorDomainInput, AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
