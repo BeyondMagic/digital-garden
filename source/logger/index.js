@@ -22,6 +22,11 @@ export function debug(file, message, options) {
 		"[DEBUG]".padEnd(HEADER_TYPE_LENGTH) +
 		` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
 
+	if (message instanceof Error) {
+		console.debug(`${header} ${message.name}: ${message.message}\n${message.stack}${color.reset}`);
+		return;
+	}
+
 	if (typeof message === "object" && message !== null) {
 		console.debug(`${header} Object:${color.reset}`);
 		console.table(message);
@@ -46,6 +51,11 @@ export function info(file, message, options) {
 		color.info +
 		"[INFO]".padEnd(HEADER_TYPE_LENGTH) +
 		` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+
+	if (message instanceof Error) {
+		console.debug(`${header} ${message.name}: ${message.message}\n${message.stack}${color.reset}`);
+		return;
+	}
 
 	if (typeof message === "object" && message !== null) {
 		console.info(`${header} Object:${color.reset}`);
@@ -72,6 +82,11 @@ export function warn(file, message, options) {
 		"[WARN]".padEnd(HEADER_TYPE_LENGTH) +
 		` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
 
+	if (message instanceof Error) {
+		console.debug(`${header} ${message.name}: ${message.message}\n${message.stack}${color.reset}`);
+		return;
+	}
+
 	if (typeof message === "object" && message !== null) {
 		console.warn(`${header} Object:${color.reset}`);
 		console.table(message);
@@ -88,7 +103,7 @@ export function warn(file, message, options) {
  * Create an Error with a file context.
  * @param {string} file The file to log messages for.
  * @param {any} message The message to include in the error.
- * @returns {Error}
+ * @returns {void}
  */
 export function error(file, message) {
 	const header =
@@ -96,14 +111,17 @@ export function error(file, message) {
 		"[ERROR]".padEnd(HEADER_TYPE_LENGTH) +
 		` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
 
+	if (message instanceof Error) {
+		console.debug(`${header} ${message.name}: ${message.message}\n${message.stack}${color.reset}`);
+		return;
+	}
+
 	if (typeof message === "object" && message !== null) {
 		console.error(`${header} Object:${color.reset}`);
 		console.table(message);
-		return new Error(
-			`${header} Object: ${JSON.stringify(message)}${color.reset}`,
-		);
+		return;
 	}
-	return Error(`${header} ${message}${color.reset}`);
+	return;
 }
 
 /**
@@ -117,6 +135,11 @@ export function critical(file, message) {
 		color.critical +
 		"[CRITICAL]".padEnd(HEADER_TYPE_LENGTH) +
 		` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+
+	if (message instanceof Error) {
+		console.debug(`${header} ${message.name}: ${message.message}\n${message.stack}${color.reset}`);
+		return;
+	}
 
 	if (typeof message === "object" && message !== null) {
 		console.error(`${header} Object:${color.reset}`);
@@ -169,7 +192,7 @@ export function create_debug(path) {
 
 /**
  * Signature for error function.
- * @typedef { (message: any) => Error } ErrorFunction
+ * @typedef { (message: any) => void } ErrorFunction
  */
 
 /**
