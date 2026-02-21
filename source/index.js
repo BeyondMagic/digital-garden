@@ -7,19 +7,20 @@ import { serve } from "bun";
 import { app } from "@/app";
 import { select } from "@/database/query/select";
 import {
+    assert,
     create_critical,
     create_debug,
-    create_error,
     create_info,
 } from "@/logger";
 import { hostname, is_dev, port } from "@/setup";
 
 const debug = create_debug(import.meta.path);
 const info = create_info(import.meta.path);
-const error = create_error(import.meta.path);
 const critical = create_critical(import.meta.path);
 
-/** @import { Domain } from "@/database/query" */
+/**
+ * @import { HTTPMethod } from "@/module/api"
+ */
 
 /**
  * Validate the domain tree against requested slugs.
@@ -106,28 +107,15 @@ async function fetch(req, server) {
 
     if (is_asset_request) {
         const last_domain = domain_tree[domain_tree.length - 1];
-        if (!last_domain)
-            throw new Error(
-                "Invalid asset request: last segment of domain tree should be null for asset requests",
-            );
-
         const last_slug = routers[routers.length - 1];
-        if (!last_slug)
-            throw new Error(
-                "Invalid asset request: last slug is missing in the URL path",
-            );
 
-        const last = {
+        assert(last_slug, "Invalid asset request: last slug is missing in the URL path");
+        assert(last_domain, "Invalid asset request: last segment of domain tree should not be null.");
+
+        return await app.handle_asset({
             slug: last_slug,
             id_domain: last_domain.id,
-        };
-
-        if (!last.slug || !last.id_domain)
-            throw new Error(
-                "Invalid asset request: missing slug or domain ID in the last segment",
-            );
-
-        return await app.handle_asset(last);
+        });
     }
 
     else if (is_api) {
