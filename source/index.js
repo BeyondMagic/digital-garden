@@ -41,6 +41,30 @@ function validate_domain_tree(domains, domain_tree) {
 }
 
 /**
+ * Map of file extensions to content types for automatic content-type setting.
+ * @type {Map<string, string>}
+ */
+const extension_to_content_type = new Map([
+
+    // Text
+    ["txt", "text/plain"],
+    ["html", "text/html"],
+    ["css", "text/css"],
+
+    // App
+    ["js", "application/javascript"],
+    ["json", "application/json"],
+
+    // Image
+    ["png", "image/png"],
+    ["jpg", "image/jpeg"],
+    ["jpeg", "image/jpeg"],
+    ["gif", "image/gif"],
+]);
+
+const default_content_type = "application/octet-stream";
+
+/**
  *
  * @param {Request} req
  * @param {import('bun').Server} server
@@ -116,8 +140,11 @@ async function fetch(req, server) {
             });
         }
 
+        // To-do: based on the file extension, set automatic content-type.
+        const file_extension = asset.path.split(".").pop();
+        const content_type = file_extension && extension_to_content_type.get(file_extension) || default_content_type;
         return new Response(file, {
-            headers: { "content-type": "application/octet-stream" },
+            headers: { "content-type": content_type },
         });
     }
 
