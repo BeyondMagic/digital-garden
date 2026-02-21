@@ -49,17 +49,15 @@ export async function domain_tree(id_domain) {
  */
 export async function domain_tree_by_slugs(slugs) {
 	assert(
-		(
-			!Array.isArray(slugs) ||
-			slugs.some((slug) => (
-				typeof slug !== "object" ||
-				slug === null ||
-				typeof slug.value !== "string" ||
-				slug.value.trim().length === 0 ||
-				typeof slug.kind !== "string" ||
-				!["SUBDOMAIN", "ROUTER"].includes(slug.kind)
-			))
-		),
+		Array.isArray(slugs) &&
+		slugs.every((slug) => (
+			typeof slug === "object" &&
+			slug !== null &&
+			typeof slug.value === "string" &&
+			slug.value.trim().length > 0 &&
+			typeof slug.kind === "string" &&
+			["SUBDOMAIN", "ROUTER"].includes(slug.kind)
+		)),
 		"domain_tree_by_slugs: slugs must be an array of non-empty strings with a valid kind (SUBDOMAIN or ROUTER)"
 	);
 
