@@ -4,8 +4,7 @@
  */
 
 import { serve } from "bun";
-import { seed } from "@/app/public/capabilities";
-import { create } from "@/database/query/create";
+import { app } from "@/app";
 import {
     create_critical,
     create_debug,
@@ -14,8 +13,6 @@ import {
 } from "@/logger";
 import { get as get_capability } from "@/module/api/capability";
 import { hostname, is_dev, port } from "@/setup";
-
-// import { remove } from "@/database/query/remove";
 
 const debug = create_debug(import.meta.path);
 const info = create_info(import.meta.path);
@@ -103,11 +100,7 @@ async function fetch(req, server) {
     });
 }
 
-critical("Starting the server...", { step: { current: 1, max: 2 } });
-
-// await remove.garden();
-await create.schema();
-await seed.setup();
+critical("server: Starting the server...", { step: { current: 1, max: 2 } });
 
 const server = serve({
     hostname,
@@ -116,4 +109,10 @@ const server = serve({
     development: is_dev,
 });
 
-critical(`Listening on ${server.url}`, { step: { current: 2, max: 2 } });
+critical(`server: Listening on ${server.url}`, { step: { current: 2, max: 2 } });
+
+critical("app: Setting up the application...", { step: { current: 1, max: 2 } });
+
+await app.setup();
+
+critical("app: Application setup complete", { step: { current: 2, max: 2 } });
