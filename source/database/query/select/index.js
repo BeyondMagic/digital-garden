@@ -7,7 +7,7 @@
 import { sql } from "bun";
 
 
-/** @import { Domain } from "@/database/query" */
+/** @import { Asset, Domain } from "@/database/query" */
 
 /**
  * Build the domain tree (root to leaf) for a given domain id.
@@ -108,8 +108,36 @@ export async function count(name) {
 	return Number(result[0].count);
 }
 
+/**
+ * @typedef {Object} AssetInput
+ * @property {string} slug Slug of the asset (e.g., filename).
+ * @property {number} id_domain ID of the domain the asset belongs to.
+ */
+
+/**
+ * Fetch an asset by its slug and domain ID.
+ * @param {AssetInput} input
+ * @returns {Promise<Asset>}
+ */
+export async function asset({ slug, id_domain }) {
+	if (typeof slug !== "string" || slug.trim().length === 0)
+		throw new TypeError("asset: slug must be a non-empty string");
+
+	if (typeof id_domain !== "number" || id_domain <= 0)
+		throw new TypeError("asset: id_domain must be a positive number");
+
+	const result = await sql`
+		SELECT id, id_domain, slug, path
+		FROM asset
+		WHERE slug = ${slug} AND id_domain = ${id_domain}
+	`;
+
+	return result[0];
+}
+
 export const select = {
 	domain_tree,
 	domain_tree_by_slugs,
+	asset,
 	count,
 }
