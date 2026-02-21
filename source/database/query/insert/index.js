@@ -34,7 +34,7 @@ export async function insert_module({
 	version_minor,
 	version_patch,
 	enabled,
-	sql
+	sql = sql_exec,
 }) {
 	if (typeof repository !== "string" || repository.trim().length === 0)
 		throw new TypeError("insert_module: repository must be a non-empty string");
@@ -488,7 +488,7 @@ export async function content({
 	title_sub,
 	synopsis,
 	body,
-	sql,
+	sql = sql_exec,
 }) {
 	if (typeof id_domain !== "number" || id_domain <= 0)
 		throw new TypeError("content: id_domain must be a positive number");
