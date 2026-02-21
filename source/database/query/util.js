@@ -15,9 +15,13 @@ import { join } from 'node:path';
 /** @import { AssetData } from "@/database/query"; */
 
 /**
+ * @typedef {'table' | 'view' | 'type' | 'schema'} DatabaseObject
+ */
+
+/**
  * Check if a database object exists.
  * @param {string} name Name of the object to check.
- * @param {'table'|'view'|'type'|'schema'} [type='table'] Type of the object to check.
+ * @param {DatabaseObject} [type='table'] Type of the object to check.
  * @returns {Promise<boolean>} True if the object exists, false otherwise.
  */
 export async function exists(name, type = "table") {
