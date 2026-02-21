@@ -14,6 +14,7 @@ import {
 } from "@/logger";
 import { get as get_capability } from "@/module/api/capability";
 import { hostname, is_dev, port } from "@/setup";
+import { DEFAULT_CONTENT_TYPE, extension_to_content_type } from "@/util";
 
 const debug = create_debug(import.meta.path);
 const info = create_info(import.meta.path);
@@ -33,45 +34,32 @@ const critical = create_critical(import.meta.path);
  * @param {number} domain_tree_length
  * @returns {{ is_valid_domain_tree: boolean, is_asset_request: boolean, is_api: boolean }}
  */
-function validate_domain_tree(is_first_subdomain_api, subdomains_length, routers_length, domains_length, domain_tree_length) {
+function validate_domain_tree(
+    is_first_subdomain_api,
+    subdomains_length,
+    routers_length,
+    domains_length,
+    domain_tree_length,
+) {
     const is_api_host = subdomains_length === 1 && is_first_subdomain_api;
     const is_api = is_api_host && routers_length >= 1;
 
     if (is_api_host && routers_length === 0)
-        return { is_valid_domain_tree: false, is_asset_request: false, is_api: false };
+        return {
+            is_valid_domain_tree: false,
+            is_asset_request: false,
+            is_api: false,
+        };
 
     const expected_page_length = domains_length + 1;
     const expected_asset_length = domains_length;
 
     const is_valid_domain_tree = domain_tree_length === expected_page_length;
-    const is_asset_request = !is_api_host && domain_tree_length === expected_asset_length;
+    const is_asset_request =
+        !is_api_host && domain_tree_length === expected_asset_length;
 
     return { is_valid_domain_tree, is_asset_request, is_api };
 }
-
-/**
- * Map of file extensions to content types for automatic content-type setting.
- * @type {Map<string, string>}
- */
-const extension_to_content_type = new Map([
-
-    // Text
-    ["txt", "text/plain"],
-    ["html", "text/html"],
-    ["css", "text/css"],
-
-    // App
-    ["js", "application/javascript"],
-    ["json", "application/json"],
-
-    // Image
-    ["png", "image/png"],
-    ["jpg", "image/jpeg"],
-    ["jpeg", "image/jpeg"],
-    ["gif", "image/gif"],
-]);
-
-const default_content_type = "application/octet-stream";
 
 /**
  *
@@ -100,13 +88,14 @@ async function fetch(req, server) {
     const domain_tree = await select.domain_tree_by_slugs(domains);
     info(`Domain tree length\t→ ${domain_tree.length}`);
 
-    const { is_valid_domain_tree, is_asset_request, is_api } = validate_domain_tree(
-        subdomains[0] === "api",
-        subdomains.length,
-        routers.length,
-        domains.length,
-        domain_tree.length,
-    );
+    const { is_valid_domain_tree, is_asset_request, is_api } =
+        validate_domain_tree(
+            subdomains[0] === "api",
+            subdomains.length,
+            routers.length,
+            domains.length,
+            domain_tree.length,
+        );
 
     info(`Domain tree valid\t→ ${is_valid_domain_tree}`);
     info(`Asset request\t→ ${is_asset_request}`);
@@ -123,7 +112,6 @@ async function fetch(req, server) {
     }
 
     if (is_asset_request) {
-
         const last_domain = domain_tree[domain_tree.length - 1];
         if (!last_domain)
             throw new Error(
@@ -156,7 +144,9 @@ async function fetch(req, server) {
 
         // To-do: based on the file extension, set automatic content-type.
         const file_extension = asset.path.split(".").pop();
-        const content_type = file_extension && extension_to_content_type.get(file_extension) || default_content_type;
+        const content_type =
+            (file_extension && extension_to_content_type.get(file_extension)) ||
+            DEFAULT_CONTENT_TYPE;
         return new Response(file, {
             headers: { "content-type": content_type },
         });

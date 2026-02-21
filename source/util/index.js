@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { access, mkdir } from "node:fs/promises";
-import { constants } from "node:fs";
-import { rm } from "node:fs/promises";
 import { randomBytes } from "node:crypto";
+import { constants } from "node:fs";
+import { access, mkdir, rm } from "node:fs/promises";
 
 import { assert, create_debug, create_info } from "@/logger";
 
@@ -22,6 +21,29 @@ const MODULE_SLUG_MAX_BYTE =
 	1;
 const MODULE_SLUG_LENGTH = 8;
 
+/**
+ * Map of file extensions to content types for automatic content-type setting.
+ * @type {Map<string, string>}
+ */
+export const extension_to_content_type = new Map([
+
+	// Text
+	["txt", "text/plain"],
+	["html", "text/html"],
+	["css", "text/css"],
+
+	// App
+	["js", "application/javascript"],
+	["json", "application/json"],
+
+	// Image
+	["png", "image/png"],
+	["jpg", "image/jpeg"],
+	["jpeg", "image/jpeg"],
+	["gif", "image/gif"],
+]);
+
+export const DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
 /**
  * Check whether a filesystem path exists.
@@ -224,10 +246,12 @@ read_shell_error.test = () => {
 
 export const util = {
 	MODULE_SLUG_LENGTH,
+	DEFAULT_CONTENT_TYPE,
 	generate_slug,
 	is_valid_slug,
 	path_exists,
 	ensure_directory,
 	read_shell_error,
 	is_local_path,
+	extension_to_content_type,
 };
