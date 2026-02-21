@@ -81,7 +81,7 @@ export async function domain_tree_by_slugs(slugs) {
 
 	tree.push(root_domain);
 
-	let parent_id = null;
+	let parent_id = root_domain.id;
 
 	for (const slug of slugs) {
 		const [row] = /** @type {Array<Domain>} */(
