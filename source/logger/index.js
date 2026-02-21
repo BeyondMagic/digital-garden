@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { is_debug, color } from "@/setup";
 import { basename, dirname } from "node:path";
+import { color, is_debug } from "@/setup";
 
 const HEADER_TYPE_LENGTH = 12;
 const FILE_CONTEXT_LENGTH = 24;
@@ -17,8 +17,10 @@ const FILE_CONTEXT_LENGTH = 24;
  * @param {{ step: { max: number, current: number } }} [options] Optional step info.
  */
 export function debug(file, message, options) {
-
-	const header = color.debug + '[DEBUG]'.padEnd(HEADER_TYPE_LENGTH) + ` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+	const header =
+		color.debug +
+		"[DEBUG]".padEnd(HEADER_TYPE_LENGTH) +
+		` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
 
 	if (typeof message === "object" && message !== null) {
 		console.debug(`${header} Object:${color.reset}`);
@@ -26,9 +28,10 @@ export function debug(file, message, options) {
 		return;
 	}
 	if (options?.step)
-		console.debug(`${header} ${message} ${options.step.current}/${options.step.max}${color.reset}`);
-	else
-		console.debug(`${header} ${message}${color.reset}`);
+		console.debug(
+			`${header} ${message} ${options.step.current}/${options.step.max}${color.reset}`,
+		);
+	else console.debug(`${header} ${message}${color.reset}`);
 }
 
 /**
@@ -39,8 +42,10 @@ export function debug(file, message, options) {
  * @returns {void}
  */
 export function info(file, message, options) {
-
-	const header = color.info + '[INFO]'.padEnd(HEADER_TYPE_LENGTH) + ` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+	const header =
+		color.info +
+		"[INFO]".padEnd(HEADER_TYPE_LENGTH) +
+		` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
 
 	if (typeof message === "object" && message !== null) {
 		console.info(`${header} Object:${color.reset}`);
@@ -48,9 +53,10 @@ export function info(file, message, options) {
 		return;
 	}
 	if (options?.step)
-		console.info(`${header} ${message} ${options.step.current}/${options.step.max}${color.reset}`);
-	else
-		console.info(`${header} ${message}${color.reset}`);
+		console.info(
+			`${header} ${message} ${options.step.current}/${options.step.max}${color.reset}`,
+		);
+	else console.info(`${header} ${message}${color.reset}`);
 }
 
 /**
@@ -61,8 +67,10 @@ export function info(file, message, options) {
  * @returns {void}
  */
 export function warn(file, message, options) {
-
-	const header = color.warn + '[WARN]'.padEnd(HEADER_TYPE_LENGTH) + ` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+	const header =
+		color.warn +
+		"[WARN]".padEnd(HEADER_TYPE_LENGTH) +
+		` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
 
 	if (typeof message === "object" && message !== null) {
 		console.warn(`${header} Object:${color.reset}`);
@@ -70,9 +78,10 @@ export function warn(file, message, options) {
 		return;
 	}
 	if (options?.step)
-		console.warn(`${header} ${message} ${options.step.current}/${options.step.max}${color.reset}`);
-	else
-		console.warn(`${header} ${message}${color.reset}`);
+		console.warn(
+			`${header} ${message} ${options.step.current}/${options.step.max}${color.reset}`,
+		);
+	else console.warn(`${header} ${message}${color.reset}`);
 }
 
 /**
@@ -82,12 +91,17 @@ export function warn(file, message, options) {
  * @returns {Error}
  */
 export function error(file, message) {
-	const header = color.error + '[ERROR]'.padEnd(HEADER_TYPE_LENGTH) + ` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+	const header =
+		color.error +
+		"[ERROR]".padEnd(HEADER_TYPE_LENGTH) +
+		` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
 
 	if (typeof message === "object" && message !== null) {
 		console.error(`${header} Object:${color.reset}`);
 		console.table(message);
-		return new Error(`${header} Object: ${JSON.stringify(message)}${color.reset}`);
+		return new Error(
+			`${header} Object: ${JSON.stringify(message)}${color.reset}`,
+		);
 	}
 	return Error(`${header} ${message}${color.reset}`);
 }
@@ -99,7 +113,10 @@ export function error(file, message) {
  * @returns {void}
  */
 export function critical(file, message) {
-	const header = color.critical + '[CRITICAL]'.padEnd(HEADER_TYPE_LENGTH) + ` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
+	const header =
+		color.critical +
+		"[CRITICAL]".padEnd(HEADER_TYPE_LENGTH) +
+		` [${file}]`.padEnd(FILE_CONTEXT_LENGTH);
 
 	if (typeof message === "object" && message !== null) {
 		console.error(`${header} Object:${color.reset}`);
@@ -124,9 +141,8 @@ export function critical(file, message) {
  * @param {string=} [message='Assertion Failed'] The error message to throw on failure.
  * @returns {asserts condition is NonNullable<T>}
  */
-export function assert(condition, message = 'Assertion Failed') {
-	if (!condition)
-		throw new Error(message);
+export function assert(condition, message = "Assertion Failed") {
+	if (!condition) throw new Error(message);
 }
 
 /**
@@ -141,23 +157,14 @@ export function assert(condition, message = 'Assertion Failed') {
  * @returns {DebugFunction}
  */
 export function create_debug(path) {
-	if (!is_debug)
-		return () => { };
+	if (!is_debug) return () => { };
 
-	const [
-		dir,
-		name
-	] = [
-			basename(dirname(path)),
-			basename(path),
-		];
+	const [dir, name] = [basename(dirname(path)), basename(path)];
 
-	const file = dir + '/' + name;
+	const file = dir + "/" + name;
 
 	/** @type {DebugFunction} */
-	return function (message, options) {
-		return debug(file, message, options);
-	};
+	return (message, options) => debug(file, message, options);
 }
 
 /**
@@ -172,20 +179,12 @@ export function create_debug(path) {
  * @returns {ErrorFunction}
  */
 export function create_error(path) {
-	const [
-		dir,
-		name
-	] = [
-			basename(dirname(path)),
-			basename(path),
-		]
+	const [dir, name] = [basename(dirname(path)), basename(path)];
 
-	const file = dir + '/' + name;
+	const file = dir + "/" + name;
 
 	/** @type {ErrorFunction} */
-	return function (message) {
-		return error(file, message);
-	};
+	return (message) => error(file, message);
 }
 
 /**
@@ -199,20 +198,12 @@ export function create_error(path) {
  * @returns {LogFunction}
  */
 export function create_info(path) {
-	const [
-		dir,
-		name
-	] = [
-			basename(dirname(path)),
-			basename(path),
-		]
+	const [dir, name] = [basename(dirname(path)), basename(path)];
 
-	const file = dir + '/' + name;
+	const file = dir + "/" + name;
 
 	/** @type {LogFunction} */
-	return function (message, options) {
-		return info(file, message, options);
-	};
+	return (message, options) => info(file, message, options);
 }
 
 /**
@@ -221,20 +212,12 @@ export function create_info(path) {
  * @returns {LogFunction}
  */
 export function create_warn(path) {
-	const [
-		dir,
-		name
-	] = [
-			basename(dirname(path)),
-			basename(path),
-		]
+	const [dir, name] = [basename(dirname(path)), basename(path)];
 
-	const file = dir + '/' + name;
+	const file = dir + "/" + name;
 
 	/** @type {LogFunction} */
-	return function (message, options) {
-		return warn(file, message, options);
-	};
+	return (message, options) => warn(file, message, options);
 }
 
 /**
@@ -243,18 +226,10 @@ export function create_warn(path) {
  * @returns {LogFunction}
  */
 export function create_critical(path) {
-	const [
-		dir,
-		name
-	] = [
-			basename(dirname(path)),
-			basename(path),
-		]
+	const [dir, name] = [basename(dirname(path)), basename(path)];
 
-	const file = dir + '/' + name;
+	const file = dir + "/" + name;
 
 	/** @type {LogFunction} */
-	return function (message) {
-		return critical(file, message);
-	};
+	return (message) => critical(file, message);
 }
