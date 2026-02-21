@@ -26,18 +26,27 @@ const critical = create_critical(import.meta.path);
 
 /**
  * Validate the domain tree against requested slugs.
- * @param {Array<string>} domains
- * @param {Array<Domain>} domain_tree
- * @returns {{ is_valid_domain_tree: boolean, is_asset_request: boolean }}
+ * @param {boolean} is_first_subdomain_api
+ * @param {number} subdomains_length
+ * @param {number} routers_length
+ * @param {number} domains_length
+ * @param {number} domain_tree_length
+ * @returns {{ is_valid_domain_tree: boolean, is_asset_request: boolean, is_api: boolean }}
  */
-function validate_domain_tree(domains, domain_tree) {
-    const expected_page_length = domains.length + 1;
-    const expected_asset_length = domains.length;
+function validate_domain_tree(is_first_subdomain_api, subdomains_length, routers_length, domains_length, domain_tree_length) {
+    const is_api_host = subdomains_length === 1 && is_first_subdomain_api;
+    const is_api = is_api_host && routers_length >= 1;
 
-    const is_valid_domain_tree = domain_tree.length === expected_page_length;
-    const is_asset_request = domain_tree.length === expected_asset_length;
+    if (is_api_host && routers_length === 0)
+        return { is_valid_domain_tree: false, is_asset_request: false, is_api: false };
 
-    return { is_valid_domain_tree, is_asset_request };
+    const expected_page_length = domains_length + 1;
+    const expected_asset_length = domains_length;
+
+    const is_valid_domain_tree = domain_tree_length === expected_page_length;
+    const is_asset_request = !is_api_host && domain_tree_length === expected_asset_length;
+
+    return { is_valid_domain_tree, is_asset_request, is_api };
 }
 
 /**
@@ -91,14 +100,19 @@ async function fetch(req, server) {
     const domain_tree = await select.domain_tree_by_slugs(domains);
     info(`Domain tree length\t→ ${domain_tree.length}`);
 
-    const { is_valid_domain_tree, is_asset_request } = validate_domain_tree(
-        domains,
-        domain_tree,
+    const { is_valid_domain_tree, is_asset_request, is_api } = validate_domain_tree(
+        subdomains[0] === "api",
+        subdomains.length,
+        routers.length,
+        domains.length,
+        domain_tree.length,
     );
+
     info(`Domain tree valid\t→ ${is_valid_domain_tree}`);
     info(`Asset request\t→ ${is_asset_request}`);
+    info(`API request\t→ ${is_api}`);
 
-    if (!is_valid_domain_tree && !is_asset_request) {
+    if (!is_valid_domain_tree && !is_asset_request && !is_api) {
         info(
             "Domain tree length does not match expected lengths, so it's not resolveable.",
         );
@@ -148,13 +162,7 @@ async function fetch(req, server) {
         });
     }
 
-
-    // API logic
-    if (
-        subdomains.length === 1 &&
-        subdomains[0] === "api" &&
-        routers.length >= 1
-    ) {
+    if (is_api) {
         const slug = routers.join("/");
 
         info(`API Slug\t→ ${slug}`);
@@ -197,6 +205,13 @@ async function fetch(req, server) {
             });
 
         return response;
+    }
+
+    if (is_valid_domain_tree) {
+        return new Response("<h1>Page response placeholder</h1>", {
+            status: 200,
+            headers: { "content-type": "text/html" },
+        });
     }
 
     return new Response("Not Found", {
