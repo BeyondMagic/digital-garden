@@ -102,6 +102,39 @@ export async function tables() {
 			`
 		});
 
+		// Tags
+		const asset_seed_id = await insert.asset({
+			id_domain: domain_root,
+			slug: "seed.png",
+			data: {
+				path: make_asset_path("../public/image/seed.svg"),
+			},
+		});
+
+		await insert.asset_information({
+			id_asset: asset_seed_id,
+			id_language: language_en_id,
+			name: "Seedling",
+			description: "A seedling emoji, depicting a small plant sprouting from the ground, symbolizing growth, new beginnings, and potential.",
+		});
+
+		const tag_personal_id = await insert.tag({
+			id_asset: asset_seed_id,
+			slug: "seedling",
+		});
+
+		await insert.tag_information({
+			id_tag: tag_personal_id,
+			id_language: language_en_id,
+			name: "Seedling",
+			description: "A seedling tag, representing content that is in the early stages of growth and development, symbolizing potential and new beginnings.",
+		});
+
+		await insert.domain_tag({
+			id_domain: domain_root,
+			id_tag: tag_personal_id,
+		});
+
 		// Default garden
 		await insert.garden({
 			id_domain: domain_root,
