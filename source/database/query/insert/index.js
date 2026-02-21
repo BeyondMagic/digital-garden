@@ -520,7 +520,7 @@ export async function content({
 		) VALUES (
 			${id_domain},
 			${id_language},
-			${date},
+			CURRENT_TIMESTAMP,
 			${status},
 			${title},
 			${title_sub},
