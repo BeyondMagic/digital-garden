@@ -54,7 +54,13 @@ export async function domain_tree_by_slugs(slugs) {
 
 	/** @type {Array<Domain>} */
 	const [root_domain] = await sql`
-		SELECT id, id_domain_parent, id_domain_redirect, kind, slug, status
+		SELECT
+			domain.id,
+			domain.id_domain_parent,
+			domain.id_domain_redirect,
+			domain.kind,
+			domain.slug,
+			domain.status
 		FROM domain
 		INNER JOIN garden ON garden.id_domain = domain.id
 	`;
