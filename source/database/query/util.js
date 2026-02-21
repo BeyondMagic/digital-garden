@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { sql } from "bun";
 import { randomUUID } from "node:crypto";
 import { rm, symlink } from "node:fs/promises";
-import { basename, dirname } from "node:path";
+import { basename, dirname, join } from "node:path";
+import { sql } from "bun";
 import { select } from "@/database/query/select";
 import { public_root } from "@/setup";
-import { join } from 'node:path';
 
 /** @import { AssetData } from "@/database/query"; */
 
@@ -44,15 +43,15 @@ export async function exists(name, type = "table") {
  */
 export async function build_asset_path(id_domain, slug) {
 	if (typeof id_domain !== "number" || id_domain <= 0)
-		throw new TypeError("build_asset_path: id_domain must be a positive number");
+		throw new TypeError(
+			"build_asset_path: id_domain must be a positive number",
+		);
 
 	if (typeof slug !== "string" || slug.trim().length === 0)
 		throw new TypeError("build_asset_path: slug must be a non-empty string");
 
 	const domain_tree_path = await select.domain_tree(id_domain);
-	const domain_path = domain_tree_path
-		.map(domain => domain.slug)
-		.join("/");
+	const domain_path = domain_tree_path.map((domain) => domain.slug).join("/");
 
 	const file_path = join(public_root, domain_path, slug);
 	return file_path;
@@ -77,7 +76,11 @@ export function build_temp_path(target_path) {
  * @param {string} error_prefix Error prefix for thrown errors.
  * @returns {Promise<void>}
  */
-export async function prepare_asset_file(data, temp_path, error_prefix = "asset") {
+export async function prepare_asset_file(
+	data,
+	temp_path,
+	error_prefix = "asset",
+) {
 	if ("blob" in data && data.blob instanceof Blob) {
 		await Bun.write(temp_path, data.blob);
 		return;
@@ -85,13 +88,17 @@ export async function prepare_asset_file(data, temp_path, error_prefix = "asset"
 
 	if ("path" in data && typeof data.path === "string") {
 		if (!(await Bun.file(data.path).exists()))
-			throw new Error(`${error_prefix}: source file does not exist at path ${data.path}`);
+			throw new Error(
+				`${error_prefix}: source file does not exist at path ${data.path}`,
+			);
 
 		await symlink(data.path, temp_path);
 		return;
 	}
 
-	throw new TypeError(`${error_prefix}: data must have either a blob or path property`);
+	throw new TypeError(
+		`${error_prefix}: data must have either a blob or path property`,
+	);
 }
 
 /**
@@ -100,11 +107,9 @@ export async function prepare_asset_file(data, temp_path, error_prefix = "asset"
  * @returns {Promise<void>}
  */
 export async function cleanup_asset_paths({ temp_path, new_path }) {
-	if (temp_path)
-		await rm(temp_path, { force: true });
+	if (temp_path) await rm(temp_path, { force: true });
 
-	if (new_path)
-		await rm(new_path, { force: true });
+	if (new_path) await rm(new_path, { force: true });
 }
 
 export const util = {
