@@ -16,8 +16,10 @@ import { assert } from "@/logger";
  * @returns {Promise<Array<Domain>>} Domain path from root to leaf.
  */
 export async function domain_tree(id_domain) {
-	if (typeof id_domain !== "number" || id_domain <= 0)
-		throw new TypeError("domain_tree: id_domain must be a positive number");
+	assert(
+		typeof id_domain === "number" && id_domain > 0,
+		"domain_tree: id_domain must be a positive number"
+	);
 
 	/** @type {Array<Domain>} */
 	const rows = await sql`
