@@ -8,11 +8,11 @@
  * @import { Capability } from "@/module/api"
  */
 
-import { insert } from "@/database/query/insert"
-import { remove } from "@/database/query/remove"
+import { insert } from "@/database/query/insert";
+import { remove } from "@/database/query/remove";
+import { create_debug } from "@/logger";
 import { json_to_response } from "@/module/api";
 import { capability } from "@/module/api/capability";
-import { create_debug } from "@/logger";
 
 const debug = create_debug(import.meta.path);
 
@@ -21,16 +21,9 @@ const debug = create_debug(import.meta.path);
  * @returns {Promise<Response>}
  */
 async function add_domain(request) {
-
 	const body = /** @type {DomainInput} */ (await request.json());
 
-	const {
-		id_domain_parent,
-		id_domain_redirect,
-		kind,
-		slug,
-		status,
-	} = body;
+	const { id_domain_parent, id_domain_redirect, kind, slug, status } = body;
 
 	const id = await insert.domain({
 		id_domain_parent,
@@ -50,7 +43,6 @@ async function add_domain(request) {
  * @returns {Promise<Response>}
  */
 async function remove_domain(request) {
-
 	const body = /** @type {{id_domain: number}} */ (await request.json());
 
 	await remove.domain({
@@ -66,7 +58,10 @@ async function remove_domain(request) {
  */
 async function update_domain(request) {
 	// TO-DO
-	return new Response("Not implemented", { status: 501, headers: { "content-type": "text/plain" } });
+	return new Response("Not implemented", {
+		status: 501,
+		headers: { "content-type": "text/plain" },
+	});
 }
 
 /**
@@ -87,11 +82,11 @@ const capabilities = [
 			kind: "string",
 			slug: "string",
 			status: "string",
-			token: "string"
+			token: "string",
 		},
 		output: {
-			id_domain: "number"
-		}
+			id_domain: "number",
+		},
 	},
 	{
 		method: "DELETE",
@@ -103,9 +98,9 @@ const capabilities = [
 		deprecation: null,
 		input: {
 			id_domain: "number",
-			token: "string"
+			token: "string",
 		},
-		output: null
+		output: null,
 	},
 	{
 		method: "PUT",
@@ -122,11 +117,11 @@ const capabilities = [
 			kind: "string",
 			slug: "string",
 			status: "string",
-			token: "string"
+			token: "string",
 		},
-		output: null
-	}
-]
+		output: null,
+	},
+];
 
 export async function setup() {
 	debug("Setting up server capabilities...", { step: { current: 1, max: 3 } });
@@ -134,12 +129,14 @@ export async function setup() {
 	for (const cap of capabilities)
 		capability.register(cap.method, cap.slug, cap);
 
-	debug("Server capabilities setup complete.", { step: { current: 2, max: 3 } });
+	debug("Server capabilities setup complete.", {
+		step: { current: 2, max: 3 },
+	});
 
 	// set up initial domains
 }
 
 export const seed = {
 	capabilities,
-	setup
-}
+	setup,
+};
