@@ -73,6 +73,23 @@ export async function domain_tree_by_slugs(slugs) {
 	return tree;
 }
 
+/**
+ * Count the number of rows in a specified table.
+ * @param {string} name Name of the table to count rows in.
+ * @returns {Promise<number>} The count of rows in the specified table.
+ */
+export async function count(name) {
+	if (typeof name !== "string" || name.trim().length === 0)
+		throw new TypeError("count: name must be a non-empty string");
+
+	const result = await sql`
+		SELECT COUNT(*) AS count
+		FROM ${sql(name)}
+	`;
+
+	return Number(result[0].count);
+}
+
 export const select = {
 	domain_tree,
 	domain_tree_by_slugs,
