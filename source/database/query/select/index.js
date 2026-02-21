@@ -93,4 +93,5 @@ export async function count(name) {
 export const select = {
 	domain_tree,
 	domain_tree_by_slugs,
+	count,
 }
