@@ -14,7 +14,6 @@ import {
 } from "@/logger";
 import { get as get_capability } from "@/module/api/capability";
 import { hostname, is_dev, port } from "@/setup";
-import { DEFAULT_CONTENT_TYPE, extension_to_content_type } from "@/util";
 
 const debug = create_debug(import.meta.path);
 const info = create_info(import.meta.path);
@@ -118,8 +117,14 @@ async function fetch(req, server) {
                 "Invalid asset request: last segment of domain tree should be null for asset requests",
             );
 
+        const last_slug = routers[routers.length - 1];
+        if (!last_slug)
+            throw new Error(
+                "Invalid asset request: last slug is missing in the URL path",
+            );
+
         const last = {
-            slug: routers[routers.length - 1],
+            slug: last_slug,
             id_domain: last_domain.id,
         };
 
@@ -128,28 +133,7 @@ async function fetch(req, server) {
                 "Invalid asset request: missing slug or domain ID in the last segment",
             );
 
-        const asset = await select.asset({
-            slug: last.slug,
-            id_domain: last.id_domain,
-        });
-
-        const file = Bun.file(asset.path);
-        if (!(await file.exists())) {
-            critical(`Asset file not found at path\t→ ${asset.path}`);
-            return new Response("Asset file not found", {
-                status: 404,
-                headers: { "content-type": "text/plain" },
-            });
-        }
-
-        // To-do: based on the file extension, set automatic content-type.
-        const file_extension = asset.path.split(".").pop();
-        const content_type =
-            (file_extension && extension_to_content_type.get(file_extension)) ||
-            DEFAULT_CONTENT_TYPE;
-        return new Response(file, {
-            headers: { "content-type": content_type },
-        });
+        return await app.handle_asset(last);
     }
 
     if (is_api) {
