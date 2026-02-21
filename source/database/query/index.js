@@ -66,7 +66,7 @@
 
 /**
  * @typedef {Object} LanguageInput
- * @property {string} id_asset - ID of the asset the language is associated with.
+ * @property {number} id_asset - ID of the asset the language is associated with.
  * @property {string} slug - Unique slug for the language within the asset, like 'xx-YY' (e.g. 'en-US').
  */
 
@@ -144,7 +144,6 @@
  * @typedef {Object} ContentInput
  * @property {number} id_domain - ID of the domain the content is associated with.
  * @property {number} id_language - ID of the language the content is in.
- * @property {Date} date - Date of the content.
  * @property {SubjectStatus} status - Status of the content.
  * @property {string} title - Title of the content.
  * @property {string} title_sub - Subtitle of the content.
@@ -155,6 +154,7 @@
 /**
  * @typedef {Object} ContentAttributes
  * @property {number} requests - Number of requests for the content.
+ * @property {Date} date - Date of the content.
  */
 
 /**
