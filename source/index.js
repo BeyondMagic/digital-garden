@@ -3,13 +3,19 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { hostname, is_dev, port } from "@/setup";
 import { serve } from "bun";
-import { create_debug, create_info, create_error, create_critical } from "@/logger";
-import { get as get_capability } from "@/module/api/capability";
-import { seed } from "@/app/seed";
+import { seed } from "@/app/public/capabilities";
 import { create } from "@/database/query/create";
-import { reset } from "@/database/query/reset";
+import {
+    create_critical,
+    create_debug,
+    create_error,
+    create_info,
+} from "@/logger";
+import { get as get_capability } from "@/module/api/capability";
+import { hostname, is_dev, port } from "@/setup";
+
+// import { remove } from "@/database/query/remove";
 
 const debug = create_debug(import.meta.path);
 const info = create_info(import.meta.path);
@@ -19,7 +25,7 @@ const critical = create_critical(import.meta.path);
 /** @import { Capability, HTTPMethod } from "@/module/api" */
 
 /**
- * 
+ *
  * @param {Request} req
  * @param {import('bun').Server} server
  **/
@@ -42,9 +48,12 @@ async function fetch(req, server) {
     info(`Domains\t→ [${domains.join(", ") || ""}]`);
 
     // API logic
-    if (subdomains.length === 1 && subdomains[0] === "api" && routers.length >= 1) {
-
-        const slug = routers.join('/');
+    if (
+        subdomains.length === 1 &&
+        subdomains[0] === "api" &&
+        routers.length >= 1
+    ) {
+        const slug = routers.join("/");
 
         info(`API Slug\t→ ${slug}`);
 
@@ -54,7 +63,10 @@ async function fetch(req, server) {
             capability = await get_capability(method, slug);
         } catch {
             error(`Capability not found\t→ ${slug}`);
-            return new Response("Server/Module API not found", { status: 404, headers: { "content-type": "text/plain" } });
+            return new Response("Server/Module API not found", {
+                status: 404,
+                headers: { "content-type": "text/plain" },
+            });
         }
 
         // TO-DO: handle scope and token.
@@ -70,29 +82,38 @@ async function fetch(req, server) {
         } catch (err) {
             const error = /** @type {Error} */ (err);
             critical(`Error executing API handler\t→ ${slug}\n${error.stack}`);
-            return new Response(`Error executing API handler: ${error.stack}`, { status: 500, headers: { "content-type": "text/plain" } });
+            return new Response(`Error executing API handler: ${error.stack}`, {
+                status: 500,
+                headers: { "content-type": "text/plain" },
+            });
         }
 
         if (!(response instanceof Response))
-            return new Response("Invalid response from API handler", { status: 500, headers: { "content-type": "text/plain" } });
+            return new Response("Invalid response from API handler", {
+                status: 500,
+                headers: { "content-type": "text/plain" },
+            });
 
         return response;
     }
 
-    return new Response("Not Found", { status: 404, headers: { "content-type": "text/plain" } });
+    return new Response("Not Found", {
+        status: 404,
+        headers: { "content-type": "text/plain" },
+    });
 }
 
 critical("Starting the server...", { step: { current: 1, max: 2 } });
 
-await reset.database();
+// await remove.garden();
 await create.schema();
-await seed.setup()
+await seed.setup();
 
 const server = serve({
     hostname,
     port,
     fetch,
-    development: is_dev
-})
+    development: is_dev,
+});
 
 critical(`Listening on ${server.url}`, { step: { current: 2, max: 2 } });
