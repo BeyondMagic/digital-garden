@@ -35,12 +35,16 @@ export async function setup() {
 export async function handle_asset(last) {
 	info(`Asset request\t→ slug: ${last.slug}, id_domain: ${last.id_domain}`); // Log the asset request details
 
-	const asset = await select.asset({
-		slug: last.slug,
-		id_domain: last.id_domain,
-	});
+	/** @type {string} */
+	let path;
 
-	if (!asset) {
+	try {
+		const asset = await select.asset({
+			slug: last.slug,
+			id_domain: last.id_domain,
+		});
+		path = asset.path;
+	} catch (_) {
 		error(
 			`Asset not found\t→ slug: ${last.slug}, id_domain: ${last.id_domain}`,
 		);
@@ -50,15 +54,15 @@ export async function handle_asset(last) {
 		});
 	}
 
-	const file = Bun.file(asset.path);
+	const file = Bun.file(path);
 	if (!(await file.exists()))
-		throw new Error(`Asset file not found at path: ${asset.path}`);
+		throw new Error(`Asset file not found at path: ${path}`);
 
-	// To-do: based on the file extension, set automatic content-type.
-	const file_extension = asset.path.split(".").pop();
+	const file_extension = path.split(".").pop();
 	const content_type =
 		(file_extension && extension_to_content_type.get(file_extension)) ||
 		DEFAULT_CONTENT_TYPE;
+
 	return new Response(file, {
 		headers: { "content-type": content_type },
 	});
