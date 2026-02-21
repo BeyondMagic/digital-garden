@@ -44,19 +44,20 @@ export async function garden() {
 		);
 	}
 
-	// TO-DO: require input from CLI to confirm this action, to prevent accidental execution against a production database.
-	const assets_ids = await sql`
-		SELECT id
-		FROM asset
-	`;
+	const assets_paths = /** @type {Array<{path: string}>} */ (
+		await sql`
+			SELECT path
+			FROM asset
+		`
+	);
 
-	// TO-DO: restore assets if one failed to delete, to avoid orphaned files after reset. This is a safety measure in case of partial failures during asset deletion.
-	for (const { id } of assets_ids) {
+	for (const { path } of assets_paths) {
 		try {
-			await asset({ id });
+			info(`Deleting asset file at path ${path} during garden reset.`);
+			await Bun.file(path).delete();
 		} catch (e) {
 			warn(
-				`Failed to delete asset with id ${id} during garden reset. Continuing with schema reset.`,
+				`Failed to delete asset with path ${path} during garden reset. Continuing with schema reset.`,
 			);
 			warn(e);
 		}
