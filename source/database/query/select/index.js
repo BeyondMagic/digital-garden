@@ -7,7 +7,7 @@
 import { sql } from "bun";
 
 
-/** @import { Domain } from "@/database/query/insert" */
+/** @import { Domain } from "@/database/query" */
 
 /**
  * Build the domain tree (root to leaf) for a given domain id.
