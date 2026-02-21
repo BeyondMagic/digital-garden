@@ -35,7 +35,12 @@
  */
 
 /**
- * @typedef {AssetInput & RowIdentifier} Asset - Full row asset data, including the generated ID.
+ * @typedef {Object} AssetPath - The binary/symlink data of the asset.
+ * @property {string} path - The file path of the asset on the server.
+ */
+
+/**
+ * @typedef {AssetInput & RowIdentifier & AssetPath} Asset - Full row asset data, including the generated ID.
  */
 
 /**
