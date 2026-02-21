@@ -84,18 +84,20 @@ export async function domain_tree_by_slugs(slugs) {
 	let parent_id = null;
 
 	for (const slug of slugs) {
-		/** @type {Array<Domain>} */
-		const rows = await sql`
+		const [row] = /** @type {Array<Domain>} */(
+			await sql`
 			SELECT id, id_domain_parent, id_domain_redirect, kind, slug, status
 			FROM domain
-			WHERE slug = ${slug} AND id_domain_parent IS NOT DISTINCT FROM ${parent_id}
-		`;
+			WHERE slug = ${slug.value}
+				AND kind = ${slug.kind}
+				AND id_domain_parent IS NOT DISTINCT FROM ${parent_id}
+		`
+		);
 
-		if (!rows[0]) break;
+		if (!row) break;
 
-		const domain_row = rows[0];
-		tree.push(domain_row);
-		parent_id = domain_row.id;
+		tree.push(row);
+		parent_id = row.id;
 	}
 
 	return tree;
