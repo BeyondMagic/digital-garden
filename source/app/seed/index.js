@@ -12,6 +12,10 @@ const debug = create_debug(import.meta.path);
 const critical = create_critical(import.meta.path);
 const info = create_info(import.meta.path);
 
+function make_asset_path(path) {
+	return `${import.meta.dir}/${path}`;
+}
+
 export async function tables() {
 	debug("Checkinig if seeding for tables was set.", {
 		step: { current: 1, max: 2 },
@@ -35,17 +39,12 @@ export async function tables() {
 			status: "PRIVATE",
 		});
 
-		const asset_admin_profile_picture_path = `${import.meta.dir}/../public/image/digital-garden-girl.png`
-		info(`Asset path\t→ ${asset_admin_profile_picture_path}`);
-
-		const file = Bun.file(asset_admin_profile_picture_path);
-		info(`Asset file\t→ ${file}`);
-
+		const asset_admin_profile_picture_path = make_asset_path("../public/image/digital-garden-girl.png");
 		const asset_admin_profile_picture = await insert.asset({
 			id_domain: domain_root,
 			slug: "admin-profile-picture.png",
 			data: {
-				blob: Bun.file(asset_admin_profile_picture_path),
+				path: asset_admin_profile_picture_path,
 			},
 		});
 
