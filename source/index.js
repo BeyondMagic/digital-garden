@@ -12,15 +12,12 @@ import {
     create_error,
     create_info,
 } from "@/logger";
-import { get as get_capability } from "@/module/api/capability";
 import { hostname, is_dev, port } from "@/setup";
 
 const debug = create_debug(import.meta.path);
 const info = create_info(import.meta.path);
 const error = create_error(import.meta.path);
 const critical = create_critical(import.meta.path);
-
-/** @import { Capability, HTTPMethod } from "@/module/api" */
 
 /** @import { Domain } from "@/database/query" */
 
@@ -104,10 +101,7 @@ async function fetch(req, server) {
         info(
             "Domain tree length does not match expected lengths, so it's not resolveable.",
         );
-        return new Response("Not resolveable.", {
-            status: 404,
-            headers: { "content-type": "text/plain" },
-        });
+        return new Response(null, { status: 404 });
     }
 
     if (is_asset_request) {
@@ -138,47 +132,7 @@ async function fetch(req, server) {
 
     if (is_api) {
         const slug = routers.join("/");
-
-        info(`API Slug\t→ ${slug}`);
-
-        /** @type {Capability<any>} */
-        let capability;
-        try {
-            capability = await get_capability(method, slug);
-        } catch {
-            error(`Capability not found\t→ ${slug}`);
-            return new Response("Server/Module API not found", {
-                status: 404,
-                headers: { "content-type": "text/plain" },
-            });
-        }
-
-        // TO-DO: handle scope and token.
-        if (capability.scope) {
-            info(`Capability scope\t→ ${capability.scope}`);
-            // TO-DO: validate token and scope.
-        }
-
-        /** @type {Response} */
-        let response;
-        try {
-            response = await capability.handler(req);
-        } catch (err) {
-            const error = /** @type {Error} */ (err);
-            critical(`Error executing API handler\t→ ${slug}\n${error.stack}`);
-            return new Response(`Error executing API handler: ${error.stack}`, {
-                status: 500,
-                headers: { "content-type": "text/plain" },
-            });
-        }
-
-        if (!(response instanceof Response))
-            return new Response("Invalid response from API handler", {
-                status: 500,
-                headers: { "content-type": "text/plain" },
-            });
-
-        return response;
+        return await app.handle_api({ request: req, method, slug });
     }
 
     if (is_valid_domain_tree) {
