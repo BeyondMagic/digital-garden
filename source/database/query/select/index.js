@@ -61,8 +61,7 @@ export async function domain_tree_by_slugs(slugs) {
 			))
 		),
 		"domain_tree_by_slugs: slugs must be an array of non-empty strings with a valid kind (SUBDOMAIN or ROUTER)"
-	)
-
+	);
 
 	/** @type {Array<Domain>} */
 	const tree = [];
