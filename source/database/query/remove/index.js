@@ -3,12 +3,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 import { sql } from "bun";
-import { exists } from '@/database/query/util';
-import { assert } from '@/logger';
+import { exists } from "@/database/query/util";
+import { assert, create_critical, create_info, create_warn } from "@/logger";
 import { is_dev } from "@/setup";
-import { create_warn, create_info, create_critical } from "@/logger";
 
 const warn = create_warn(import.meta.path);
 const info = create_info(import.meta.path);
@@ -23,7 +21,7 @@ const critical = create_critical(import.meta.path);
  * It will DROP and RECREATE the `public` schema, effectively deleting ALL user data,
  * tables, types, sequences, and other objects within that schema.
  * Ensure the database is a disposable test DB and is expected to be empty before/after.
- * 
+ *
  * Completely resets the PostgreSQL database by dropping and recreating the `public` schema.
  * Uses CASCADE, so anything under `public` will be removed. Requires sufficient privileges.
  *
@@ -33,11 +31,17 @@ const critical = create_critical(import.meta.path);
  * @deprecated This will be replaced with a flow of required backup, drop of rows in tables, and restore of essential seed data, to allow for safer resets in development and staging environments.
  */
 export async function garden() {
-	warn("About to DROP and RECREATE the 'public' schema (test DB only).", { step: { current: 1, max: 2 } });
+	warn("About to DROP and RECREATE the 'public' schema (test DB only).", {
+		step: { current: 1, max: 2 },
+	});
 
 	if (!is_dev) {
-		critical("Database reset attempted in non-development environment. Aborting.");
-		throw new Error("Database reset can only be run in a development environment.");
+		critical(
+			"Database reset attempted in non-development environment. Aborting.",
+		);
+		throw new Error(
+			"Database reset can only be run in a development environment.",
+		);
 	}
 
 	// TO-DO: require input from CLI to confirm this action, to prevent accidental execution against a production database.
@@ -51,13 +55,15 @@ export async function garden() {
 		try {
 			await asset({ id });
 		} catch (e) {
-			warn(`Failed to delete asset with id ${id} during garden reset. Continuing with schema reset.`, { error: e });
+			warn(
+				`Failed to delete asset with id ${id} during garden reset. Continuing with schema reset.`,
+			);
+			warn(e);
 		}
 	}
 
 	try {
 		await sql.begin(async (sql) => {
-
 			await sql`ROLLBACK`;
 			await sql`
 				SELECT pg_terminate_backend(pg_stat_activity.pid)
@@ -86,7 +92,7 @@ export async function garden() {
 			info("Database schema 'public' reset complete.", {
 				step: { current: 2, max: 2 },
 			});
-		})
+		});
 	} catch (e) {
 		critical("Database reset failed. See error below.");
 		throw e;
@@ -96,11 +102,8 @@ export async function garden() {
 /**
  * @param {RowIdentifier} param0
  */
-export async function asset({
-	id,
-}) {
-	await sql.begin(async sql => {
-
+export async function asset({ id }) {
+	await sql.begin(async (sql) => {
 		/** @type {Array<{path: string}>} */
 		const [asset_row] = await sql`
 			DELETE FROM asset
@@ -119,15 +122,13 @@ export async function asset({
 			throw new Error(`remove_asset: file does not exist at path ${path}`);
 
 		await file.delete();
-	})
+	});
 }
 
 /**
  * @param {RowIdentifier} param0
  */
-export async function domain({
-	id,
-}) {
+export async function domain({ id }) {
 	await sql`
 		DELETE FROM domain
 		WHERE id = ${id}
