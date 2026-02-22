@@ -136,8 +136,19 @@ export async function domain({ id }) {
 	`;
 }
 
+/**
+ * @param {{token: string}} param0
+ */
+export async function author_connection({ token }) {
+	await sql`
+		DELETE FROM author_connection
+		WHERE token = ${token}
+	`;
+}
+
 export const remove = {
 	asset,
 	domain,
 	garden,
+	author_connection,
 };

@@ -98,6 +98,23 @@ async function author_login(request) {
 
 	return json_to_response(result);
 }
+
+/**
+ * @param {Request} request
+ * @returns {Promise<Response>}
+ */
+async function author_logout(request) {
+	const body = /** @type {{token: string}} */ (await request.json());
+
+	const { token } = body;
+
+	await remove.author_connection({
+		token,
+	});
+
+	return new Response(null, { status: 204 });
+}
+
 /**
  * @type {Array<Capability<any>>}
  */
@@ -173,6 +190,19 @@ const capabilities = [
 		output: {
 			token: "string",
 		}
+	},
+	{
+		method: "POST",
+		slug: "author/logout",
+		scope: null,
+		name: "Author Logout",
+		description: "Logs out an author and invalidates the connection token.",
+		handler: author_logout,
+		deprecation: null,
+		input: {
+			token: "string",
+		},
+		output: null,
 	}
 ];
 
