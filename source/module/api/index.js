@@ -3,9 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-"use strict";
-
-import { get, create_register, create_remove } from "@/module/api/capability";
+import { create_register, create_remove, get } from "@/module/api/capability";
 
 /**
  * @typedef {('GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD' | 'TRACE' | 'CONNECT')} HTTPMethod - HTTP methods for defining capabilities.
@@ -36,7 +34,7 @@ import { get, create_register, create_remove } from "@/module/api/capability";
  */
 
 /**
- * @typedef {'server' | 'garden' | 'domain' | 'content' | null} Scope - Scope types for module capabilities.
+ * @typedef {'admin' | 'garden' | 'domain' | 'content' | null} Scope - Scope types for module capabilities.
  */
 
 /**
@@ -84,7 +82,7 @@ export class Module {
 	 * @static
 	 * @type {string}
 	 */
-	// @ts-ignore -- ignore ts error for static field for jsdoc.
+	// @ts-expect-error
 	static slug = null;
 
 	/**
@@ -93,7 +91,7 @@ export class Module {
 	 * @static
 	 * @type {string}
 	 */
-	// @ts-ignore -- ignore ts error for static field for jsdoc.
+	// @ts-expect-error
 	static name = null;
 
 	/**
@@ -102,7 +100,7 @@ export class Module {
 	 * @static
 	 * @type {string}
 	 */
-	// @ts-ignore -- ignore ts error for static field for jsdoc.
+	// @ts-expect-error
 	static description = null;
 
 	/**
@@ -111,16 +109,16 @@ export class Module {
 	 * @static
 	 * @type {Array<Author>}
 	 */
-	// @ts-ignore -- ignore ts error for static field for jsdoc.
+	// @ts-expect-error
 	static authors = null;
 
 	/** @type { Version } */
 	static version = {
-		// @ts-ignore -- ignore ts error for static field for jsdoc.
+		// @ts-expect-error
 		major: null,
-		// @ts-ignore -- ignore ts error for static field for jsdoc.
+		// @ts-expect-error
 		minor: null,
-		// @ts-ignore -- ignore ts error for static field for jsdoc.
+		// @ts-expect-error
 		patch: null
 	};
 
@@ -130,7 +128,6 @@ export class Module {
 	 * @static
 	 * @type {string | null}
 	 */
-	// @ts-ignore -- ignore ts error for static field for jsdoc.
 	static deprecation = null;
 
 	/**
@@ -139,7 +136,7 @@ export class Module {
 	 * @static
 	 * @type {string}
 	 */
-	// @ts-ignore -- ignore ts error for static field for jsdoc.
+	// @ts-expect-error
 	static subresource_integrity = null;
 
 	/**
@@ -148,7 +145,7 @@ export class Module {
 	 * @static
 	 * @type {Array<Capability<any>>}
 	 */
-	// @ts-ignore -- ignore ts error for static field for jsdoc.
+	// @ts-expect-error
 	static capabilities = "Disable this deprecation warning.";
 
 	/**
