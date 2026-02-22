@@ -5,6 +5,9 @@
 
 export-env {
 
+	# Must be at least 32 characters long and contain a mix of uppercase, lowercase, numbers, and special characters for security.
+	$env.JWT_SECRET = "sUPer@sEcreT!key.for-jwt_tOkEn-Generat1on"
+
 	# The folder where assets will be stored.
 	$env.PUBLIC_ROOT = (^git rev-parse --show-toplevel | str trim) + "/public/"
 

@@ -21,6 +21,7 @@ export const color = {
 	critical: Bun.color('#dc2626', 'ansi-16m'), // red-600
 }
 
+// DOMAIN
 assert(process.env.DOMAIN, "DOMAIN environment variable is not set");
 
 export const domain = process.env.DOMAIN;
@@ -33,9 +34,20 @@ assert(domains[1], "Port must be a string");
 export const hostname = domains[0];
 export const port = domains[1];
 
+// PUBLIC_ROOT
 assert(process.env.PUBLIC_ROOT, "PUBLIC_ROOT environment variable is not set");
 
 export const public_root = process.env.PUBLIC_ROOT;
+
+// JWT_SECRET
+assert(process.env.JWT_SECRET, "JWT_SECRET environment variable is not set");
+assert(
+	typeof process.env.JWT_SECRET === "string" &&
+	process.env.JWT_SECRET.length >= 32,
+	"JWT_SECRET must be a string with at least 32 characters for security"
+);
+
+export const jwt_secret = process.env.JWT_SECRET;
 
 export const setup = {
 	is_dev,
@@ -45,4 +57,5 @@ export const setup = {
 	hostname,
 	port,
 	public_root,
+	jwt_secret,
 }
