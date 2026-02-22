@@ -12,3 +12,6 @@
 
 # Logs
 /logs/
+
+# Script for the API.
+/script/api
