@@ -730,9 +730,6 @@ export async function author({
 		"author: password must be a non-empty string",
 	);
 
-	const pages = 0;
-	const contents = 0;
-
 	const hashed_password = await Bun.password.hash(password);
 
 	const [row] = await sql`
@@ -740,16 +737,12 @@ export async function author({
 			id_asset,
 			email,
 			name,
-			password,
-			pages,
-			contents
+			password
 		) VALUES (
 			${id_asset},
 			${email},
 			${name},
-			${hashed_password},
-			${pages},
-			${contents}
+			${hashed_password}
 		)
 		RETURNING id
 	`;

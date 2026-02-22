@@ -128,13 +128,9 @@ async function author() {
 			email VARCHAR(256) UNIQUE NOT NULL,
 			name VARCHAR(256) NOT NULL,
 			password VARCHAR(512) NOT NULL,
-			pages INTEGER NOT NULL,
-			contents INTEGER NOT NULL,
 			CONSTRAINT author_email_not_empty CHECK (char_length(btrim(email)) > 0),
 			CONSTRAINT author_name_not_empty CHECK (char_length(btrim(name)) > 0),
-			CONSTRAINT author_password_not_empty CHECK (char_length(btrim(password)) > 0),
-			CONSTRAINT author_pages_non_negative CHECK (pages >= 0),
-			CONSTRAINT author_contents_non_negative CHECK (contents >= 0)
+			CONSTRAINT author_password_not_empty CHECK (char_length(btrim(password)) > 0)
 		);
 	`;
 }
