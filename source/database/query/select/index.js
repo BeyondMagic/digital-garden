@@ -7,7 +7,7 @@ import { sql } from "bun";
 import { assert } from "@/logger";
 
 
-/** @import { Asset, Domain, DomainKind } from "@/database/query" */
+/** @import { Asset, Domain, DomainKind, Author } from "@/database/query" */
 
 /**
  * Build the domain tree (root to leaf) for a given domain id.
@@ -145,9 +145,34 @@ export async function asset({ slug, id_domain }) {
 	return row;
 }
 
+/**
+ * @typedef {Object} AuthorInput
+ * @property {string} email Author's email address.
+ */
+
+/**
+ * Fetch an author by their email address.
+ * @param {AuthorInput} input
+ * @returns {Promise<Author>} The author matching the email address.
+ */
+export async function author({ email }) {
+	assert(typeof email === "string" && email.trim().length > 0, "author: email must be a non-empty string");
+
+	const [row] = await sql`
+		SELECT id, id_asset, email, name, pages, contents
+		FROM author
+		WHERE email = ${email}
+	`;
+
+	assert(row, `author: no author found with email "${email}"`);
+
+	return row;
+}
+
 export const select = {
 	domain_tree,
 	domain_tree_by_slugs,
 	asset,
 	count,
+	author,
 }

@@ -11,9 +11,12 @@ import {
 	cleanup_asset_paths,
 	prepare_asset_file,
 } from "@/database/query/util";
-import { assert } from "@/logger";
+import { jwt } from "@/jwt";
+import { assert, create_warn } from "@/logger";
 
-/** @import {AuthorContentInput, AuthorDomainInput, AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
+const warn = create_warn(import.meta.path);
+
+/** @import {AuthorContentInput, AuthorConnectionCredentials, AuthorDomainInput, AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
 /**
  * @typedef {Object} SQLObject
@@ -292,7 +295,10 @@ export async function language_information({
 		RETURNING id
 	`;
 
-	assert(row, "insert_language_information: failed to insert language information");
+	assert(
+		row,
+		"insert_language_information: failed to insert language information",
+	);
 
 	return row.id;
 }
@@ -576,7 +582,11 @@ export async function content({
  * @param {ContentLinkInput & SQLObject} content_link Content link information to insert.
  * @returns {Promise<number>} Inserted content link ID.
  */
-export async function content_link({ id_content_from, id_content_to, sql = sql_exec }) {
+export async function content_link({
+	id_content_from,
+	id_content_to,
+	sql = sql_exec,
+}) {
 	assert(
 		typeof id_content_from === "number" && id_content_from > 0,
 		"content_link: id_content_from must be a positive number",
@@ -607,7 +617,12 @@ export async function content_link({ id_content_from, id_content_to, sql = sql_e
  * @param {GardenInput & SQLObject} garden Garden information to insert.
  * @returns {Promise<number>} Inserted garden ID.
  */
-export async function garden({ id_domain, id_asset, id_author, sql = sql_exec }) {
+export async function garden({
+	id_domain,
+	id_asset,
+	id_author,
+	sql = sql_exec,
+}) {
 	assert(
 		typeof id_domain === "number" && id_domain > 0,
 		"garden: id_domain must be a positive number",
@@ -649,9 +664,8 @@ export async function garden_information({
 	id_language,
 	name,
 	description,
-	sql = sql_exec
+	sql = sql_exec,
 }) {
-
 	assert(
 		typeof id_language === "number" && id_language > 0,
 		"garden_information: id_language must be a positive number",
@@ -686,11 +700,16 @@ export async function garden_information({
 }
 
 /**
- * @param {AuthorInput & SQLObject} author Author information to insert.
+ * @param {AuthorInput & SQLObject & {password: string}} author Author information to insert.
  * @returns {Promise<number>} Inserted author ID.
  */
-export async function author({ id_asset, email, name, password, sql = sql_exec }) {
-
+export async function author({
+	id_asset,
+	email,
+	name,
+	password,
+	sql = sql_exec,
+}) {
 	assert(
 		typeof id_asset === "number" && id_asset > 0,
 		"author: id_asset must be a positive number",
@@ -741,14 +760,23 @@ export async function author({ id_asset, email, name, password, sql = sql_exec }
 }
 
 /**
- * @param {AuthorConnectionInput & SQLObject} author_connection Author connection information to insert.
- * @returns {Promise<number>} Inserted author connection ID.
+ * @param {AuthorConnectionCredentials & AuthorConnectionInput & SQLObject} author_connection Author connection information to insert.
+ * @returns {Promise<string>} Inserted author connection token.
  */
-export async function author_connection({ id_author, device, token, sql = sql_exec }) {
+export async function author_connection({
+	email,
+	password,
+	device,
+	sql = sql_exec,
+}) {
+	assert(
+		typeof email === "string" && email.trim().length > 0,
+		"author_connection: email must be a non-empty string",
+	);
 
 	assert(
-		typeof id_author === "number" && id_author > 0,
-		"author_connection: id_author must be a positive number",
+		typeof password === "string" && password.trim().length > 0,
+		"author_connection: password must be a non-empty string",
 	);
 
 	assert(
@@ -756,10 +784,48 @@ export async function author_connection({ id_author, device, token, sql = sql_ex
 		"author_connection: device must be a non-empty string",
 	);
 
-	assert(
-		typeof token === "string" && token.trim().length > 0,
-		"author_connection: token must be a non-empty string",
+	/**
+	 * @type {{id: number, email: string, password: string}}
+	 */
+	const author_row = {
+		// @ts-expect-error
+		id: null,
+		// @ts-expect-error
+		password: null,
+	};
+
+	try {
+		const [row] = await sql`
+			SELECT id, password
+			FROM author
+			WHERE email = ${email}
+		`;
+
+		assert(row, `author_connection: no author found`);
+
+		author_row.id = row.id;
+		author_row.password = row.password;
+	} catch (err) {
+		warn(err);
+	}
+
+	const is_password_correct = await Bun.password.verify(
+		password,
+		// @note: timing attack mitigation: always verify password and generate token, even if author is not found
+		author_row.password || await Bun.password.hash("invalid_password"),
 	);
+
+	assert(
+		author_row.password,
+		"author_connection: no author found with the provided email",
+	);
+	assert(is_password_correct, "author_connection: incorrect password");
+
+	const token = await jwt.create({
+		sub: String(author_row.id),
+		device,
+		claims: { email },
+	});
 
 	const [row] = await sql`
 		INSERT INTO author_connection (
@@ -769,7 +835,7 @@ export async function author_connection({ id_author, device, token, sql = sql_ex
 			logged_at,
 			last_active_at
 		) VALUES (
-			${id_author},
+			${author_row.id},
 			${device},
 			${token},
 			CURRENT_TIMESTAMP,
@@ -778,9 +844,12 @@ export async function author_connection({ id_author, device, token, sql = sql_ex
 		RETURNING id
 	`;
 
-	assert(row, "insert_author_connection: failed to insert author connection");
+	assert(
+		row.id,
+		"insert_author_connection: failed to insert author connection",
+	);
 
-	return row.id;
+	return token;
 }
 
 /**
@@ -788,7 +857,6 @@ export async function author_connection({ id_author, device, token, sql = sql_ex
  * @returns {Promise<number>} Inserted author domain ID.
  */
 export async function author_domain({ id_author, id_domain, sql = sql_exec }) {
-
 	assert(
 		typeof id_author === "number" && id_author > 0,
 		"author_domain: id_author must be a positive number",
@@ -821,8 +889,11 @@ export async function author_domain({ id_author, id_domain, sql = sql_exec }) {
  * @param {AuthorContentInput & SQLObject} author_content Author content information to insert.
  * @returns {Promise<number>} Inserted author content ID.
  */
-export async function author_content({ id_author, id_content, sql = sql_exec }) {
-
+export async function author_content({
+	id_author,
+	id_content,
+	sql = sql_exec,
+}) {
 	assert(
 		typeof id_author === "number" && id_author > 0,
 		"author_content: id_author must be a positive number",

@@ -65,9 +65,44 @@ async function update_domain(request) {
 }
 
 /**
+ * @param {Request} request
+ * @return {Promise<Response>}
+ */
+async function author_login(request) {
+	const body = /** @type {{email: string, password: string}} */ (
+		await request.json()
+	);
+
+	const { email, password } = body;
+
+	/**
+	 * @type {{token: string}}
+	 */
+	const result = {
+		// @ts-expect-error
+		token: null
+	}
+
+	try {
+		result.token = await insert.author_connection({
+			email,
+			password,
+			device: "web", // @todo: get device info from request
+		});
+	} catch {
+		return new Response("Invalid email or password", {
+			status: 401,
+			headers: { "content-type": "text/plain" },
+		});
+	}
+
+	return json_to_response(result);
+}
+/**
  * @type {Array<Capability<any>>}
  */
 const capabilities = [
+	// Domain
 	{
 		method: "POST",
 		slug: "domain/add",
@@ -121,6 +156,24 @@ const capabilities = [
 		},
 		output: null,
 	},
+	// Author
+	// @todo: login/logout capabilities, which would create/remove author connections and return the token for the connection to be used in subsequent authenticated requests
+	{
+		method: "POST",
+		slug: "author/login",
+		scope: null,
+		name: "Author Login",
+		description: "Logs in an author and creates a new connection token.",
+		handler: author_login,
+		deprecation: null,
+		input: {
+			email: "string",
+			password: "string",
+		},
+		output: {
+			token: "string",
+		}
+	}
 ];
 
 export async function setup() {

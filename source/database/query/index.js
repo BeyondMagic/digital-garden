@@ -203,7 +203,6 @@
  * @property {number} id_asset - ID of the asset the author is associated with.
  * @property {string} email - Email of the author.
  * @property {string} name - Name of the author.
- * @property {string} password - Hashed password of the author.
  */
 
 /**
@@ -218,15 +217,25 @@
 
 /**
  * @typedef {Object} AuthorConnectionInput
- * @property {number} id_author - ID of the author that has the connection.
  * @property {string} device - Device identifier for the connection (e.g. "web", "mobile").
+ */
+
+/**
+ * @typedef {Object} AuthorConnectionCredentials
+ * @property {string} email - Email of the author trying to connect.
+ * @property {string} password - Password of the author trying to connect.
+ */
+
+/**
+ * @typedef {Object} AuthorConnectionStatistics
+ * @property {number} id_author - ID of the author that has the connection.
+ * @property {Date} logged_at - Timestamp of when the connection was established.
+ * @property {Date} last_active_at - Timestamp of the last activity on the connection.
  * @property {string} token - Authentication token for the connection.
  */
 
 /**
- * @typedef {AuthorConnectionInput & RowIdentifier} AuthorConnection - Full row author connection data, including the generated ID.
- * @property {Date} logged_at - Timestamp of when the connection was established.
- * @property {Date} last_active_at - Timestamp of the last activity on the connection.
+ * @typedef {AuthorConnectionInput & RowIdentifier & AuthorConnectionStatistics} AuthorConnection - Full row author connection data, including the generated ID.
  */
 
 /**
