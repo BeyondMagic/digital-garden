@@ -7,7 +7,10 @@ import { sql } from "bun";
 import { jwt } from "@/jwt";
 import { assert } from "@/logger";
 
-/** @import { AuthorConnectionToken, AuthorConnectionInput, AuthorConnectionStatistics, Asset, Domain, DomainKind, Author } from "@/database/query" */
+/**
+ * @import { AuthorConnectionToken, AuthorConnectionInput, AuthorConnectionStatistics, Asset, Domain, DomainKind, Author } from "@/database/query"
+ * @import { Scope } from "@/module/api"
+ */
 
 /**
  * Build the domain tree (root to leaf) for a given domain id.
@@ -182,9 +185,17 @@ export async function author({ email }) {
 }
 
 /**
- * Fetch an author connection by its token.
+ * @typedef {Object} AuthorConnectionScope
+ * @property {Scope} scope The most privileged scope available for this connection.
+ * @property {number | null} target_garden The root garden domain id when scope includes garden ownership.
+ * @property {Array<number>} target_domain The highest granted domain targets (top-most per granted branch).
+ * @property {Array<number>} target_content The content targets granted directly to this author.
+ */
+
+/**
+ * Fetch an author connection and its scope by its token.
  * @param {AuthorConnectionToken} input
- * @returns {Promise<AuthorConnectionStatistics & AuthorConnectionInput}
+ * @returns {Promise<AuthorConnectionStatistics & AuthorConnectionInput & AuthorConnectionScope>}
  */
 export async function author_connection({ token }) {
 	assert(
@@ -203,7 +214,72 @@ export async function author_connection({ token }) {
 		`author_connection: no author connection found with token "${token}"`,
 	);
 
-	return row;
+	const [garden_row] = await sql`
+		SELECT id_domain
+		FROM garden
+		WHERE id_author = ${row.id_author}
+	`;
+
+	/** @type {Array<{ id_domain: number }>} */
+	const domain_target_rows = await sql`
+		WITH RECURSIVE granted AS (
+			SELECT id_domain
+			FROM author_domain
+			WHERE id_author = ${row.id_author}
+		),
+		granted_ancestors AS (
+			SELECT
+				g.id_domain AS granted_id,
+				d.id_domain_parent AS ancestor_id
+			FROM granted g
+			JOIN domain d ON d.id = g.id_domain
+			UNION ALL
+			SELECT
+				ga.granted_id,
+				d.id_domain_parent AS ancestor_id
+			FROM granted_ancestors ga
+			JOIN domain d ON d.id = ga.ancestor_id
+			WHERE ga.ancestor_id IS NOT NULL
+		)
+		SELECT g.id_domain
+		FROM granted g
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM granted_ancestors ga
+			JOIN granted g_ancestor ON g_ancestor.id_domain = ga.ancestor_id
+			WHERE ga.granted_id = g.id_domain
+		)
+		ORDER BY g.id_domain ASC
+	`;
+
+	/** @type {Array<{ id_content: number }>} */
+	const content_target_rows = await sql`
+		SELECT id_content
+		FROM author_content
+		WHERE id_author = ${row.id_author}
+		ORDER BY id_content ASC
+	`;
+
+	const target_domain = domain_target_rows.map((domain_target) => Number(domain_target.id_domain));
+	const target_content = content_target_rows.map((content_target) => Number(content_target.id_content));
+	const target_garden = garden_row ? Number(garden_row.id_domain) : null;
+
+	/** @type {AuthorConnectionScope["scope"]} */
+	const scope = target_garden !== null
+		? "garden"
+		: target_domain.length > 0
+			? "domain"
+			: target_content.length > 0
+				? "content"
+				: null;
+
+	return {
+		...row,
+		scope,
+		target_garden,
+		target_domain,
+		target_content,
+	};
 }
 
 export const select = {
