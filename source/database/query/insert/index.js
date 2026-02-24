@@ -552,23 +552,25 @@ export async function content({
 		INSERT INTO content (
 			id_domain,
 			id_language,
-			date,
 			status,
 			title,
 			title_sub,
 			synopsis,
 			body,
-			requests
+			requests,
+			created_at,
+			updated_at
 		) VALUES (
 			${id_domain},
 			${id_language},
-			CURRENT_TIMESTAMP,
 			${status},
 			${title},
 			${title_sub},
 			${synopsis},
 			${body},
-			${requests}
+			${requests},
+			CURRENT_TIMESTAMP,
+			CURRENT_TIMESTAMP
 		)
 		RETURNING id
 	`;
