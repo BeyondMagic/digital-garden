@@ -265,6 +265,6 @@ export async function verify({
 }
 
 export const jwt = {
-	create,
+	// @todo: idealize refresh process so that client doesn't have to login again after token expiration, upon request we check if token is expired and if so, check if refresh token is valid and issue new access token without requiring credentials again
 	verify,
 };
