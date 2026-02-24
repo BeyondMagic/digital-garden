@@ -266,7 +266,32 @@ export async function verify({
 }
 
 export const jwt = {
-	// @todo: idealize refresh process so that client doesn't have to login again after token expiration, upon request we check if token is expired and if so, check if refresh token is valid and issue new access token without requiring credentials again
+	// @todo: Refresh process so that client doesn't have to login again after token expiration.
+	// 		- Use short-lived access tokens and separate refresh tokens (ideally per device).
+	// 		- On each request, if the access token is expired but a refresh token is present,
+	// 		- validate the refresh token (sub, device, jti, exp, signature) and, if valid,
+	// 		- issue a new access token without requiring credentials again.
+	// 		- Implement refresh token rotation: each successful refresh issues a new refresh token
+	// 		- and invalidates (revokes) the previous one so that a stolen refresh token cannot be reused.
+	// 		- Maintain refresh token expiration and a revocation/blacklist store keyed by jti (and possibly device),
+	// 		- rather than using a simple boolean map keyed only by author_id, which would be vulnerable
+	// 		- to token replay if any token for that author_id is compromised.
+	// @todo: should expand/define the following claims for instant scope validation without database queries:
+	// 		- author_id,
+	// 		- highest_scope: the most privileged scope the author has, one of "admin", "garden", "domain", "content",
+	// 		- target_id: for scopes bound to a single resource, the id of that resource
+	// 		             (for "domain" scope, the domain id; for "content" scope, the content id),
+	// 		- and maybe granular permissions (e.g., "read", "write", "admin").
+	// 		- So that integrity remains, when adding authorization on the database,
+	// 		- we check the author_id on a refresh boolean map, and when we receive the token in a request,
+	// 		- we check if the author_id is in the refresh map and refresh the token if so,
+	// 		- otherwise proceed with normal verification and scope validation.
+	// @todo: token for a client not logged-in yet, for login/reset-password flow, primarily tracked by a secure, random device
+	// 		- identifier (for example, a device token stored in a cookie or local storage) with very short expiration and
+	// 		- limited access (e.g., reading public content and creating a new token with credentials for login or email for
+	// 		- reset-password). IP address must not be treated as a stable or unique identifier, due to NAT, proxies, shared
+	// 		- networks and dynamic IPs; at most it may be used as a secondary signal (e.g., for coarse anomaly detection),
+	// 		- but never as the sole basis for authentication or session/device binding.
 	verify,
 	create,
 	TOKEN_LENGTH,
