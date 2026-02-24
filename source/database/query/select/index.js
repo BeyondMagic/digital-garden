@@ -17,7 +17,7 @@ import { assert } from "@/logger";
 export async function domain_tree(id_domain) {
 	assert(
 		typeof id_domain === "number" && id_domain > 0,
-		"domain_tree: id_domain must be a positive number"
+		"domain_tree: id_domain must be a positive number",
 	);
 
 	/** @type {Array<Domain>} */
@@ -40,25 +40,22 @@ export async function domain_tree(id_domain) {
 }
 /**
  * Build the domain tree (root to leaf) for a given array of slugs.
- * @todo Should check slug and type of each segment (subdomain/router) to ensure the correct tree is built.
- * @example
- * const tree = await domain_tree_by_slugs(["archive_v1.tar.gz", "love-love", "fanfics", "alt", "writing"]);
- * console.log(tree);
  * @param {Array<{value: string, kind: DomainKind}>} slugs
  * @returns {Promise<Array<Domain>>}
  */
 export async function domain_tree_by_slugs(slugs) {
 	assert(
 		Array.isArray(slugs) &&
-		slugs.every((slug) => (
-			typeof slug === "object" &&
-			slug !== null &&
-			typeof slug.value === "string" &&
-			slug.value.trim().length > 0 &&
-			typeof slug.kind === "string" &&
-			["SUBDOMAIN", "ROUTER"].includes(slug.kind)
-		)),
-		"domain_tree_by_slugs: slugs must be an array of non-empty strings with a valid kind (SUBDOMAIN or ROUTER)"
+		slugs.every(
+			(slug) =>
+				typeof slug === "object" &&
+				slug !== null &&
+				typeof slug.value === "string" &&
+				slug.value.trim().length > 0 &&
+				typeof slug.kind === "string" &&
+				["SUBDOMAIN", "ROUTER"].includes(slug.kind),
+		),
+		"domain_tree_by_slugs: slugs must be an array of non-empty strings with a valid kind (SUBDOMAIN or ROUTER)",
 	);
 
 	/** @type {Array<Domain>} */
@@ -84,7 +81,7 @@ export async function domain_tree_by_slugs(slugs) {
 	let parent_id = root_domain.id;
 
 	for (const slug of slugs) {
-		const [row] = /** @type {Array<Domain>} */(
+		const [row] = /** @type {Array<Domain>} */ (
 			await sql`
 			SELECT id, id_domain_parent, id_domain_redirect, kind, slug, status
 			FROM domain
@@ -109,7 +106,10 @@ export async function domain_tree_by_slugs(slugs) {
  * @returns {Promise<number>} The count of rows in the specified table.
  */
 export async function count(name) {
-	assert(typeof name === "string" && name.trim().length > 0, "count: name must be a non-empty string");
+	assert(
+		typeof name === "string" && name.trim().length > 0,
+		"count: name must be a non-empty string",
+	);
 
 	const [row] = await sql`
 		SELECT COUNT(*) AS count
@@ -131,8 +131,14 @@ export async function count(name) {
  * @returns {Promise<Asset>} The asset matching the slug and domain ID, or null if not found.
  */
 export async function asset({ slug, id_domain }) {
-	assert(typeof slug === "string" && slug.trim().length > 0, "asset: slug must be a non-empty string");
-	assert(typeof id_domain === "number" && id_domain > 0, "asset: id_domain must be a positive number");
+	assert(
+		typeof slug === "string" && slug.trim().length > 0,
+		"asset: slug must be a non-empty string",
+	);
+	assert(
+		typeof id_domain === "number" && id_domain > 0,
+		"asset: id_domain must be a positive number",
+	);
 
 	const [row] = await sql`
 		SELECT id, id_domain, slug, path
@@ -140,7 +146,10 @@ export async function asset({ slug, id_domain }) {
 		WHERE slug = ${slug} AND id_domain = ${id_domain}
 	`;
 
-	assert(row, `asset: no asset found with slug "${slug}" and id_domain ${id_domain}`);
+	assert(
+		row,
+		`asset: no asset found with slug "${slug}" and id_domain ${id_domain}`,
+	);
 
 	return row;
 }
@@ -156,7 +165,10 @@ export async function asset({ slug, id_domain }) {
  * @returns {Promise<Author>} The author matching the email address.
  */
 export async function author({ email }) {
-	assert(typeof email === "string" && email.trim().length > 0, "author: email must be a non-empty string");
+	assert(
+		typeof email === "string" && email.trim().length > 0,
+		"author: email must be a non-empty string",
+	);
 
 	const [row] = await sql`
 		SELECT id, id_asset, email, name, pages, contents
