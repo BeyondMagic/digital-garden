@@ -4,10 +4,10 @@
  */
 
 import { sql } from "bun";
+import { jwt } from "@/jwt";
 import { assert } from "@/logger";
 
-
-/** @import { Asset, Domain, DomainKind, Author } from "@/database/query" */
+/** @import { AuthorConnectionToken, AuthorConnectionInput, AuthorConnectionStatistics, Asset, Domain, DomainKind, Author } from "@/database/query" */
 
 /**
  * Build the domain tree (root to leaf) for a given domain id.
@@ -169,10 +169,36 @@ export async function author({ email }) {
 	return row;
 }
 
+/**
+ * Fetch an author connection by its token.
+ * @param {AuthorConnectionToken} input
+ * @returns {Promise<AuthorConnectionStatistics & AuthorConnectionInput}
+ */
+export async function author_connection({ token }) {
+	assert(
+		typeof token === "string" && token.trim().length === jwt.TOKEN_LENGTH,
+		`author_connection: token must be a non-empty string with exactly ${jwt.TOKEN_LENGTH} characters`,
+	);
+
+	const [row] = await sql`
+		SELECT id_author, device, logged_at, last_active_at
+		FROM author_connection
+		WHERE token = ${token}
+	`;
+
+	assert(
+		row,
+		`author_connection: no author connection found with token "${token}"`,
+	);
+
+	return row;
+}
+
 export const select = {
 	domain_tree,
 	domain_tree_by_slugs,
 	asset,
 	count,
 	author,
-}
+	author_connection,
+};

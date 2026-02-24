@@ -231,11 +231,15 @@
  * @property {number} id_author - ID of the author that has the connection.
  * @property {Date} logged_at - Timestamp of when the connection was established.
  * @property {Date} last_active_at - Timestamp of the last activity on the connection.
+ */
+
+/**
+ * @typedef {Object} AuthorConnectionToken
  * @property {string} token - Authentication token for the connection.
  */
 
 /**
- * @typedef {AuthorConnectionInput & RowIdentifier & AuthorConnectionStatistics} AuthorConnection - Full row author connection data, including the generated ID.
+ * @typedef {AuthorConnectionInput & RowIdentifier & AuthorConnectionStatistics & AuthorConnectionToken} AuthorConnection - Full row author connection data, including the generated ID.
  */
 
 /**

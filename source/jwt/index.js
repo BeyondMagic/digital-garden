@@ -9,6 +9,7 @@ import { jwt_secret } from "@/setup";
 
 const default_expires_in_seconds = 60 * 60 * 24 * 7;
 const default_required_claims = ["sub", "iat", "exp", "jti", "device"];
+export const TOKEN_LENGTH = 256; // 3 segments of 128 characters each (base64url encoding of 96 bytes) plus 2 dots
 
 /**
  * @typedef {Object} JwtClaimsInput
@@ -267,4 +268,6 @@ export async function verify({
 export const jwt = {
 	// @todo: idealize refresh process so that client doesn't have to login again after token expiration, upon request we check if token is expired and if so, check if refresh token is valid and issue new access token without requiring credentials again
 	verify,
+	create,
+	TOKEN_LENGTH,
 };
