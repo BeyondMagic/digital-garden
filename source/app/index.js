@@ -146,6 +146,7 @@ export async function handle_api({ request, method, slug }) {
 		response = await capability.handler({
 			request,
 			body,
+			token,
 			id_author,
 		});
 	} catch (err) {
