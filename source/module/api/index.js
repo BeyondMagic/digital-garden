@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { sql } from "bun";
+import { select } from "@/database/query/select";
+import { assert } from "@/logger";
 import { create_register, create_remove, get } from "@/module/api/capability";
 
 /**
@@ -10,6 +13,11 @@ import { create_register, create_remove, get } from "@/module/api/capability";
  */
 
 /**
+ * @typedef {Object} RequestCapability
+ * @property {Request} request - The incoming HTTP request object.
+ * @property {Object | null} body - The parsed JSON body of the request.
+ * @property {number | null} id_author - The ID of the authenticated author making the request (null if unauthenticated).
+ */
 
 /**
  * Scope levels for access control in capabilities.
@@ -19,10 +27,14 @@ import { create_register, create_remove, get } from "@/module/api/capability";
  * @typedef {"garden" | "domain" | "content"} Scope
  */
 
+/**
+ * Scope levels for access control in capabilities.
+ * 1. **garden**: grants access to the entire garden (all domains and content)
  * 2. **domain**: grants access to specific domains and its subdomains
  * 3. **content**: grants access to specific content items
- * 4. **author**: grants access to specific author-related actions and data (garden can aslo be used for this)
  * 5. **null**:: indicates no specific scope (guest access)
+ * @typedef {Scope | null} ScopeCapability
+ */
 
 /**
  * @typedef {Object} ValidateScopeInput
@@ -30,6 +42,17 @@ import { create_register, create_remove, get } from "@/module/api/capability";
  * @property {number} id_author - The ID of the authenticated author making the request.
  * @property {number | null} id_target - Must have target if scope is 'domain' or 'content', must not have target if scope is 'garden'.
  */
+
+/**
+ * @param {RequestCapability} _
+ * @returns {Promise<Response>}
+ */
+export async function not_implemented(_) {
+	return new Response("Not implemented", {
+		status: 501,
+		headers: { "content-type": "text/plain" },
+	});
+}
 
 /**
  * Validates if the provided token has the required scope for accessing a capability, optionally checking against a specific target identifier for more granular permissions.
@@ -95,11 +118,11 @@ export async function validate_scope({ scope, id_target, id_author }) {
 }
 
 /**
-* @typedef {Object} Author - Information about an author.
-* @property {string} name - Name of the author.
-* @property {string | null} url - URL to the author's website or profile.
-* @property {string | null} email - Email address of the author.
-*/
+ * @typedef {Object} Author - Information about an author.
+ * @property {string} name - Name of the author.
+ * @property {string | null} url - URL to the author's website or profile.
+ * @property {string | null} email - Email address of the author.
+ */
 
 /**
  * Version information of the module (semantic versioning).
@@ -112,26 +135,20 @@ export async function validate_scope({ scope, id_target, id_author }) {
  */
 
 /**
- * @template T
  * @callback AsyncResponseFunction
- * @param {T} data - Input parameter
+ * @param {RequestCapability} context - The context of the incoming request, including the request object, parsed body, and authenticated author ID.
  * @returns {Promise<Response>}
  */
 
 /**
- * @typedef {'admin' | 'garden' | 'domain' | 'content' | null} Scope - Scope types for module capabilities.
- */
-
-/**
- * @template T
  * @typedef {Object} Capability - Information about a module capability of adapter action.
  * @property {string} name - Human-readable name of the capability.
  * @property {string} description - Description of the capability.
  * @property {HTTPMethod} method - HTTP method (e.g., GET, POST, PUT, DELETE).
  * @property {string} slug - Unique identifier for the capability.
- * @property {Scope} scope - Scope of the capability, requires **ID target** and **token** if set.
- * @property {AsyncResponseFunction<T>} handler - Function that implements the capability's functionality, receives context and parameters as arguments.
+ * @property {AsyncResponseFunction} handler - Function that implements the capability's functionality, receives context and parameters as arguments.
  * @property {string | null} deprecation - Message providing details about the deprecation.
+ * @property {ScopeCapability} scope - The required scope for accessing the capability, determining the level of access control.
  * @property {Object | null} input - Schema defining the expected input parameters for the capability, used for validation and documentation purposes.
  * @property {Object | null} output - Schema defining the expected output structure for the capability, used for validation and documentation purposes.
  */
@@ -143,7 +160,7 @@ export async function validate_scope({ scope, id_target, id_author }) {
  */
 export async function json_to_response(data) {
 	return new Response(JSON.stringify(data), {
-		headers: { "Content-Type": "application/json" }
+		headers: { "Content-Type": "application/json" },
 	});
 }
 
@@ -204,7 +221,7 @@ export class Module {
 		// @ts-expect-error
 		minor: null,
 		// @ts-expect-error
-		patch: null
+		patch: null,
 	};
 
 	/**
@@ -228,7 +245,7 @@ export class Module {
 	 * List of capabilities provided by the module.
 	 * @abstract
 	 * @static
-	 * @type {Array<Capability<any>>}
+	 * @type {Array<Capability>}
 	 */
 	// @ts-expect-error
 	static capabilities = "Disable this deprecation warning.";
@@ -249,7 +266,6 @@ export class Module {
 	 */
 }
 
-
 /**
  * @description Namespace for the digital garden module system, exposing the base Module class and other relevant types and utilities for module development.
  * @global
@@ -261,9 +277,10 @@ export const api = {
 		create_register,
 		create_remove,
 	},
-	json_to_response
+	json_to_response,
+	not_implemented
 };
 
 globalThis["digital-garden"] = api;
 
-// module.exports = api;
+module.exports = api;
