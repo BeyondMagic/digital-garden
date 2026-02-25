@@ -30,6 +30,7 @@ export const TOKEN_LENGTH = 256; // 3 segments of 128 characters each (base64url
  * @property {string=} [secret] Secret key used for HMAC SHA-256 verification.
  * @property {Array<string>=} [required_claims] Required claim keys in payload.
  * @property {number=} [now] Current timestamp in seconds for expiration checks.
+ * @property {boolean=} [enforce_connection] Whether to enforce active author_connection row check for numeric sub.
  */
 
 /**
@@ -218,11 +219,13 @@ export async function verify({
 	secret = jwt_secret,
 	required_claims = default_required_claims,
 	now = unix_timestamp_seconds(),
+	enforce_connection = true,
 }) {
 	assert(typeof token === "string" && token.trim().length > 0, "jwt_verify: token must be a non-empty string");
 	assert(typeof secret === "string" && secret.length >= 32, "jwt_verify: secret must be a string with at least 32 characters");
 	assert(Array.isArray(required_claims), "jwt_verify: required_claims must be an array");
 	assert(typeof now === "number" && Number.isFinite(now), "jwt_verify: now must be a number");
+	assert(typeof enforce_connection === "boolean", "jwt_verify: enforce_connection must be a boolean");
 
 	const parts = token.split(".");
 
@@ -268,7 +271,7 @@ export async function verify({
 
 	const maybe_id_author = Number(typed_payload.sub);
 
-	if (Number.isInteger(maybe_id_author) && maybe_id_author > 0) {
+	if (enforce_connection && Number.isInteger(maybe_id_author) && maybe_id_author > 0) {
 		const [row] = await sql`
 			SELECT EXISTS(
 				SELECT 1

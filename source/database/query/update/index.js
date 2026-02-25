@@ -40,8 +40,7 @@ async function fall_back_data(path) {
 		file_stats = await lstat(path);
 	} catch (error) {
 		throw new Error(
-			`fall_back_data: failed to stat file at path ${path}: ${
-				error instanceof Error ? error.message : String(error)
+			`fall_back_data: failed to stat file at path ${path}: ${error instanceof Error ? error.message : String(error)
 			}`,
 		);
 	}
@@ -54,8 +53,7 @@ async function fall_back_data(path) {
 		blob = Bun.file(path);
 	} catch (error) {
 		throw new Error(
-			`fall_back_data: failed to read file at path ${path}: ${
-				error instanceof Error ? error.message : String(error)
+			`fall_back_data: failed to read file at path ${path}: ${error instanceof Error ? error.message : String(error)
 			}`,
 		);
 	}
@@ -139,6 +137,22 @@ export async function asset({
 	});
 }
 
+/**
+ * @todo: Implement content update function, ensuring that it properly handles updates to content fields and maintains data integrity.
+ */
+// export async function content({
+// 	id_domain,
+// 	id_language,
+// 	status,
+// 	title,
+// 	title_sub,
+// 	synopsis,
+// 	body
+// }) {
+
+// }
+
 export const update = {
 	asset,
+	// content,
 };

@@ -23,7 +23,7 @@ import { assert } from "@/logger";
 export async function domain_tree({ id_domain }) {
 	assert(
 		typeof id_domain === "number" && id_domain > 0,
-		"domain_tree: id_domain must be a positive number",
+		`domain_tree: id_domain must be a positive number, received ${id_domain}`,
 	);
 
 	/** @type {Array<Domain>} */

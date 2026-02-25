@@ -96,7 +96,14 @@ function extract_token(request) {
  * @returns {Promise<number | null>} - The extracted author ID if the token is valid and contains a valid subject, otherwise null.
  */
 async function extract_id_author(token) {
-	const payload = await jwt.verify({ token });
+	let payload;
+
+	try {
+		payload = await jwt.verify({ token });
+	} catch {
+		return null;
+	}
+
 	const subject = payload.sub;
 
 	if (typeof subject === "string") {

@@ -158,6 +158,32 @@ author_connection.exists = async () => {
 	return exists("author_connection");
 }
 
+async function author_refresh_connection() {
+	await sql`
+		CREATE TABLE author_refresh_connection (
+			id SERIAL PRIMARY KEY,
+			id_author INTEGER NOT NULL REFERENCES author(id) ON DELETE CASCADE,
+			device VARCHAR(256) NOT NULL,
+			token VARCHAR(512) UNIQUE NOT NULL,
+			expires_at TIMESTAMP NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+			CONSTRAINT author_refresh_connection_author_device_unique UNIQUE(id_author, device),
+			CONSTRAINT author_refresh_connection_device_not_empty CHECK (char_length(btrim(device)) > 0),
+			CONSTRAINT author_refresh_connection_token_not_empty CHECK (char_length(btrim(token)) > 0)
+		);
+	`;
+
+	await sql`
+		CREATE INDEX IF NOT EXISTS author_refresh_connection_expires_at_index
+		ON author_refresh_connection (expires_at)
+	`;
+}
+
+author_refresh_connection.exists = async () => {
+	return exists("author_refresh_connection");
+}
+
 async function author_domain() {
 	await sql`
 		CREATE TABLE author_domain (
@@ -285,6 +311,7 @@ async function content() {
 			title_sub VARCHAR(512) NOT NULL,
 			synopsis VARCHAR(512) NOT NULL,
 			body TEXT NOT NULL,
+			requests INTEGER NOT NULL, -- @todo: consider moving to a separate table for statistics
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL,
 			CONSTRAINT content_unique_pair UNIQUE(id_domain, id_language),
@@ -371,6 +398,7 @@ export const tables = {
 	content_link,
 	author,
 	author_connection,
+	author_refresh_connection,
 	author_domain,
 	garden,
 	garden_information,

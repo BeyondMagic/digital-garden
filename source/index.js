@@ -6,7 +6,6 @@
 import { serve } from "bun";
 import { app } from "@/app";
 import { select } from "@/database/query/select";
-import { jwt } from "@/jwt";
 import {
     assert,
     create_critical,
@@ -134,25 +133,6 @@ async function fetch(req, server) {
     const domains = slugs.map((slug) => slug.value);
     info(`Domains\t→ [${domains.join(", ") || ""}]`);
     info(`Domains length\t→ ${domains.length}`);
-
-    const token = extract_bearer_token(req);
-    let id_author = null;
-
-    if (token) {
-        try {
-            const payload = await jwt.verify({ token });
-            const subject = payload.sub;
-
-            if (typeof subject === "string") {
-                const parsed_author_id = Number(subject);
-
-                if (Number.isInteger(parsed_author_id) && parsed_author_id > 0)
-                    id_author = parsed_author_id;
-            }
-        } catch {
-            id_author = null;
-        }
-    }
 
     const domain_tree = await select.domain_tree_by_slugs(slugs);
     info(`Domain tree length\t→ ${domain_tree.length}`);

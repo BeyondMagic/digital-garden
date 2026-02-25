@@ -50,7 +50,7 @@ export async function build_asset_path(id_domain, slug) {
 	if (typeof slug !== "string" || slug.trim().length === 0)
 		throw new TypeError("build_asset_path: slug must be a non-empty string");
 
-	const domain_tree_path = await select.domain_tree(id_domain);
+	const domain_tree_path = await select.domain_tree({ id_domain });
 	const domain_path = domain_tree_path.map((domain) => domain.slug).join("/");
 
 	const file_path = join(public_root, domain_path, slug);

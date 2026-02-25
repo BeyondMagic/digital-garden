@@ -15,6 +15,7 @@ import { jwt } from "@/jwt";
 import { assert, create_warn } from "@/logger";
 
 const warn = create_warn(import.meta.path);
+const refresh_expires_in_seconds = 60 * 60 * 24 * 30;
 
 /** @import {AuthorContentInput, AuthorConnectionCredentials, AuthorDomainInput, AuthorConnectionInput, AuthorInput, GardenInformationInput, GardenInput, ContentLinkInput, ContentInput, DomainTagInput, TagInformationInput, TagRequirementInput, TagInput, AssetInformationInput, LanguageInput, LanguageInformationInput, ModuleInput, AssetInput, AssetData, DomainInput} from "@/database/query"; */
 
@@ -756,7 +757,7 @@ export async function author({
 
 /**
  * @param {AuthorConnectionCredentials & AuthorConnectionInput & SQLObject} author_connection Author connection information to insert.
- * @returns {Promise<string>} Inserted author connection token.
+ * @returns {Promise<{ access_token: string, refresh_token: string }>} Inserted access and refresh connection tokens.
  */
 export async function author_connection({
 	email,
@@ -816,35 +817,157 @@ export async function author_connection({
 	);
 	assert(is_password_correct, "author_connection: incorrect password");
 
-	const token = await jwt.create({
+	const access_token = await jwt.create({
 		sub: String(author_row.id),
 		device,
 		claims: { email },
 	});
 
-	const [row] = await sql`
-		INSERT INTO author_connection (
-			id_author,
-			device,
-			token,
-			logged_at,
-			last_active_at
-		) VALUES (
-			${author_row.id},
-			${device},
-			${token},
-			CURRENT_TIMESTAMP,
-			CURRENT_TIMESTAMP
-		)
-		RETURNING id
-	`;
+	const refresh_token = await jwt.create({
+		sub: String(author_row.id),
+		device,
+		expires_in_seconds: refresh_expires_in_seconds,
+		claims: { purpose: "refresh" },
+	});
+
+	const refresh_expires_at = new Date(Date.now() + refresh_expires_in_seconds * 1000);
+
+	const [row] = await sql.begin(async (sql) => {
+		await sql`
+			DELETE FROM author_connection
+			WHERE id_author = ${author_row.id} AND device = ${device}
+		`;
+
+		const [connection_row] = await sql`
+			INSERT INTO author_connection (
+				id_author,
+				device,
+				token,
+				logged_at,
+				last_active_at
+			) VALUES (
+				${author_row.id},
+				${device},
+				${access_token},
+				CURRENT_TIMESTAMP,
+				CURRENT_TIMESTAMP
+			)
+			RETURNING id
+		`;
+
+		await sql`
+			INSERT INTO author_refresh_connection (
+				id_author,
+				device,
+				token,
+				expires_at,
+				created_at,
+				updated_at
+			) VALUES (
+				${author_row.id},
+				${device},
+				${refresh_token},
+				${refresh_expires_at},
+				CURRENT_TIMESTAMP,
+				CURRENT_TIMESTAMP
+			)
+			ON CONFLICT (id_author, device)
+			DO UPDATE SET
+				token = EXCLUDED.token,
+				expires_at = EXCLUDED.expires_at,
+				updated_at = CURRENT_TIMESTAMP
+		`;
+
+		return [connection_row];
+	});
 
 	assert(
 		row.id,
 		"insert_author_connection: failed to insert author connection",
 	);
 
-	return token;
+	return {
+		access_token,
+		refresh_token,
+	};
+}
+
+/**
+ * @param {{ id_author: number, device: string, refresh_token: string } & SQLObject} input
+ * @returns {Promise<{ access_token: string, refresh_token: string }>}
+ */
+export async function author_connection_refresh_rotate({
+	id_author,
+	device,
+	refresh_token,
+	sql = sql_exec,
+}) {
+	assert(typeof id_author === "number" && Number.isInteger(id_author) && id_author > 0, "author_connection_refresh_rotate: id_author must be a positive integer");
+	assert(typeof device === "string" && device.trim().length > 0, "author_connection_refresh_rotate: device must be a non-empty string");
+	assert(typeof refresh_token === "string" && refresh_token.trim().length > 0, "author_connection_refresh_rotate: refresh_token must be a non-empty string");
+
+	const now = new Date();
+
+	const [refresh_row] = await sql`
+		SELECT id
+		FROM author_refresh_connection
+		WHERE id_author = ${id_author}
+			AND device = ${device}
+			AND token = ${refresh_token}
+			AND expires_at > ${now}
+	`;
+
+	assert(refresh_row, "author_connection_refresh_rotate: refresh token is not active");
+
+	const new_access_token = await jwt.create({
+		sub: String(id_author),
+		device,
+	});
+
+	const new_refresh_token = await jwt.create({
+		sub: String(id_author),
+		device,
+		expires_in_seconds: refresh_expires_in_seconds,
+		claims: { purpose: "refresh" },
+	});
+
+	const refresh_expires_at = new Date(Date.now() + refresh_expires_in_seconds * 1000);
+
+	await sql.begin(async (sql) => {
+		await sql`
+			DELETE FROM author_connection
+			WHERE id_author = ${id_author} AND device = ${device}
+		`;
+
+		await sql`
+			INSERT INTO author_connection (
+				id_author,
+				device,
+				token,
+				logged_at,
+				last_active_at
+			) VALUES (
+				${id_author},
+				${device},
+				${new_access_token},
+				CURRENT_TIMESTAMP,
+				CURRENT_TIMESTAMP
+			)
+		`;
+
+		await sql`
+			UPDATE author_refresh_connection
+			SET token = ${new_refresh_token},
+				expires_at = ${refresh_expires_at},
+				updated_at = CURRENT_TIMESTAMP
+			WHERE id = ${refresh_row.id}
+		`;
+	});
+
+	return {
+		access_token: new_access_token,
+		refresh_token: new_refresh_token,
+	};
 }
 
 /**
@@ -933,6 +1056,7 @@ export const insert = {
 	garden_information,
 	author,
 	author_connection,
+	author_connection_refresh_rotate,
 	author_domain,
 	author_content,
 	module: insert_module,

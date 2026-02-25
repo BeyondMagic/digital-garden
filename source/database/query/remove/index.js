@@ -146,9 +146,31 @@ export async function author_connection({ token }) {
 	`;
 }
 
+/**
+ * @param {{token: string}} param0
+ */
+export async function author_refresh_connection({ token }) {
+	await sql`
+		DELETE FROM author_refresh_connection
+		WHERE token = ${token}
+	`;
+}
+
+/**
+ * @param {{id_author: number, device: string}} param0
+ */
+export async function author_refresh_connection_by_device({ id_author, device }) {
+	await sql`
+		DELETE FROM author_refresh_connection
+		WHERE id_author = ${id_author} AND device = ${device}
+	`;
+}
+
 export const remove = {
 	asset,
 	domain,
 	garden,
 	author_connection,
+	author_refresh_connection,
+	author_refresh_connection_by_device,
 };
