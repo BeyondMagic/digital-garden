@@ -15,7 +15,7 @@ import { create_register, create_remove, get } from "@/module/api/capability";
 /**
  * @typedef {Object} RequestCapability
  * @property {Request} request - The incoming HTTP request object.
- * @property {Object | null} body - The parsed JSON body of the request.
+ * @property {unknown | null} body - The parsed JSON body of the request.
  * @property {number | null} id_author - The ID of the authenticated author making the request (null if unauthenticated).
  */
 
