@@ -10,14 +10,89 @@ import { create_register, create_remove, get } from "@/module/api/capability";
  */
 
 /**
- * Scope to determine the level of access for a capability:
- * 1. **garden**: grants access to the entire garden
+
+/**
+ * Scope levels for access control in capabilities.
+ * 1. **garden**: grants access to the entire garden (all domains and content)
+ * 2. **domain**: grants access to specific domains and its subdomains
+ * 3. **content**: grants access to specific content items
+ * @typedef {"garden" | "domain" | "content"} Scope
+ */
+
  * 2. **domain**: grants access to specific domains and its subdomains
  * 3. **content**: grants access to specific content items
  * 4. **author**: grants access to specific author-related actions and data (garden can aslo be used for this)
  * 5. **null**:: indicates no specific scope (guest access)
- * @typedef {"garden" | "domain" | "content" | "author" | null} Scope
+
+/**
+ * @typedef {Object} ValidateScopeInput
+ * @property {Scope} scope - The required scope to check for in the token's claims.
+ * @property {number} id_author - The ID of the authenticated author making the request.
+ * @property {number | null} id_target - Must have target if scope is 'domain' or 'content', must not have target if scope is 'garden'.
  */
+
+/**
+ * Validates if the provided token has the required scope for accessing a capability, optionally checking against a specific target identifier for more granular permissions.
+ * @example
+ * const granted = await validate_scope({ id_author, scope: "garden" });
+ * const granted = await validate_scope({ id_author, scope: "domain", target: 123 });
+ * const granted = await validate_scope({ id_author, scope: "content", target: 456 });
+ * const granted = await validate_scope({ id_author, scope: "author", target: 789 });
+ * @param {ValidateScopeInput} input
+ * @returns {Promise<boolean>} - Returns true if the token has the required scope, false otherwise.
+ */
+export async function validate_scope({ scope, id_target, id_author }) {
+	assert(
+		typeof id_author === "number" && Number.isInteger(id_author) && id_author > 0,
+		"Invalid author ID",
+	);
+	assert(
+		typeof scope === "string" &&
+		["garden", "domain", "content"].includes(scope),
+		"Invalid scope value",
+	);
+	assert(
+		scope !== "garden" || id_target === undefined,
+		`Target must not be provided for scope '${scope}'`,
+	);
+	assert(
+		!["domain", "content"].includes(scope) ||
+		(typeof id_target === "number" && Number.isInteger(id_target) && id_target > 0),
+		`Target must be a number for scope '${scope}'`,
+	);
+
+	switch (scope) {
+		case "garden": {
+			const [row] = await sql`
+				SELECT EXISTS(
+					SELECT 1
+					FROM garden
+					WHERE id_author = ${id_author}
+				) AS granted
+			`;
+			return Boolean(row?.granted);
+		}
+		case "content": {
+			const content_target = /** @type {number} */ (id_target);
+
+			const [row] = await sql`
+				SELECT EXISTS(
+					SELECT 1
+					FROM author_content ac
+					WHERE ac.id_author = ${id_author} AND ac.id_content = ${content_target}
+				) AS granted
+			`;
+			return Boolean(row?.granted);
+		}
+		case "domain": {
+			const domain_target = /** @type {number} */ (id_target);
+			return await select.domain_tree_author_exists({
+				id_domain: domain_target,
+				id_author,
+			});
+		}
+	}
+}
 
 /**
 * @typedef {Object} Author - Information about an author.
