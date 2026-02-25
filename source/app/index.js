@@ -131,7 +131,15 @@ export async function handle_api({ request, method, slug }) {
 	/** @type {Response} */
 	let response;
 	try {
-		const body = /** @type {Object | null} */ (request.body ? await request.json() : null);
+		/** @type {unknown | null} */
+		let body = null;
+
+		try {
+			body = await request.json();
+		} catch (_) {
+			body = null;
+		}
+
 		const token = extract_token(request);
 		const id_author = token ? await extract_id_author(token) : null;
 
