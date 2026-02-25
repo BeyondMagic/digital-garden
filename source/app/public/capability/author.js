@@ -7,34 +7,30 @@ import { insert } from "@/database/query/insert";
 import { remove } from "@/database/query/remove";
 import { json_to_response, not_implemented } from "@/module/api";
 
+
 /**
- * @import { Capability } from "@/module/api"
+ * @import { RequestCapability, Capability } from "@/module/api"
  */
 
 /**
- * @param {Request} request
+ * @param {RequestCapability} input
  * @return {Promise<Response>}
  */
-async function author_login(request) {
-	const body = /** @type {{email: string, password: string}} */ (
-		await request.json()
+async function author_login({ body }) {
+	const { email, password } = /** @type {{email: string, password: string}} */ (
+		body
 	);
 
-	const { email, password } = body;
-
 	/**
-	 * @type {{token: string}}
+	 * @type {string}
 	 */
-	const result = {
-		// @ts-expect-error
-		token: null,
-	};
+	let token;
 
 	try {
-		result.token = await insert.author_connection({
+		token = await insert.author_connection({
 			email,
 			password,
-			device: "web", // @todo: get device info from request
+			device: "web" /** @todo: get device info from request */,
 		});
 	} catch {
 		return new Response("Invalid email or password", {
@@ -43,7 +39,7 @@ async function author_login(request) {
 		});
 	}
 
-	return json_to_response(result);
+	return json_to_response({ token });
 }
 
 /**
