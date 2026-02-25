@@ -46,6 +46,63 @@ export async function domain_tree({ id_domain }) {
 }
 
 /**
+ * @typedef {Object} DomainTreeAuthorExistsInput
+ * @property {number} id_domain - The starting domain id to validate against ancestor grants.
+ * @property {number} id_author - The author id to check in author_domain.
+ */
+
+/**
+ * Check whether an author has direct grant in the target domain or any ancestor domain.
+ * Uses recursive EXISTS and stops climbing once a granted ancestor is found.
+ * @param {DomainTreeAuthorExistsInput} input
+ * @returns {Promise<boolean>}
+ */
+export async function domain_tree_author_exists({ id_domain, id_author }) {
+	assert(
+		typeof id_domain === "number" && id_domain > 0,
+		"domain_tree_author_exists: id_domain must be a positive number",
+	);
+	assert(
+		typeof id_author === "number" && Number.isInteger(id_author) && id_author > 0,
+		"domain_tree_author_exists: id_author must be a positive integer",
+	);
+
+	const [row] = await sql`
+		WITH RECURSIVE domain_chain AS (
+			SELECT
+				d.id_domain_parent,
+				EXISTS(
+					SELECT 1
+					FROM author_domain ad
+					WHERE ad.id_author = ${id_author} AND ad.id_domain = d.id
+				) AS granted
+			FROM domain d
+			WHERE d.id = ${id_domain}
+
+			UNION ALL
+
+			SELECT
+				d.id_domain_parent,
+				EXISTS(
+					SELECT 1
+					FROM author_domain ad
+					WHERE ad.id_author = ${id_author} AND ad.id_domain = d.id
+				) AS granted
+			FROM domain d
+			INNER JOIN domain_chain dc ON dc.id_domain_parent = d.id
+			WHERE dc.granted = FALSE
+		)
+		SELECT EXISTS(
+			SELECT 1
+			FROM domain_chain
+			WHERE granted = TRUE
+		) AS granted
+	`;
+
+	return Boolean(row?.granted);
+}
+
+/**
  * @typedef {Object} DomainTreeBySlugsInput
  * @property {Array<{value: string, kind: DomainKind}>} slugs - An array of objects containing the slug value and its corresponding domain kind (SUBDOMAIN or ROUTER) to build the tree for.
  * @property {number | null} id_author - The ID of the author to check for direct access to domains in the tree (optional, can be used for more efficient scope validation).
@@ -234,6 +291,7 @@ export async function author({ email }) {
 
 export const select = {
 	domain_tree,
+	domain_tree_author_exists,
 	domain_tree_by_slugs,
 	asset,
 	count,
