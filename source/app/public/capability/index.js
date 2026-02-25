@@ -12,12 +12,12 @@ import { capability as api } from "@/module/api/capability";
 
 const debug = create_debug(import.meta.path);
 
-const capabilities = {
+const capabilities = [
 	...asset,
 	...author,
 	...content,
 	...domain,
-};
+];
 
 export async function setup() {
 	debug("Setting up server capabilities...", { step: { current: 1, max: 3 } });
