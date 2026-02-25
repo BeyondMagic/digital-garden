@@ -13,7 +13,7 @@ const info = create_info(import.meta.path);
 
 /**
  * Capability registry to store and manage module capabilities.
- * @type {Map<string, Capability<any>>}
+ * @type {Map<string, Capability>}
  */
 const capabilities = new Map();
 
@@ -23,19 +23,19 @@ const capabilities = new Map();
  */
 const modules_slugs = new Set();
 
-const slug_pattern = /^(?!\/)(?!.*\/\/)(?!.*\/$)[a-z0-9]+(-[a-z0-9]+)*(\/[a-z0-9]+(-[a-z0-9]+)*)*$/;
+const slug_pattern =
+	/^(?!\/)(?!.*\/\/)(?!.*\/$)[a-z0-9]+(-[a-z0-9]+)*(\/[a-z0-9]+(-[a-z0-9]+)*)*$/;
 
 /**
  * Validates a slug string against the defined pattern.
- * 
+ *
  * Pattern explanation:
  * - Examples of valid slugs: "module/action", "module/action/subaction", "module-123/action".
  * @param {string} slug Slug to validate.
  * @returns {Promise<boolean>} True if the slug is valid, false otherwise.
  */
 async function validate_slug(slug) {
-	if (typeof slug !== "string" || !slug_pattern.test(slug))
-		return false;
+	if (typeof slug !== "string" || !slug_pattern.test(slug)) return false;
 
 	return true;
 }
@@ -44,55 +44,55 @@ validate_slug.test = async () => {
 	const slugs = [
 		{
 			str: "/double/slash",
-			valid: false
+			valid: false,
 		},
 		{
 			str: "invalid-slug/",
-			valid: false
+			valid: false,
 		},
 		{
 			str: "valid-slug",
-			valid: true
+			valid: true,
 		},
 		{
 			str: "valid123-slug/subslug",
-			valid: true
+			valid: true,
 		},
 		{
 			str: "Invalid_Slug",
-			valid: false
+			valid: false,
 		},
 		{
 			str: "-starts-with-hyphen",
-			valid: false
+			valid: false,
 		},
 		{
 			str: "starts-with-hyphen-",
-			valid: false
+			valid: false,
 		},
 		{
 			str: "deep/nested/slug",
-			valid: true
+			valid: true,
 		},
 		{
 			str: "UPPERCASE/slug",
-			valid: false
-		}
-	]
+			valid: false,
+		},
+	];
 
-	const table = slugs.map(async slug => {
+	const table = slugs.map(async (slug) => {
 		const result = await validate_slug(slug.str);
 		return {
 			slug: slug.str,
 			valid: slug.valid,
 			result: result,
-			expected: slug.valid == result
+			expected: slug.valid === result,
 		};
 	});
 	const result_table = await Promise.all(table);
 
-	info(result_table)
-}
+	info(result_table);
+};
 
 /**
  * Generates an error message for an invalid slug.
@@ -105,12 +105,11 @@ async function invalid_slug_message(slug) {
 
 /**
  * @param {HTTPMethod} method
- * @param {string} slug 
- * @param {Capability<any>} capability 
+ * @param {string} slug
+ * @param {Capability} capability
  */
 export async function register(method, slug, capability) {
-
-	if (!await validate_slug(slug))
+	if (!(await validate_slug(slug)))
 		throw new Error(await invalid_slug_message(slug));
 
 	const id = method + "/" + slug;
@@ -126,13 +125,12 @@ export async function register(method, slug, capability) {
 /**
  * @param {HTTPMethod} method
  * @param {string} slug
- * @returns {Promise<Capability<any>>}
+ * @returns {Promise<Capability>}
  */
 export async function get(method, slug) {
-
 	info(`Getting capability\t→ ${method}/${slug}`);
 
-	if (!await validate_slug(slug))
+	if (!(await validate_slug(slug)))
 		throw new Error(await invalid_slug_message(slug));
 
 	const id = method + "/" + slug;
@@ -150,8 +148,7 @@ export async function get(method, slug) {
  * @param {string} slug
  */
 export async function remove(method, slug) {
-
-	if (!await validate_slug(slug))
+	if (!(await validate_slug(slug)))
 		throw new Error(await invalid_slug_message(slug));
 
 	const id = method + "/" + slug;
@@ -167,8 +164,7 @@ export async function remove(method, slug) {
  * @param {string} module_slug Module capability slug.
  */
 export async function create_register(module_slug) {
-
-	if (!await validate_slug(module_slug))
+	if (!(await validate_slug(module_slug)))
 		throw new Error(await invalid_slug_message(module_slug));
 
 	if (modules_slugs.has(module_slug))
@@ -180,12 +176,12 @@ export async function create_register(module_slug) {
 	 * Registers a capability handler for a specific module.
 	 * @param {HTTPMethod} method HTTP method for the capability.
 	 * @param {string} slug Unique identifier for the capability within the module.
-	 * @param {Capability<any>} capability The capability information object containing details about the capability, including the handler function.
+	 * @param {Capability} capability The capability information object containing details about the capability, including the handler function.
 	 */
-	return async function (method, slug, capability) {
+	return async (method, slug, capability) => {
 		const resolved_slug = "module/" + module_slug + "/" + slug;
 		return await register(method, resolved_slug, capability);
-	}
+	};
 }
 
 /**
@@ -193,8 +189,7 @@ export async function create_register(module_slug) {
  * @param {string} module_slug Module capability slug.
  */
 export async function create_remove(module_slug) {
-
-	if (!await validate_slug(module_slug))
+	if (!(await validate_slug(module_slug)))
 		throw new Error(await invalid_slug_message(module_slug));
 
 	/**
@@ -202,10 +197,10 @@ export async function create_remove(module_slug) {
 	 * @param {HTTPMethod} method HTTP method for the capability.
 	 * @param {string} slug Unique identifier for the capability within the module.
 	 */
-	return async function (method, slug) {
+	return async (method, slug) => {
 		const resolved_slug = "module/" + module_slug + "/" + slug;
 		return await remove(method, resolved_slug);
-	}
+	};
 }
 
 export const capability = {
@@ -213,5 +208,5 @@ export const capability = {
 	get,
 	remove,
 	create_register,
-	create_remove
-}
+	create_remove,
+};
