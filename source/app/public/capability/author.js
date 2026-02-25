@@ -43,16 +43,13 @@ async function author_login({ body }) {
 }
 
 /**
- * @param {Request} request
+ * @param {RequestCapability} input
  * @returns {Promise<Response>}
  */
-async function author_logout(request) {
-	const body = /** @type {{token: string}} */ (await request.json());
-
-	const { token } = body;
+async function author_logout({ token }) {
 
 	await remove.author_connection({
-		token,
+		token: token ?? "",
 	});
 
 	return new Response(null, { status: 204 });
