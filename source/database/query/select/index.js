@@ -114,10 +114,10 @@ export async function domain_tree_author_exists({ id_domain, id_author }) {
 
 /**
  * Build the domain tree (root to leaf) for a given array of slugs.
- * @param {DomainTreeBySlugsInput} input
- * @returns {Promise<Array<DomainWithGrant>>}
+ * @param {Array<{value: string, kind: DomainKind}>} slugs
+ * @returns {Promise<Array<Domain>>}
  */
-export async function domain_tree_by_slugs({ slugs, id_author }) {
+export async function domain_tree_by_slugs(slugs) {
 	assert(
 		Array.isArray(slugs) &&
 		slugs.every(
@@ -131,79 +131,45 @@ export async function domain_tree_by_slugs({ slugs, id_author }) {
 		),
 		"domain_tree_by_slugs: slugs must be an array of non-empty strings with a valid kind (SUBDOMAIN or ROUTER)",
 	);
-	assert(
-		id_author === null || (typeof id_author === "number" && Number.isInteger(id_author) && id_author > 0),
-		"domain_tree_by_slugs: id_author must be null or a positive integer",
-	);
 
-	const encoded_slugs = JSON.stringify(slugs);
+	/** @type {Array<Domain>} */
+	const tree = [];
 
-	/** @type {Array<DomainWithGrant>} */
-	const tree = await sql`
-		WITH RECURSIVE
-		root_domain AS (
-			SELECT
-				d.id,
-				d.id_domain_parent,
-				d.id_domain_redirect,
-				d.kind,
-				d.slug,
-				d.status
-			FROM domain d
-			INNER JOIN garden g ON g.id_domain = d.id
-		),
-		input_slugs AS (
-			SELECT
-				ordinality::INTEGER AS position,
-				(item->>'value')::TEXT AS value,
-				(item->>'kind')::TEXT AS kind
-			FROM jsonb_array_elements(${encoded_slugs}::JSONB) WITH ORDINALITY AS item(item, ordinality)
-		),
-		domain_path AS (
-			SELECT
-				0 AS position,
-				rd.id,
-				rd.id_domain_parent,
-				rd.id_domain_redirect,
-				rd.kind,
-				rd.slug,
-				rd.status
-			FROM root_domain rd
-
-			UNION ALL
-
-			SELECT
-				dp.position + 1 AS position,
-				d.id,
-				d.id_domain_parent,
-				d.id_domain_redirect,
-				d.kind,
-				d.slug,
-				d.status
-			FROM domain_path dp
-			INNER JOIN input_slugs input ON input.position = dp.position + 1
-			INNER JOIN domain d
-				ON d.id_domain_parent = dp.id
-				AND d.slug = input.value
-				AND d.kind = input.kind::TYPE_DOMAIN
-		)
+	/** @type {Array<Domain>} */
+	const [root_domain] = await sql`
 		SELECT
-			dp.id,
-			dp.id_domain_parent,
-			dp.id_domain_redirect,
-			dp.kind,
-			dp.slug,
-			dp.status,
-			CASE
-				WHEN ${id_author}::INTEGER IS NULL THEN FALSE
-				ELSE ad.id_author IS NOT NULL
-			END AS granted
-		FROM domain_path dp
-		LEFT JOIN author_domain ad
-			ON ad.id_author = ${id_author}
-			AND ad.id_domain = dp.id
-		ORDER BY dp.position ASC
+			domain.id,
+			domain.id_domain_parent,
+			domain.id_domain_redirect,
+			domain.kind,
+			domain.slug,
+			domain.status
+		FROM domain
+		INNER JOIN garden ON garden.id_domain = domain.id
 	`;
+
+	if (!root_domain) return tree;
+
+	tree.push(root_domain);
+
+	let parent_id = root_domain.id;
+
+	for (const slug of slugs) {
+		const [row] = /** @type {Array<Domain>} */ (
+			await sql`
+			SELECT id, id_domain_parent, id_domain_redirect, kind, slug, status
+			FROM domain
+			WHERE slug = ${slug.value}
+				AND kind = ${slug.kind}
+				AND id_domain_parent IS NOT DISTINCT FROM ${parent_id}
+		`
+		);
+
+		if (!row) break;
+
+		tree.push(row);
+		parent_id = row.id;
+	}
 
 	return tree;
 }

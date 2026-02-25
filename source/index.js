@@ -154,7 +154,7 @@ async function fetch(req, server) {
         }
     }
 
-    const domain_tree = await select.domain_tree_by_slugs({ slugs, id_author });
+    const domain_tree = await select.domain_tree_by_slugs(slugs);
     info(`Domain tree length\t→ ${domain_tree.length}`);
 
     const { is_valid_domain_tree, is_asset_request, is_api } =
