@@ -282,5 +282,3 @@ export const api = {
 };
 
 globalThis["digital-garden"] = api;
-
-module.exports = api;
