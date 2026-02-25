@@ -4,20 +4,23 @@
  */
 
 import { sql } from "bun";
-import { jwt } from "@/jwt";
 import { assert } from "@/logger";
 
 /**
- * @import { AuthorConnectionToken, AuthorConnectionInput, AuthorConnectionStatistics, Asset, Domain, DomainKind, Author } from "@/database/query"
- * @import { Scope } from "@/module/api"
+ * @import { Asset, Domain, DomainKind, Author } from "@/database/query"
+ */
+
+/**
+ * @typedef {Object} DomainTreeInput
+ * @property {number} id_domain - The ID of the domain to build the tree for.
  */
 
 /**
  * Build the domain tree (root to leaf) for a given domain id.
- * @param {number} id_domain Domain id to resolve.
+ * @param {DomainTreeInput} input
  * @returns {Promise<Array<Domain>>} Domain path from root to leaf.
  */
-export async function domain_tree(id_domain) {
+export async function domain_tree({ id_domain }) {
 	assert(
 		typeof id_domain === "number" && id_domain > 0,
 		"domain_tree: id_domain must be a positive number",
@@ -41,12 +44,23 @@ export async function domain_tree(id_domain) {
 
 	return rows;
 }
+
+/**
+ * @typedef {Object} DomainTreeBySlugsInput
+ * @property {Array<{value: string, kind: DomainKind}>} slugs - An array of objects containing the slug value and its corresponding domain kind (SUBDOMAIN or ROUTER) to build the tree for.
+ * @property {number | null} id_author - The ID of the author to check for direct access to domains in the tree (optional, can be used for more efficient scope validation).
+ */
+
+/**
+ * @typedef {Domain & { granted: boolean }} DomainWithGrant
+ */
+
 /**
  * Build the domain tree (root to leaf) for a given array of slugs.
- * @param {Array<{value: string, kind: DomainKind}>} slugs
- * @returns {Promise<Array<Domain>>}
+ * @param {DomainTreeBySlugsInput} input
+ * @returns {Promise<Array<DomainWithGrant>>}
  */
-export async function domain_tree_by_slugs(slugs) {
+export async function domain_tree_by_slugs({ slugs, id_author }) {
 	assert(
 		Array.isArray(slugs) &&
 		slugs.every(
@@ -60,45 +74,79 @@ export async function domain_tree_by_slugs(slugs) {
 		),
 		"domain_tree_by_slugs: slugs must be an array of non-empty strings with a valid kind (SUBDOMAIN or ROUTER)",
 	);
+	assert(
+		id_author === null || (typeof id_author === "number" && Number.isInteger(id_author) && id_author > 0),
+		"domain_tree_by_slugs: id_author must be null or a positive integer",
+	);
 
-	/** @type {Array<Domain>} */
-	const tree = [];
+	const encoded_slugs = JSON.stringify(slugs);
 
-	/** @type {Array<Domain>} */
-	const [root_domain] = await sql`
+	/** @type {Array<DomainWithGrant>} */
+	const tree = await sql`
+		WITH RECURSIVE
+		root_domain AS (
+			SELECT
+				d.id,
+				d.id_domain_parent,
+				d.id_domain_redirect,
+				d.kind,
+				d.slug,
+				d.status
+			FROM domain d
+			INNER JOIN garden g ON g.id_domain = d.id
+		),
+		input_slugs AS (
+			SELECT
+				ordinality::INTEGER AS position,
+				(item->>'value')::TEXT AS value,
+				(item->>'kind')::TEXT AS kind
+			FROM jsonb_array_elements(${encoded_slugs}::JSONB) WITH ORDINALITY AS item(item, ordinality)
+		),
+		domain_path AS (
+			SELECT
+				0 AS position,
+				rd.id,
+				rd.id_domain_parent,
+				rd.id_domain_redirect,
+				rd.kind,
+				rd.slug,
+				rd.status
+			FROM root_domain rd
+
+			UNION ALL
+
+			SELECT
+				dp.position + 1 AS position,
+				d.id,
+				d.id_domain_parent,
+				d.id_domain_redirect,
+				d.kind,
+				d.slug,
+				d.status
+			FROM domain_path dp
+			INNER JOIN input_slugs input ON input.position = dp.position + 1
+			INNER JOIN domain d
+				ON d.id_domain_parent = dp.id
+				AND d.slug = input.value
+				AND d.kind = input.kind::TYPE_DOMAIN
+		)
 		SELECT
-			domain.id,
-			domain.id_domain_parent,
-			domain.id_domain_redirect,
-			domain.kind,
-			domain.slug,
-			domain.status
-		FROM domain
-		INNER JOIN garden ON garden.id_domain = domain.id
+			dp.id,
+			dp.id_domain_parent,
+			dp.id_domain_redirect,
+			dp.kind,
+			dp.slug,
+			dp.status,
+			CASE
+				WHEN ${id_author}::INTEGER IS NULL THEN FALSE
+				ELSE ad.id_author IS NOT NULL
+			END AS granted
+		FROM domain_path dp
+		LEFT JOIN author_domain ad
+			ON ad.id_author = ${id_author}
+			AND ad.id_domain = dp.id
+		ORDER BY dp.position ASC
 	`;
-
-	if (!root_domain) return tree;
-
-	tree.push(root_domain);
-
-	let parent_id = root_domain.id;
-
-	for (const slug of slugs) {
-		const [row] = /** @type {Array<Domain>} */ (
-			await sql`
-			SELECT id, id_domain_parent, id_domain_redirect, kind, slug, status
-			FROM domain
-			WHERE slug = ${slug.value}
-				AND kind = ${slug.kind}
-				AND id_domain_parent IS NOT DISTINCT FROM ${parent_id}
-		`
-		);
-
-		if (!row) break;
-
-		tree.push(row);
-		parent_id = row.id;
-	}
 
 	return tree;
 }
@@ -184,109 +232,10 @@ export async function author({ email }) {
 	return row;
 }
 
-/**
- * @typedef {Object} AuthorConnectionScope
- * @property {Scope} scope The most privileged scope available for this connection.
- * @property {number | null} target_garden The root garden domain id when scope includes garden ownership.
- * @property {Array<number>} target_domain The highest granted domain targets (top-most per granted branch).
- * @property {Array<number>} target_content The content targets granted directly to this author.
- */
-
-/**
- * Fetch an author connection and its scope by its token.
- * @param {AuthorConnectionToken} input
- * @returns {Promise<AuthorConnectionStatistics & AuthorConnectionInput & AuthorConnectionScope>}
- */
-export async function author_connection({ token }) {
-	assert(
-		typeof token === "string" && token.trim().length === jwt.TOKEN_LENGTH,
-		`author_connection: token must be a non-empty string with exactly ${jwt.TOKEN_LENGTH} characters`,
-	);
-
-	const [row] = await sql`
-		SELECT id_author, device, logged_at, last_active_at
-		FROM author_connection
-		WHERE token = ${token}
-	`;
-
-	assert(
-		row,
-		`author_connection: no author connection found with token "${token}"`,
-	);
-
-	const [garden_row] = await sql`
-		SELECT id_domain
-		FROM garden
-		WHERE id_author = ${row.id_author}
-	`;
-
-	/** @type {Array<{ id_domain: number }>} */
-	const domain_target_rows = await sql`
-		WITH RECURSIVE granted AS (
-			SELECT id_domain
-			FROM author_domain
-			WHERE id_author = ${row.id_author}
-		),
-		granted_ancestors AS (
-			SELECT
-				g.id_domain AS granted_id,
-				d.id_domain_parent AS ancestor_id
-			FROM granted g
-			JOIN domain d ON d.id = g.id_domain
-			UNION ALL
-			SELECT
-				ga.granted_id,
-				d.id_domain_parent AS ancestor_id
-			FROM granted_ancestors ga
-			JOIN domain d ON d.id = ga.ancestor_id
-			WHERE ga.ancestor_id IS NOT NULL
-		)
-		SELECT g.id_domain
-		FROM granted g
-		WHERE NOT EXISTS (
-			SELECT 1
-			FROM granted_ancestors ga
-			JOIN granted g_ancestor ON g_ancestor.id_domain = ga.ancestor_id
-			WHERE ga.granted_id = g.id_domain
-		)
-		ORDER BY g.id_domain ASC
-	`;
-
-	/** @type {Array<{ id_content: number }>} */
-	const content_target_rows = await sql`
-		SELECT id_content
-		FROM author_content
-		WHERE id_author = ${row.id_author}
-		ORDER BY id_content ASC
-	`;
-
-	const target_domain = domain_target_rows.map((domain_target) => Number(domain_target.id_domain));
-	const target_content = content_target_rows.map((content_target) => Number(content_target.id_content));
-	const target_garden = garden_row ? Number(garden_row.id_domain) : null;
-
-	/** @type {AuthorConnectionScope["scope"]} */
-	const scope = target_garden !== null
-		? "garden"
-		: target_domain.length > 0
-			? "domain"
-			: target_content.length > 0
-				? "content"
-				: null;
-
-	return {
-		...row,
-		scope,
-		target_garden,
-		target_domain,
-		target_content,
-	};
-}
-
 export const select = {
 	domain_tree,
 	domain_tree_by_slugs,
 	asset,
 	count,
 	author,
-	author_connection,
 };

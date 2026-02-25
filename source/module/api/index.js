@@ -10,6 +10,16 @@ import { create_register, create_remove, get } from "@/module/api/capability";
  */
 
 /**
+ * Scope to determine the level of access for a capability:
+ * 1. **garden**: grants access to the entire garden
+ * 2. **domain**: grants access to specific domains and its subdomains
+ * 3. **content**: grants access to specific content items
+ * 4. **author**: grants access to specific author-related actions and data (garden can aslo be used for this)
+ * 5. **null**:: indicates no specific scope (guest access)
+ * @typedef {"garden" | "domain" | "content" | "author" | null} Scope
+ */
+
+/**
 * @typedef {Object} Author - Information about an author.
 * @property {string} name - Name of the author.
 * @property {string | null} url - URL to the author's website or profile.

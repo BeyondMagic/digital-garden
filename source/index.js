@@ -6,6 +6,7 @@
 import { serve } from "bun";
 import { app } from "@/app";
 import { select } from "@/database/query/select";
+import { jwt } from "@/jwt";
 import {
     assert,
     create_critical,
@@ -60,6 +61,52 @@ function validate_domain_tree(
 }
 
 /**
+ * Extract a bearer token from Authorization header.
+ * @param {Request} req
+ * @returns {string | null}
+ */
+function extract_bearer_token(req) {
+    const authorization = req.headers.get("authorization");
+
+    if (!authorization)
+        return null;
+
+    const parts = authorization.split(" ");
+
+    if (parts.length !== 2)
+        return null;
+
+    const [scheme, token] = parts;
+
+    if (scheme !== "Bearer" || !token || token.trim().length === 0)
+        return null;
+
+    return token;
+}
+
+extract_bearer_token.test = () => {
+    assert(extract_bearer_token(new Request("http://example.com", {
+        headers: {
+            "authorization": "Bearer abcdef12345",
+        },
+    })) === "abcdef12345", "Should extract valid bearer token");
+
+    assert(extract_bearer_token(new Request("http://example.com", {
+        headers: {
+            "authorization": "Basic abcdef12345",
+        },
+    })) === null, "Should return null for non-Bearer scheme");
+
+    assert(extract_bearer_token(new Request("http://example.com", {
+        headers: {
+            "authorization": "Bearer ",
+        },
+    })) === null, "Should return null for empty token");
+
+    assert(extract_bearer_token(new Request("http://example.com")) === null, "Should return null when Authorization header is missing");
+}
+
+/**
  *
  * @param {Request} req
  * @param {import('bun').Server} server
@@ -88,7 +135,26 @@ async function fetch(req, server) {
     info(`Domains\t→ [${domains.join(", ") || ""}]`);
     info(`Domains length\t→ ${domains.length}`);
 
-    const domain_tree = await select.domain_tree_by_slugs(slugs);
+    const token = extract_bearer_token(req);
+    let id_author = null;
+
+    if (token) {
+        try {
+            const payload = await jwt.verify({ token });
+            const subject = payload.sub;
+
+            if (typeof subject === "string") {
+                const parsed_author_id = Number(subject);
+
+                if (Number.isInteger(parsed_author_id) && parsed_author_id > 0)
+                    id_author = parsed_author_id;
+            }
+        } catch {
+            id_author = null;
+        }
+    }
+
+    const domain_tree = await select.domain_tree_by_slugs({ slugs, id_author });
     info(`Domain tree length\t→ ${domain_tree.length}`);
 
     const { is_valid_domain_tree, is_asset_request, is_api } =
