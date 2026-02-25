@@ -4,6 +4,7 @@
  */
 
 import { randomUUID, timingSafeEqual } from "node:crypto";
+import { sql } from "bun";
 import { assert } from "@/logger";
 import { jwt_secret } from "@/setup";
 
@@ -260,7 +261,24 @@ export async function verify({
 	const typed_payload = /** @type {JwtPayload} */ (payload);
 
 	assert(typed_payload.iat <= now, "jwt_verify: token iat is in the future");
+	/**
+	 * @todo: if expired, should remove author_connection row, right?
+	 */
 	assert(typed_payload.exp > now, "jwt_verify: token has expired");
+
+	const maybe_id_author = Number(typed_payload.sub);
+
+	if (Number.isInteger(maybe_id_author) && maybe_id_author > 0) {
+		const [row] = await sql`
+			SELECT EXISTS(
+				SELECT 1
+				FROM author_connection
+				WHERE id_author = ${maybe_id_author} AND token = ${token}
+			) AS is_active
+		`;
+
+		assert(Boolean(row?.is_active), "jwt_verify: token/session is not active (logged out or forcefully expired)");
+	}
 
 	return payload;
 }
