@@ -7,6 +7,7 @@ import { capability } from "@/app/public/capability";
 import { seed } from "@/app/seed";
 import { create } from "@/database/query/create";
 import { select } from "@/database/query/select";
+import { jwt } from "@/jwt";
 import { create_critical, create_error, create_info } from "@/logger";
 import { get as get_capability } from "@/module/api/capability";
 import { DEFAULT_CONTENT_TYPE, extension_to_content_type } from "@/util";
@@ -76,13 +77,46 @@ export async function handle_asset(last) {
  */
 
 /**
+ * Extracts the bearer token from the Authorization header of the request.
+ * @todo - Move this function to a more appropriate module.
+ * @param {Request} request - The incoming HTTP request object.
+ * @returns {string | null} - The extracted token if present and syntactically valid, otherwise null.
+ */
+function extract_token(request) {
+	const auth_header = request.headers.get("Authorization") || "";
+	const [scheme, token] = auth_header.split(" ");
+
+	if (scheme !== "Bearer" || !token) return null;
+
+	return token;
+}
+
+/**
+ * @param {string} token - The JWT token to be verified and from which to extract the author ID.
+ * @returns {Promise<number | null>} - The extracted author ID if the token is valid and contains a valid subject, otherwise null.
+ */
+async function extract_id_author(token) {
+	const payload = await jwt.verify({ token });
+	const subject = payload.sub;
+
+	if (typeof subject === "string") {
+		const parsed_author_id = Number(subject);
+
+		if (Number.isInteger(parsed_author_id) && parsed_author_id > 0)
+			return parsed_author_id;
+	}
+
+	return null;
+}
+
+/**
  * @param {APIRequestContext} context - The context for handling the API request.
  * @returns
  */
 export async function handle_api({ request, method, slug }) {
 	info(`API Slug\t→ ${slug}`);
 
-	/** @type {Capability<any>} */
+	/** @type {Capability} */
 	let capability;
 	try {
 		capability = await get_capability(method, slug);
@@ -94,16 +128,18 @@ export async function handle_api({ request, method, slug }) {
 		});
 	}
 
-	// TO-DO: handle scope and token.
-	if (capability.scope) {
-		info(`Capability scope\t→ ${capability.scope}`);
-		// TO-DO: validate token and scope.
-	}
-
 	/** @type {Response} */
 	let response;
 	try {
-		response = await capability.handler(request);
+		const body = /** @type {Object | null} */ (request.body ? await request.json() : null);
+		const token = extract_token(request);
+		const id_author = token ? await extract_id_author(token) : null;
+
+		response = await capability.handler({
+			request,
+			body,
+			id_author,
+		});
 	} catch (err) {
 		const error = /** @type {Error} */ (err);
 		critical(`Error executing API handler\t→ ${slug}\n${error.stack}`);
@@ -123,11 +159,20 @@ export async function handle_api({ request, method, slug }) {
 }
 
 /**
- * @param {Request} req - The incoming HTTP request object.
+ * @param {Request} _ - The incoming HTTP request object.
  * @returns {Promise<Response>} - A Promise resolving to the HTTP response.
  */
-export async function handle_request(req) {
-	return new Response(`<h1>Page response placeholder<img width="50" height="50" src="admin-profile-picture.png"/></h1>`, {
+export async function handle_request(_) {
+	const page = `
+	<body>
+		<h1>
+			Page response placeholder!!!
+		</h1>
+		<img width="50" height="50" src="admin-profile-picture.png"/>
+	</body>
+	`;
+
+	return new Response(page, {
 		status: 200,
 		headers: { "content-type": "text/html" },
 	});
