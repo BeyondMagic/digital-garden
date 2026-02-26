@@ -36,6 +36,44 @@ async function domain() {
 	`;
 
 	await sql`
+		CREATE OR REPLACE FUNCTION domain_validate_parent_kind()
+		RETURNS TRIGGER
+		LANGUAGE plpgsql
+		AS $$
+		DECLARE
+			kind_parent TYPE_DOMAIN;
+		BEGIN
+			IF NEW.id_domain_parent IS NULL THEN
+				RETURN NEW;
+			END IF;
+
+			SELECT kind
+			INTO kind_parent
+			FROM domain
+			WHERE id = NEW.id_domain_parent;
+
+			IF NEW.kind = 'SUBDOMAIN' AND kind_parent <> 'SUBDOMAIN' THEN
+				RAISE EXCEPTION 'SUBDOMAIN can only have SUBDOMAIN as parent (parent id: %, parent kind: %)', NEW.id_domain_parent, kind_parent;
+			END IF;
+
+			RETURN NEW;
+		END;
+		$$;
+	`;
+
+	await sql`
+		DROP TRIGGER IF EXISTS domain_validate_parent_kind_trigger ON domain;
+	`;
+
+	await sql`
+		CREATE TRIGGER domain_validate_parent_kind_trigger
+		BEFORE INSERT OR UPDATE OF id_domain_parent, kind
+		ON domain
+		FOR EACH ROW
+		EXECUTE FUNCTION domain_validate_parent_kind();
+	`;
+
+	await sql`
 		CREATE UNIQUE INDEX IF NOT EXISTS domain_single_root
 		ON domain ((1))
 		WHERE id_domain_parent IS NULL AND slug IS NULL;
