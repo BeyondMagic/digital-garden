@@ -41,6 +41,7 @@ export const extension_to_content_type = new Map([
 	["jpg", "image/jpeg"],
 	["jpeg", "image/jpeg"],
 	["gif", "image/gif"],
+	["svg", "image/svg+xml"]
 ]);
 
 export const DEFAULT_CONTENT_TYPE = "application/octet-stream";
