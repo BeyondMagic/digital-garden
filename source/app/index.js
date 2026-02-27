@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { html } from "@/app/html";
 import { capability } from "@/app/public/capability";
 import { seed } from "@/app/seed";
 import { create } from "@/database/query/create";
+import { remove } from "@/database/query/remove";
 import { select } from "@/database/query/select";
 import { jwt } from "@/jwt";
 import { create_critical, create_error, create_info } from "@/logger";
@@ -179,14 +181,7 @@ export async function handle_api({ request, method, slug }) {
  * @returns {Promise<Response>} - A Promise resolving to the HTTP response.
  */
 export async function handle_request(_) {
-	const page = `
-	<body>
-		<h1>
-			Page response placeholder!!!
-		</h1>
-		<img width="50" height="50" src="admin-profile-picture.png"/>
-	</body>
-	`;
+	const page = await html.build();
 
 	return new Response(page, {
 		status: 200,
