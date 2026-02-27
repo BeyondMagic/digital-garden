@@ -74,7 +74,7 @@ async function remove_domain(input) {
 }
 
 /**
- * @param {Request} _
+ * @param {RequestCapability} _
  * @returns {Promise<Response>}
  */
 async function update_domain(_) {
