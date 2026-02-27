@@ -105,7 +105,7 @@ export async function tables() {
 		// Tags
 		const asset_seed_id = await insert.asset({
 			id_domain: domain_root,
-			slug: "seed.png",
+			slug: "seed.svg",
 			data: {
 				path: make_asset_path("../public/image/seed.svg"),
 			},
@@ -136,9 +136,17 @@ export async function tables() {
 		});
 
 		// Default garden
+		const asset_logo_id = await insert.asset({
+			id_domain: domain_root,
+			slug: "logo.svg",
+			data: {
+				path: make_asset_path("../public/image/logo-digital-garden.svg"),
+			},
+		});
+
 		await insert.garden({
 			id_domain: domain_root,
-			id_asset: asset_admin_profile_picture,
+			id_asset: asset_logo_id,
 			id_author: author_admin,
 		});
 
