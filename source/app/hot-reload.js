@@ -1,4 +1,4 @@
-import { watch, readdirSync, statSync } from "node:fs";
+import { readdirSync, statSync, watch } from "node:fs";
 import { join } from "node:path";
 
 /** @typedef {import('bun').ServerWebSocket<any>} AnyServerWebSocket */
@@ -66,10 +66,10 @@ export function create_hot_reload(deps) {
 	/** @type {Set<AnyServerWebSocket>} */
 	const clients = new Set();
 
-	const webRoot = import.meta.dir;
-	console.log("Hot-reload watching:", webRoot);
-	const watchRoots = [
-		join(webRoot, "../assets"),
+	const web_root = import.meta.dir;
+	const watch_roots = [
+		join(web_root, "public"),
+		join(web_root, "html"),
 	];
 
 	/** @type {ReturnType<typeof setTimeout> | null} */
@@ -95,7 +95,7 @@ export function create_hot_reload(deps) {
 	}
 
 	if (is_dev) {
-		watchDirTrees(watchRoots, scheduleReload);
+		watchDirTrees(watch_roots, scheduleReload);
 	}
 
 	return {
@@ -116,12 +116,16 @@ export function create_hot_reload(deps) {
 		},
 
 		/**
-		 * @param {Request} req
-		 * @param {AnyServer} server
+		 * @param {{ request: Request, server: AnyServer }} context
 		 */
-		route(req, server) {
+		async upgrade(context) {
+			const { request, server } = context;
 			if (!is_dev) return new Response("Not Found", { status: 404 });
-			const upgraded = server.upgrade(req);
+			const upgraded = server.upgrade(request, {
+				data: {
+					websocket: this.websocket,
+				},
+			});
 			if (!upgraded) return new Response("Upgrade Required", { status: 426 });
 			return;
 		},

@@ -7,7 +7,6 @@ import { html } from "@/app/html";
 import { capability } from "@/app/public/capability";
 import { seed } from "@/app/seed";
 import { create } from "@/database/query/create";
-import { remove } from "@/database/query/remove";
 import { select } from "@/database/query/select";
 import { jwt } from "@/jwt";
 import { create_critical, create_error, create_info } from "@/logger";
@@ -94,6 +93,17 @@ function extract_token(request) {
 }
 
 /**
+ * @param {Request} request
+ * @returns {boolean}
+ */
+function is_websocket_upgrade_request(request) {
+	const upgrade = request.headers.get("upgrade");
+	if (!upgrade) return false;
+
+	return upgrade.toLowerCase() === "websocket";
+}
+
+/**
  * @param {string} token - The JWT token to be verified and from which to extract the author ID.
  * @returns {Promise<number | null>} - The extracted author ID if the token is valid and contains a valid subject, otherwise null.
  */
@@ -137,6 +147,18 @@ export async function handle_api({ request, method, slug }) {
 		});
 	}
 
+	if (capability.adapter === "websocket")
+		return new Response("Upgrade Required", {
+			status: 426,
+			headers: { "content-type": "text/plain" },
+		});
+
+	if (typeof capability.handler !== "function")
+		return new Response("Invalid action capability handler", {
+			status: 500,
+			headers: { "content-type": "text/plain" },
+		});
+
 	/** @type {Response} */
 	let response;
 	try {
@@ -177,6 +199,46 @@ export async function handle_api({ request, method, slug }) {
 }
 
 /**
+ * @param {{ request: Request, method: HTTPMethod, slug: string, server: import('bun').Server }} context
+ * @returns {Promise<Response | undefined>}
+ */
+export async function handle_api_websocket({ request, method, slug, server }) {
+	info(`API Websocket Slug\t→ ${slug}`);
+
+	if (!is_websocket_upgrade_request(request))
+		return new Response("Upgrade Required", {
+			status: 426,
+			headers: { "content-type": "text/plain" },
+		});
+
+	/** @type {Capability} */
+	let capability;
+	try {
+		capability = await get_capability(method, slug);
+	} catch {
+		error(`Websocket capability not found\t→ ${slug}`);
+		return new Response("Server/Module API not found", {
+			status: 404,
+			headers: { "content-type": "text/plain" },
+		});
+	}
+
+	if (capability.adapter !== "websocket")
+		return new Response("Capability does not support websocket", {
+			status: 400,
+			headers: { "content-type": "text/plain" },
+		});
+
+	if (typeof capability.upgrade !== "function")
+		return new Response("Invalid websocket upgrade handler", {
+			status: 500,
+			headers: { "content-type": "text/plain" },
+		});
+
+	return await capability.upgrade({ request, server });
+}
+
+/**
  * @param {Request} _ - The incoming HTTP request object.
  * @returns {Promise<Response>} - A Promise resolving to the HTTP response.
  */
@@ -193,5 +255,6 @@ export const app = {
 	setup,
 	handle_asset,
 	handle_api,
+	handle_api_websocket,
 	handle_request,
 };

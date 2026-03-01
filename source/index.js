@@ -83,6 +83,31 @@ function extract_bearer_token(req) {
     return token;
 }
 
+/**
+ * @param {Request} request
+ * @returns {boolean}
+ */
+function is_websocket_upgrade_request(request) {
+    const upgrade = request.headers.get("upgrade");
+    if (!upgrade) return false;
+
+    return upgrade.toLowerCase() === "websocket";
+}
+
+/**
+ * @param {import('bun').ServerWebSocket<any>} websocket
+ * @returns {{ open?: Function, close?: Function, message?: Function } | null}
+ */
+function get_websocket_handler(websocket) {
+    const data = websocket.data;
+    if (!data || typeof data !== "object") return null;
+
+    const handler = /** @type {{ websocket?: { open?: Function, close?: Function, message?: Function } }} */ (data).websocket;
+    if (!handler || typeof handler !== "object") return null;
+
+    return handler;
+}
+
 extract_bearer_token.test = () => {
     assert(extract_bearer_token(new Request("http://example.com", {
         headers: {
@@ -173,6 +198,10 @@ async function fetch(req, server) {
 
     else if (is_api) {
         const slug = routers.join("/");
+
+        if (is_websocket_upgrade_request(req))
+            return await app.handle_api_websocket({ request: req, method, slug, server });
+
         return await app.handle_api({ request: req, method, slug });
     }
 
@@ -184,21 +213,49 @@ async function fetch(req, server) {
 
 critical("server: Starting the server...", { step: { current: 1, max: 2 } });
 
+critical("app: Setting up the application...", {
+    step: { current: 1, max: 3 },
+});
+
+await app.setup();
+
+critical("app: Application setup complete", { step: { current: 2, max: 3 } });
+
 const server = serve({
     hostname,
     port,
     fetch,
     development: is_dev,
+    websocket: {
+        /**
+         * @param {import('bun').ServerWebSocket<any>} websocket
+         */
+        open(websocket) {
+            const handler = get_websocket_handler(websocket);
+            if (handler && typeof handler.open === "function") handler.open(websocket);
+        },
+        /**
+         * @param {import('bun').ServerWebSocket<any>} websocket
+         * @param {string | Buffer} message
+         */
+        message(websocket, message) {
+            const handler = get_websocket_handler(websocket);
+            if (handler && typeof handler.message === "function")
+                handler.message(websocket, message);
+        },
+        /**
+         * @param {import('bun').ServerWebSocket<any>} websocket
+         * @param {number} code
+         * @param {string} reason
+         */
+        close(websocket, code, reason) {
+            const handler = get_websocket_handler(websocket);
+            if (handler && typeof handler.close === "function")
+                handler.close(websocket, code, reason);
+        },
+    },
 });
 
 critical(`server: Listening on ${server.url}`, {
-    step: { current: 2, max: 2 },
+    step: { current: 3, max: 3 },
 });
-
-critical("app: Setting up the application...", {
-    step: { current: 1, max: 2 },
-});
-
-await app.setup();
-
-critical("app: Application setup complete", { step: { current: 2, max: 2 } });

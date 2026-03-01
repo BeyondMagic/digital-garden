@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { hostname } from "@/setup";
+import { hostname, is_dev } from "@/setup";
 
 /**
  * @property {}
@@ -43,6 +43,10 @@ export async function build() {
 	</head>
 	`;
 
+	const hot_reload_script = is_dev
+		? `<script src="${root_asset("hot-reload.js")}"></script>`
+		: "";
+
 	const body = /* html */ `
 	<body>
 
@@ -58,7 +62,7 @@ export async function build() {
 			<p>&copy; 2026 BeyondMagic</p>
 		</footer>
 	
-		<script src="${root_asset("hot-reload.js")}"></script>
+		${hot_reload_script}
 	</body>
 	`;
 

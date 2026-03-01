@@ -7,6 +7,7 @@ import { asset } from "@/app/public/capability/asset";
 import { author } from "@/app/public/capability/author";
 import { content } from "@/app/public/capability/content";
 import { domain } from "@/app/public/capability/domain";
+import { hot_reload } from "@/app/public/capability/hot-reload";
 import { jwt } from "@/app/public/capability/jwt";
 
 import { create_debug } from "@/logger";
@@ -27,6 +28,7 @@ const capabilities = [
 	...content,
 	...domain,
 	...jwt,
+	...hot_reload,
 ];
 
 export async function setup() {

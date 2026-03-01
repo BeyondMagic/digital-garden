@@ -156,6 +156,15 @@ export async function tables() {
 			description: "Welcome to my digital garden! This is a space where I cultivate and share my thoughts, ideas, and projects. Feel free to explore and connect with me!",
 		});
 
+
+		await insert.asset({
+			id_domain: domain_root,
+			slug: "hot-reload.js",
+			data: {
+				path: make_asset_path("../public/script/hot-reload.js"),
+			},
+		});
+
 	} catch (err) {
 		critical("Error seeding tables.", { step: { current: 2, max: 2 } });
 		critical(err);

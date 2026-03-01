@@ -142,12 +142,34 @@ export async function validate_scope({ scope, id_target, id_author }) {
  */
 
 /**
+ * @typedef {Object} RequestWebsocketCapability
+ * @property {Request} request - Incoming HTTP request used for websocket upgrade.
+ * @property {import('bun').Server} server - Bun server instance used to perform upgrade.
+ */
+
+/**
+ * @callback AsyncWebsocketUpgradeFunction
+ * @param {RequestWebsocketCapability} context - Upgrade context for websocket capabilities.
+ * @returns {Promise<Response | undefined>} Undefined when upgrade succeeds.
+ */
+
+/**
+ * @typedef {Object} WebsocketHandlerCapability
+ * @property {(ws: import('bun').ServerWebSocket<any>) => void} [open] - Called when websocket opens.
+ * @property {(ws: import('bun').ServerWebSocket<any>, message: string | Buffer) => void} [message] - Called when websocket receives a message.
+ * @property {(ws: import('bun').ServerWebSocket<any>, code: number, reason: string) => void} [close] - Called when websocket closes.
+ */
+
+/**
  * @typedef {Object} Capability - Information about a module capability of adapter action.
+ * @property {"action" | "websocket"} [adapter] - Capability adapter. Defaults to action when omitted.
  * @property {string} name - Human-readable name of the capability.
  * @property {string} description - Description of the capability.
  * @property {HTTPMethod} method - HTTP method (e.g., GET, POST, PUT, DELETE).
  * @property {string} slug - Unique identifier for the capability.
- * @property {AsyncResponseFunction} handler - Function that implements the capability's functionality, receives context and parameters as arguments.
+ * @property {AsyncResponseFunction | undefined} [handler] - Function that implements action capability functionality.
+ * @property {AsyncWebsocketUpgradeFunction | undefined} [upgrade] - Function that performs websocket upgrade when adapter is websocket.
+ * @property {WebsocketHandlerCapability | undefined} [websocket] - Websocket lifecycle handlers when adapter is websocket.
  * @property {string | null} deprecation - Message providing details about the deprecation.
  * @property {ScopeCapability} scope - The required scope for accessing the capability, determining the level of access control.
  * @property {Object | null} input - Schema defining the expected input parameters for the capability, used for validation and documentation purposes.

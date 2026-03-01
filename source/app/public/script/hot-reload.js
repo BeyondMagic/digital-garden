@@ -4,8 +4,9 @@
 	 * Connects to `/api/hot-reload` and reloads the page on file changes.
 	 */
 
-	const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
-	const wsUrl = `${wsProtocol}//${location.host}/api/hot-reload`;
+	const ws_protocol = location.protocol === "https:" ? "wss:" : "ws:";
+	const ws_host = `api.${location.hostname}${location.port ? `:${location.port}` : ""}`;
+	const ws_url = `${ws_protocol}//${ws_host}/hot-reload`;
 
 	/** @type {WebSocket | null} */
 	let socket = null;
@@ -16,7 +17,7 @@
 		if (manuallyClosed) return;
 
 		try {
-			socket = new WebSocket(wsUrl);
+			socket = new WebSocket(ws_url);
 		} catch {
 			scheduleReconnect();
 			return;
