@@ -28,8 +28,8 @@ export const domain = process.env.DOMAIN;
 
 const domains = domain.split(":");
 
-assert(domains[0] && typeof domains[0] === "string", "Hostname must be a string");
-assert(domains[1] && typeof domains[1] === "string", `Port must be a string, received ${domains[1]}`);
+assert(domains[0], "Hostname must be a string");
+assert(domains[1], `Port must be a string, received ${domains[1]}`);
 
 export const hostname = domains[0];
 export const port = domains[1];
