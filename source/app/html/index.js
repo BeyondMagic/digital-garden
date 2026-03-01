@@ -39,7 +39,7 @@ export async function build() {
 		<meta http-equiv="X-UA-Compatible" content="ie=edge">
 		<title>${title}</title>
 		<link rel="stylesheet" href="${root_asset("style.css")}">
-		<link rel="icon" type="image/svg+xml" href="${root_asset("logo.svg")}">
+		<link rel="icon" type="image/svg+xml" href="${root_asset("favicon.svg")}">
 	</head>
 	`;
 
@@ -58,7 +58,7 @@ export async function build() {
 			<p>&copy; 2026 BeyondMagic</p>
 		</footer>
 	
-		<script src="${root_asset("script.js")}"></script>
+		<script src="${root_asset("hot-reload.js")}"></script>
 	</body>
 	`;
 
