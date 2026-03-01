@@ -138,9 +138,9 @@ export async function tables() {
 		// Default garden
 		const asset_logo_id = await insert.asset({
 			id_domain: domain_root,
-			slug: "logo.svg",
+			slug: "favicon.svg",
 			data: {
-				path: make_asset_path("../public/image/logo-digital-garden.svg"),
+				path: make_asset_path("../public/image/favicon.svg"),
 			},
 		});
 
@@ -156,6 +156,14 @@ export async function tables() {
 			description: "Welcome to my digital garden! This is a space where I cultivate and share my thoughts, ideas, and projects. Feel free to explore and connect with me!",
 		});
 
+		// Style and script assets
+		await insert.asset({
+			id_domain: domain_root,
+			slug: "style.css",
+			data: {
+				path: make_asset_path("../public/style/index.css"),
+			},
+		});
 
 		await insert.asset({
 			id_domain: domain_root,
