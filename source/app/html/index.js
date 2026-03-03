@@ -107,7 +107,7 @@ export async function build(information) {
 		<div class="middle content">
 			<div class="navigation start"></div>
 			<div class="navigation middle">
-				<auto-breadcrumb></auto-breadcrumb>
+				<auto-breadcrumb root="${hostname}"></auto-breadcrumb>
 			</div>
 			<div class="navigation end"></div>
 			<div class="body" contenteditable="true" spellcheck="false">

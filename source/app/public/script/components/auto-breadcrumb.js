@@ -4,20 +4,85 @@
  */
 
 /**
- * @returns {string[]} Hostname and pathname segments for breadcrumb rendering.
+ * @typedef {Object} LocationData
+ * @property {Array<string>} segments
+ * @property {number | null} root_index
  */
-function get_location_segments() {
+
+/**
+ * @param {string | null} root_domain
+ * @returns {{ hostname_segments: Array<string>, root_index_in_hostname: number | null }}
+ */
+function get_hostname_segments(root_domain) {
 	const hostname_segment = window.location.hostname.trim();
+	if (hostname_segment.length === 0) {
+		return { hostname_segments: [], root_index_in_hostname: null };
+	}
+
+	const normalized_root = root_domain?.trim().toLowerCase() || "";
+	if (normalized_root.length === 0) {
+		return {
+			hostname_segments: [hostname_segment],
+			root_index_in_hostname: null,
+		};
+	}
+
+	const normalized_hostname = hostname_segment.toLowerCase();
+
+	if (normalized_hostname === normalized_root) {
+		return {
+			hostname_segments: [normalized_root],
+			root_index_in_hostname: 0,
+		};
+	}
+
+	if (!normalized_hostname.endsWith(`.${normalized_root}`)) {
+		return {
+			hostname_segments: [hostname_segment],
+			root_index_in_hostname: null,
+		};
+	}
+
+	const subdomain_prefix = hostname_segment.slice(
+		0,
+		hostname_segment.length - normalized_root.length - 1,
+	);
+
+	const subdomain_segments = subdomain_prefix
+		.split(".")
+		.map((segment) => segment.trim())
+		.filter((segment) => segment.length > 0);
+
+	return {
+		hostname_segments: [...subdomain_segments, normalized_root],
+		root_index_in_hostname: subdomain_segments.length,
+	};
+}
+
+/**
+ * @param {string | null} root_domain
+ * @returns {LocationData} Hostname and pathname segments for breadcrumb rendering.
+ */
+function get_location_segments(root_domain) {
+	const { hostname_segments, root_index_in_hostname } =
+		get_hostname_segments(root_domain);
+
 	const pathname_segments = window.location.pathname
 		.split("/")
 		.map((segment) => segment.trim())
 		.filter((segment) => segment.length > 0);
 
-	if (hostname_segment.length > 0) {
-		return [hostname_segment, ...pathname_segments];
+	if (hostname_segments.length === 0) {
+		return {
+			segments: pathname_segments,
+			root_index: null,
+		};
 	}
 
-	return pathname_segments;
+	return {
+		segments: [...hostname_segments, ...pathname_segments],
+		root_index: root_index_in_hostname,
+	};
 }
 
 /**
@@ -46,11 +111,13 @@ function create_add_separator_node(document_ref) {
 
 /**
  * @param {Document} document_ref
+ * @param {string | null} root_domain
  * @returns {DocumentFragment}
  */
-function create_breadcrumb_fragment(document_ref) {
+function create_breadcrumb_fragment(document_ref, root_domain) {
 	const fragment = document_ref.createDocumentFragment();
-	const segments = get_location_segments();
+	const location_data = get_location_segments(root_domain);
+	const { segments, root_index } = location_data;
 
 	fragment.appendChild(create_add_separator_node(document_ref));
 
@@ -65,7 +132,14 @@ function create_breadcrumb_fragment(document_ref) {
 		fragment.appendChild(create_span_node(document_ref, slug_class_name, segment));
 
 		if (!is_last) {
-			fragment.appendChild(create_span_node(document_ref, "separator arrow", "＞"));
+			const separator_symbol =
+				root_index !== null && index + 1 === root_index
+					? "＜"
+					: "＞";
+
+			fragment.appendChild(
+				create_span_node(document_ref, "separator arrow", separator_symbol),
+			);
 		}
 	}
 
@@ -77,6 +151,8 @@ function create_breadcrumb_fragment(document_ref) {
  * Auto-generated visual breadcrumbs based on current location.
  */
 class auto_breadcrumb extends HTMLElement {
+	static observedAttributes = ["root"];
+
 	connectedCallback() {
 		this.render();
 		window.addEventListener("popstate", this);
@@ -95,9 +171,14 @@ class auto_breadcrumb extends HTMLElement {
 		}
 	}
 
+	attributeChangedCallback() {
+		this.render();
+	}
+
 	render() {
 		this.innerHTML = "";
-		this.appendChild(create_breadcrumb_fragment(document));
+		const root_domain = this.getAttribute("root");
+		this.appendChild(create_breadcrumb_fragment(document, root_domain));
 	}
 }
 
