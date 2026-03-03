@@ -58,6 +58,10 @@ export async function build(information) {
 		? `<script src="${root_asset("hot-reload.js")}"></script>`
 		: "";
 
+	const hot_reload_element = is_dev
+		? `<auto-hot-reload root="${hostname}"></auto-hot-reload>`
+		: "";
+
 	const scripts = /* html */ `
 		<script type="module" src="${root_asset("auto-breadcrumb.js")}"></script>
 		${hot_reload_script}
@@ -119,6 +123,7 @@ export async function build(information) {
 		</div>
 		<div class="end"></div>
 		<div class="end"></div>
+		${hot_reload_element}
 		${scripts}
 	</body>
 	`;
