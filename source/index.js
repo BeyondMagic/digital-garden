@@ -193,6 +193,7 @@ async function fetch(req, server) {
         return await app.handle_asset({
             slug: last_slug,
             id_domain: last_domain.id,
+            request: req,
         });
     }
 

@@ -11,6 +11,7 @@ import { select } from "@/database/query/select";
 import { jwt } from "@/jwt";
 import { create_critical, create_error, create_info } from "@/logger";
 import { get as get_capability } from "@/module/api/capability";
+import { hostname } from "@/setup";
 import { DEFAULT_CONTENT_TYPE, extension_to_content_type } from "@/util";
 
 const critical = create_critical(import.meta.path);
@@ -19,19 +20,47 @@ const error = create_error(import.meta.path);
 
 /**
  * @import { Capability, HTTPMethod } from "@/module/api"
+ * @import { Domain, Language } from "@/database/query"
  */
 
+/**
+ * @param {string | null} origin
+ * @returns {boolean}
+ */
+function is_allowed_asset_origin(origin) {
+	if (!origin) return false;
+
+	let parsed_origin;
+
+	try {
+		parsed_origin = new URL(origin);
+	} catch {
+		return false;
+	}
+
+	const origin_host = parsed_origin.hostname.toLowerCase();
+	const host_root = hostname.toLowerCase();
+
+	if (origin_host === host_root) return true;
+
+	return origin_host.endsWith(`.${host_root}`);
+}
+
 export async function setup() {
-	// await remove.garden();
 	await create.schema();
 	await seed.tables();
 	await capability.setup();
 }
 
 /**
- * @param {Object} last - The last domain segment information.
- * @param {string} last.slug - The slug of the asset.
- * @param {number} last.id_domain - The ID of the domain associated with the asset.
+ * @typedef {Object} AssetRequestContext
+ * @property {string} slug - The slug of the asset.
+ * @property {number} id_domain - The domain id associated with the asset.
+ * @property {Request} request - The incoming request used for CORS origin resolution.
+ */
+
+/**
+ * @param {AssetRequestContext} last - The last domain segment information.
  * @returns {Promise<Response>}
  */
 export async function handle_asset(last) {
@@ -64,9 +93,16 @@ export async function handle_asset(last) {
 	const content_type =
 		(file_extension && extension_to_content_type.get(file_extension)) ||
 		DEFAULT_CONTENT_TYPE;
+	const origin = last.request.headers.get("origin");
+	const headers = new Headers({ "content-type": content_type });
+
+	if (is_allowed_asset_origin(origin)) {
+		headers.set("Access-Control-Allow-Origin", /** @type {string} */(origin));
+		headers.set("Vary", "Origin");
+	}
 
 	return new Response(file, {
-		headers: { "content-type": content_type },
+		headers,
 	});
 }
 
