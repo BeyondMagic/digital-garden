@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import { root_asset } from "@/app/html";
 import { insert } from "@/database/query/insert";
 import { select } from "@/database/query/select";
 import { create_critical, create_debug } from "@/logger";
@@ -48,7 +49,7 @@ export async function tables() {
 			slug: "en-flag.svg",
 			data: {
 				path: make_asset_path("../public/image/flag-us.svg"),
-			}
+			},
 		});
 
 		const language_en_id = await insert.language({
@@ -60,14 +61,16 @@ export async function tables() {
 			id_language_for: language_en_id,
 			id_language_from: language_en_id,
 			name: "American English",
-			description: "The English language as primarily used in the United States.",
+			description:
+				"The English language as primarily used in the United States.",
 		});
 
 		await insert.asset_information({
 			id_asset: asset_en_flag_id,
 			id_language: language_en_id,
 			name: "Simplified Flag of the United States",
-			description: "A rectangular emoji-like flag of the United States, with 13 horizontal stripes of red and white, and a blue canton containing 50 white stars.",
+			description:
+				"A rectangular emoji-like flag of the United States, with 13 horizontal stripes of red and white, and a blue canton containing 50 white stars.",
 		});
 
 		// Admin Information
@@ -93,13 +96,14 @@ export async function tables() {
 			status: "PUBLIC",
 			title: "Welcome to My Digital Garden",
 			title_sub: "Cultivating and Sharing My Thoughts, Ideas, and Projects",
-			synopsis: "Welcome to my digital garden! This is a space where I cultivate and share my thoughts, ideas, and projects. Feel free to explore and connect with me!",
-			body: `
+			synopsis:
+				"Welcome to my digital garden! This is a space where I cultivate and share my thoughts, ideas, and projects. Feel free to explore and connect with me!",
+			body: /* html */ `
 				<h1>
 					Page response placeholder!!!
 				</h1>
-				<img width="50" height="50" src="admin-profile-picture.png"/>
-			`
+				<img width="50" height="50" src="${root_asset("admin-profile-picture.png")}"/>
+			`,
 		});
 
 		// Tags
@@ -115,7 +119,8 @@ export async function tables() {
 			id_asset: asset_seed_id,
 			id_language: language_en_id,
 			name: "Seedling",
-			description: "A seedling emoji, depicting a small plant sprouting from the ground, symbolizing growth, new beginnings, and potential.",
+			description:
+				"A seedling emoji, depicting a small plant sprouting from the ground, symbolizing growth, new beginnings, and potential.",
 		});
 
 		const tag_personal_id = await insert.tag({
@@ -127,7 +132,8 @@ export async function tables() {
 			id_tag: tag_personal_id,
 			id_language: language_en_id,
 			name: "Seedling",
-			description: "A seedling tag, representing content that is in the early stages of growth and development, symbolizing potential and new beginnings.",
+			description:
+				"A seedling tag, representing content that is in the early stages of growth and development, symbolizing potential and new beginnings.",
 		});
 
 		await insert.domain_tag({
@@ -153,7 +159,8 @@ export async function tables() {
 		await insert.garden_information({
 			id_language: language_en_id,
 			name: "My Digital Garden",
-			description: "Welcome to my digital garden! This is a space where I cultivate and share my thoughts, ideas, and projects. Feel free to explore and connect with me!",
+			description:
+				"Welcome to my digital garden! This is a space where I cultivate and share my thoughts, ideas, and projects. Feel free to explore and connect with me!",
 		});
 
 		// Style and script assets
@@ -173,6 +180,69 @@ export async function tables() {
 			},
 		});
 
+		await insert.asset({
+			id_domain: domain_root,
+			slug: "auto-breadcrumb.js",
+			data: {
+				path: make_asset_path("../public/script/components/auto-breadcrumb.js"),
+			},
+		});
+
+		// Writing domain
+		const domain_writing_id = await insert.domain({
+			id_domain_parent: domain_root,
+			id_domain_redirect: null,
+			kind: "SUBDOMAIN",
+			slug: "writing",
+			status: "PRIVATE",
+		});
+
+		// Essay domain
+		const domain_essay_id = await insert.domain({
+			id_domain_parent: domain_writing_id,
+			id_domain_redirect: null,
+			kind: "ROUTER",
+			slug: "essay",
+			status: "PRIVATE",
+		});
+
+		// "Solarpunk Ethos" domain
+		const domain_solarpunk_ethos_id = await insert.domain({
+			id_domain_parent: domain_essay_id,
+			id_domain_redirect: null,
+			kind: "ROUTER",
+			slug: "solarpunk-ethos",
+			status: "PRIVATE",
+		});
+
+		// Content for "Solarpunk Ethos"
+		await insert.content({
+			id_domain: domain_solarpunk_ethos_id,
+			id_language: language_en_id,
+			status: "PUBLIC",
+			title:
+				"The Solarpunk Ethos: Cultivating a Sustainable and Hopeful Future",
+			title_sub:
+				"Exploring the principles and values of the solarpunk movement",
+			synopsis:
+				"The solarpunk ethos is a set of principles and values that guide the solarpunk movement, which envisions a sustainable and hopeful future where technology and nature coexist harmoniously. In this essay, we will explore the core tenets of the solarpunk ethos and how they inspire us to create a better world.",
+			body: /* html */ `
+				<h1>The Solarpunk Ethos</h1>
+				<h2>One sun, many paths, the same inherent light.</h2>
+				<hr/>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sagittis id nunc eget viverra. Etiam nisl ex, tincidunt eget urna quis, dignissim malesuada erat. Nunc enim lorem, fringilla quis velit pharetra, sodales euismod augue. Aliquam felis eros, iaculis sit amet est at, faucibus gravida dolor. Praesent a pharetra purus, eget venenatis justo. In nulla nisi, scelerisque ut est eget, finibus posuere odio. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+				<h3>The Shared Human Spirit</h3>
+				<p>The common feeling of falling in our socities may be one of the worst tricks we have been sharing.</p>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec turpis sem, varius et nibh non, dignissim malesuada quam. Vestibulum in nunc ex. Donec interdum vitae purus eu fringilla. Interdum et malesuada fames ac ante ipsum primis in faucibus. Proin sit amet tellus ut leo aliquet dignissim. Vivamus vel tortor id velit molestie accumsan non interdum sapien. Mauris laoreet mi tellus, sed placerat tellus fringilla eu.</p>
+				<h3>A Vision for a Better Together</h3>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec turpis sem, varius et nibh non, dignissim malesuada quam. Vestibulum in nunc ex. Donec interdum vitae purus eu fringilla. Interdum et malesuada fames ac ante ipsum primis in faucibus. Proin sit amet tellus ut leo aliquet dignissim. Vivamus vel tortor id velit molestie accumsan non interdum sapien. Mauris laoreet mi tellus, sed placerat tellus fringilla eu.</p>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec turpis sem, varius et nibh non, dignissim malesuada quam. Vestibulum in nunc ex. Donec interdum vitae purus eu fringilla. Interdum et malesuada fames ac ante ipsum primis in faucibus. Proin sit amet tellus ut leo aliquet dignissim. Vivamus vel tortor id velit molestie accumsan non interdum sapien. Mauris laoreet mi tellus, sed placerat tellus fringilla eu.</p>
+				<div class="image">
+					<img width="50" height="50" src="${root_asset("admin-profile-picture.png")}"/>
+				</div>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec turpis sem, varius et nibh non, dignissim malesuada quam. Vestibulum in nunc ex. Donec interdum vitae purus eu fringilla. Interdum et malesuada fames ac ante ipsum primis in faucibus. Proin sit amet tellus ut leo aliquet dignissim. Vivamus vel tortor id velit molestie accumsan non interdum sapien. Mauris laoreet mi tellus, sed placerat tellus fringilla eu.</p>
+			`,
+		});
 	} catch (err) {
 		critical("Error seeding tables.", { step: { current: 2, max: 2 } });
 		critical(err);

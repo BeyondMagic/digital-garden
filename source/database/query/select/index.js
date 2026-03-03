@@ -7,7 +7,7 @@ import { sql } from "bun";
 import { assert } from "@/logger";
 
 /**
- * @import { Asset, Domain, DomainKind, Author } from "@/database/query"
+ * @import { Asset, Domain, DomainKind, Author, Language, Content, GardenInformation } from "@/database/query"
  */
 
 /**
@@ -255,6 +255,127 @@ export async function author({ email }) {
 	return row;
 }
 
+/**
+ * Fetch all available languages.
+ * @returns {Promise<Array<Language>>}
+ */
+export async function language_all() {
+	/** @type {Array<Language>} */
+	const rows = await sql`
+		SELECT id, id_asset, slug
+		FROM language
+	`;
+
+	return rows;
+}
+
+/**
+ * @typedef {Object} LanguageBySlugInput
+ * @property {string} slug - Language slug in IETF BCP 47 format (e.g., en-US).
+ */
+
+/**
+ * Fetch language by slug.
+ * @param {LanguageBySlugInput} input
+ * @returns {Promise<Language | null>}
+ */
+export async function language_by_slug({ slug }) {
+	assert(
+		typeof slug === "string" && slug.trim().length > 0,
+		"language_by_slug: slug must be a non-empty string",
+	);
+
+	const [row] = /** @type {Array<Language>} */ (
+		await sql`
+			SELECT id, id_asset, slug
+			FROM language
+			WHERE lower(slug) = lower(${slug})
+			LIMIT 1
+		`
+	);
+
+	if (!row) return null;
+
+	return row;
+}
+
+/**
+ * @typedef {Object} ContentByDomainLanguageInput
+ * @property {number} id_domain - Domain identifier.
+ * @property {number} id_language - Language identifier.
+ */
+
+/**
+ * Fetch content by domain and language.
+ * @param {ContentByDomainLanguageInput} input
+ * @returns {Promise<Content | null>}
+ */
+export async function content_by_domain_and_language({ id_domain, id_language }) {
+	assert(
+		typeof id_domain === "number" && id_domain > 0,
+		"content_by_domain_and_language: id_domain must be a positive number",
+	);
+	assert(
+		typeof id_language === "number" && id_language > 0,
+		"content_by_domain_and_language: id_language must be a positive number",
+	);
+
+	const [row] = /** @type {Array<Content>} */ (
+		await sql`
+			SELECT
+				id,
+				id_domain,
+				id_language,
+				status,
+				title,
+				title_sub,
+				synopsis,
+				body,
+				requests,
+				created_at,
+				updated_at
+			FROM content
+			WHERE id_domain = ${id_domain}
+				AND id_language = ${id_language}
+			LIMIT 1
+		`
+	);
+
+	if (!row) return null;
+
+	return row;
+}
+
+/**
+ * @typedef {Object} GardenInformationByLanguageInput
+ * @property {number} id_language - Language identifier.
+ */
+
+/**
+ * Fetch garden information by language.
+ * @param {GardenInformationByLanguageInput} input
+ * @returns {Promise<GardenInformation | null>}
+ */
+export async function garden_information_by_language({ id_language }) {
+	assert(
+		typeof id_language === "number" && id_language > 0,
+		"garden_information_by_language: id_language must be a positive number",
+	);
+
+	const [row] = /** @type {Array<GardenInformation>} */ (
+		await sql`
+			SELECT id, id_language, name, description
+			FROM garden_information
+			WHERE id_language = ${id_language}
+			LIMIT 1
+		`
+	);
+
+	if (!row) return null;
+
+	return row;
+}
+
 export const select = {
 	domain_tree,
 	domain_tree_author_exists,
@@ -262,4 +383,8 @@ export const select = {
 	asset,
 	count,
 	author,
+	language_all,
+	language_by_slug,
+	content_by_domain_and_language,
+	garden_information_by_language,
 };

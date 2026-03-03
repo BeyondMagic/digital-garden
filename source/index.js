@@ -207,7 +207,10 @@ async function fetch(req, server) {
     }
 
     else if (is_valid_domain_tree)
-        return await app.handle_request(req);
+        return await app.handle_request({
+            request: req,
+            domain_tree,
+        });
 
     throw new Error("Unexpected request type: does not match asset, API, or page patterns");
 }

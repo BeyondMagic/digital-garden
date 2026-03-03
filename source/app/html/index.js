@@ -13,41 +13,46 @@ import { hostname, is_dev } from "@/setup";
  * @param {string} path - The relative path to the asset.
  * @returns {string} The absolute URL to the asset.
  */
-function root_asset(path) {
+export function root_asset(path) {
 	return `http://${hostname}/${path}`;
 }
 
 /**
+ * @todo: nothing for now, but later will get status, type, etc
+ * @typedef {Object} InformationDomain
+ */
+
+/**
+ * @typedef {Object} InformationContent
+ * @property {string} status - The status of the content (e.g., "PUBLIC", "PRIVATE").
+ * @property {string} title - The title of the page.
+ * @property {string} title_sub - The subtitle of the page.
+ * @property {string} language - The language of the page content, in IETF BCP 47 format (e.g., "en-US").
+ * @property {string} synopsis - A brief summary of the page content.
+ * @property {string} body - The HTML content of the page.
+ */
+
+/**
+ * @typedef {Object} InformationGarden
+ * @property {string} name - The name of the garden.
+ * @property {string} description - The description of the garden.
+ */
+
+/**
+ * @typedef {Object} Information
+ * @property {InformationDomain} domain - The information about the domain.
+ * @property {InformationContent} content - The information about the content.
+ * @property {InformationGarden} garden - The information about the garden.
+ */
+
+/**
  * Generates a basic HTML5 template as a string.
+ * @param {Information} information - The information object containing details about the domain, content, and garden.
  * @returns {Promise<string>} A promise that resolves to the HTML string.
  */
-export async function build() {
-
-	const garden_title = "Digital Garden";
-
-	const domain_title = "The Solarpunk Ethos";
-
-	const title = `${domain_title} - ${garden_title}`;
-
-	const garden_description = "A digital garden is a personal collection of knowledge, ideas, and reflections that are cultivated and nurtured over time. It is a space for growth, exploration, and creativity, where the gardener can plant seeds of thought and watch them flourish into a vibrant ecosystem of interconnected ideas.";
-	const content_description = "The Solarpunk Ethos is a vision for a sustainable and equitable future that embraces the principles of solarpunk, a movement that combines technology, ecology, and social justice to create a better world. It is a call to action for individuals and communities to work together to build a more resilient and regenerative society that values diversity, creativity, and collaboration.";
-
-	const content = /* html */ `
-		<h1>The Solarpunk Ethos</h1>
-		<h2>One sun, many paths, the same inherent light.</h2>
-		<hr/>
-		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sagittis id nunc eget viverra. Etiam nisl ex, tincidunt eget urna quis, dignissim malesuada erat. Nunc enim lorem, fringilla quis velit pharetra, sodales euismod augue. Aliquam felis eros, iaculis sit amet est at, faucibus gravida dolor. Praesent a pharetra purus, eget venenatis justo. In nulla nisi, scelerisque ut est eget, finibus posuere odio. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
-		<h3>The Shared Human Spirit</h3>
-		<p>The common feeling of falling in our socities may be one of the worst tricks we have been sharing.</p>
-		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec turpis sem, varius et nibh non, dignissim malesuada quam. Vestibulum in nunc ex. Donec interdum vitae purus eu fringilla. Interdum et malesuada fames ac ante ipsum primis in faucibus. Proin sit amet tellus ut leo aliquet dignissim. Vivamus vel tortor id velit molestie accumsan non interdum sapien. Mauris laoreet mi tellus, sed placerat tellus fringilla eu.</p>
-		<h3>A Vision for a Better Together</h3>
-		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec turpis sem, varius et nibh non, dignissim malesuada quam. Vestibulum in nunc ex. Donec interdum vitae purus eu fringilla. Interdum et malesuada fames ac ante ipsum primis in faucibus. Proin sit amet tellus ut leo aliquet dignissim. Vivamus vel tortor id velit molestie accumsan non interdum sapien. Mauris laoreet mi tellus, sed placerat tellus fringilla eu.</p>
-		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec turpis sem, varius et nibh non, dignissim malesuada quam. Vestibulum in nunc ex. Donec interdum vitae purus eu fringilla. Interdum et malesuada fames ac ante ipsum primis in faucibus. Proin sit amet tellus ut leo aliquet dignissim. Vivamus vel tortor id velit molestie accumsan non interdum sapien. Mauris laoreet mi tellus, sed placerat tellus fringilla eu.</p>
-		<div class="image">
-			<img width="50" height="50" src="${root_asset("admin-profile-picture.png")}"/>
-		</div>
-		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec turpis sem, varius et nibh non, dignissim malesuada quam. Vestibulum in nunc ex. Donec interdum vitae purus eu fringilla. Interdum et malesuada fames ac ante ipsum primis in faucibus. Proin sit amet tellus ut leo aliquet dignissim. Vivamus vel tortor id velit molestie accumsan non interdum sapien. Mauris laoreet mi tellus, sed placerat tellus fringilla eu.</p>
-	`;
+export async function build(information) {
+	const title = `${information.content.title} - ${information.garden.name}`;
+	const description = `${information.garden.description} ${information.content.synopsis}`;
 
 	const hot_reload_script = is_dev
 		? `<script src="${root_asset("hot-reload.js")}"></script>`
@@ -63,7 +68,7 @@ export async function build() {
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="X-UA-Compatible" content="ie=edge">
-		<meta name="description" content="${garden_description} ${content_description}">
+		<meta name="description" content="${description}">
 		<title>${title}</title>
 		<link rel="stylesheet" href="${root_asset("style.css")}">
 		<link rel="icon" type="image/svg+xml" href="${root_asset("favicon.svg")}">
@@ -102,7 +107,7 @@ export async function build() {
 			</div>
 			<div class="navigation end"></div>
 			<div class="body" contenteditable="true" spellcheck="false">
-				${content}
+				${information.content.body}
 			</div>
 		</div>
 		<div class="middle panel right"></div>
@@ -120,7 +125,7 @@ export async function build() {
 
 	const root = /* html */ `
 	<!DOCTYPE html>
-	<html lang="en-US">
+	<html lang="${information.content.language}">
 		${head}
 		${body}
 	</html>
@@ -131,4 +136,5 @@ export async function build() {
 
 export const html = {
 	build,
+	root_asset,
 }
