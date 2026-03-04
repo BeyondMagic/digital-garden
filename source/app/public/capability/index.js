@@ -9,6 +9,7 @@ import { content } from "@/app/public/capability/content";
 import { domain } from "@/app/public/capability/domain";
 import { hot_reload } from "@/app/public/capability/hot-reload";
 import { jwt } from "@/app/public/capability/jwt";
+import { navigation } from "@/app/public/capability/navigation";
 
 import { create_debug } from "@/logger";
 import { capability as api } from "@/module/api/capability";
@@ -29,6 +30,7 @@ const capabilities = [
 	...domain,
 	...jwt,
 	...hot_reload,
+	...navigation,
 ];
 
 export async function setup() {
