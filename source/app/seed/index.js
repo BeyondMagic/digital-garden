@@ -188,6 +188,14 @@ export async function tables() {
 			},
 		});
 
+		await insert.asset({
+			id_domain: domain_root,
+			slug: "auto-navigation.js",
+			data: {
+				path: make_asset_path("../public/script/components/auto-navigation.js"),
+			},
+		});
+
 		// Writing domain
 		const domain_writing_id = await insert.domain({
 			id_domain_parent: domain_root,

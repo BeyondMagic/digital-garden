@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+const auto_navigation_updated_event_name = "auto-navigation:updated";
+
 /**
  * @typedef {Object} LocationData
  * @property {Array<string>} segments
@@ -86,6 +88,33 @@ function get_location_segments(root_domain) {
 }
 
 /**
+ * @param {LocationData} location_data
+ * @returns {number | null}
+ */
+function get_active_segment_index(location_data) {
+	const { segments, root_index } = location_data;
+
+	if (segments.length === 0) {
+		return null;
+	}
+
+	const pathname_segments = window.location.pathname
+		.split("/")
+		.map((segment) => segment.trim())
+		.filter((segment) => segment.length > 0);
+
+	if (pathname_segments.length > 0) {
+		return segments.length - 1;
+	}
+
+	if (root_index !== null && root_index > 0) {
+		return root_index - 1;
+	}
+
+	return segments.length - 1;
+}
+
+/**
  * @param {Document} document_ref
  * @param {string} class_name
  * @param {string} text_content
@@ -118,6 +147,7 @@ function create_breadcrumb_fragment(document_ref, root_domain) {
 	const fragment = document_ref.createDocumentFragment();
 	const location_data = get_location_segments(root_domain);
 	const { segments, root_index } = location_data;
+	const active_index = get_active_segment_index(location_data);
 
 	fragment.appendChild(create_add_separator_node(document_ref));
 
@@ -128,8 +158,11 @@ function create_breadcrumb_fragment(document_ref, root_domain) {
 		}
 
 		const is_last = index === segments.length - 1;
-		const slug_class_name = is_last ? "slug active" : "slug";
-		fragment.appendChild(create_span_node(document_ref, slug_class_name, segment));
+		const is_active = active_index !== null && index === active_index;
+		const slug_class_name = is_active ? "slug active" : "slug";
+		const slug_node = create_span_node(document_ref, slug_class_name, segment);
+		slug_node.dataset.index = String(index);
+		fragment.appendChild(slug_node);
 
 		if (!is_last) {
 			const separator_symbol =
@@ -156,10 +189,14 @@ class auto_breadcrumb extends HTMLElement {
 	connectedCallback() {
 		this.render();
 		window.addEventListener("popstate", this);
+		this.addEventListener("click", this);
+		document.addEventListener(auto_navigation_updated_event_name, this);
 	}
 
 	disconnectedCallback() {
 		window.removeEventListener("popstate", this);
+		this.removeEventListener("click", this);
+		document.removeEventListener(auto_navigation_updated_event_name, this);
 	}
 
 	/**
@@ -167,6 +204,31 @@ class auto_breadcrumb extends HTMLElement {
 	 */
 	handleEvent(event) {
 		if (event.type === "popstate") {
+			const navigation_element = this.get_navigation_element();
+			if (!navigation_element) {
+				this.render();
+				return;
+			}
+			if (typeof navigation_element.navigate_to_location !== "function") {
+				this.render();
+				return;
+			}
+
+			navigation_element.navigate_to_location({
+				target_host: window.location.hostname,
+				target_path: window.location.pathname,
+				update_history: false,
+			});
+			this.render();
+			return;
+		}
+
+		if (event.type === "click") {
+			this.on_click(event);
+			return;
+		}
+
+		if (event.type === auto_navigation_updated_event_name) {
 			this.render();
 		}
 	}
@@ -180,6 +242,123 @@ class auto_breadcrumb extends HTMLElement {
 		const root_domain = this.getAttribute("root");
 		this.appendChild(create_breadcrumb_fragment(document, root_domain));
 	}
+
+	/**
+	 * @returns {string}
+	 */
+	get_root_domain() {
+		const root_domain = this.getAttribute("root")?.trim();
+		if (root_domain && root_domain.length > 0) return root_domain;
+
+		return window.location.hostname;
+	}
+
+	/**
+	 * @returns {(HTMLElement & { navigate_to_location?: Function }) | null}
+	 */
+	get_navigation_element() {
+		const existing_navigation_element = document.querySelector("auto-navigation");
+
+		if (existing_navigation_element instanceof HTMLElement) {
+			existing_navigation_element.setAttribute("root", this.get_root_domain());
+			return /** @type {HTMLElement & { navigate_to_location?: Function }} */ (existing_navigation_element);
+		}
+
+		const navigation_element = document.createElement("auto-navigation");
+		navigation_element.setAttribute("root", this.get_root_domain());
+		document.body.appendChild(navigation_element);
+
+		return /** @type {HTMLElement & { navigate_to_location?: Function }} */ (navigation_element);
+	}
+
+	/**
+	 * @param {Event} event
+	 */
+	on_click(event) {
+		const target = event.target;
+		if (!(target instanceof Element)) return;
+
+		const slug_node = target.closest(".slug");
+		if (!(slug_node instanceof HTMLSpanElement)) return;
+		if (slug_node.classList.contains("active")) return;
+
+		const index_raw = slug_node.dataset.index;
+		if (!index_raw) return;
+
+		const clicked_index = Number(index_raw);
+		if (!Number.isInteger(clicked_index)) return;
+
+		const target_location = this.get_target_location(clicked_index);
+		if (!target_location) return;
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		if (target_location.target_host !== window.location.hostname) {
+			window.location.assign(
+				`${window.location.protocol}//${target_location.target_host}${target_location.target_path}`,
+			);
+			return;
+		}
+
+		const navigation_element = this.get_navigation_element();
+		if (!navigation_element) return;
+		if (typeof navigation_element.navigate_to_location !== "function") return;
+
+		navigation_element.navigate_to_location({
+			target_host: target_location.target_host,
+			target_path: target_location.target_path,
+			update_history: true,
+		});
+	}
+
+	/**
+	 * @param {number} clicked_index
+	 * @returns {{ target_host: string, target_path: string } | null}
+	 */
+	get_target_location(clicked_index) {
+		const root_domain = this.get_root_domain();
+		const location_data = get_location_segments(root_domain);
+		const { segments, root_index } = location_data;
+
+		if (root_index === null) return null;
+		if (clicked_index < 0 || clicked_index >= segments.length) return null;
+
+		const root_segment = segments[root_index];
+		if (!root_segment) return null;
+
+		const current_subdomains = segments.slice(0, root_index);
+
+		if (clicked_index < root_index) {
+			const target_subdomains = segments.slice(0, clicked_index + 1);
+			const target_host = `${target_subdomains.join(".")}.${root_segment}`;
+			return {
+				target_host,
+				target_path: "/",
+			};
+		}
+
+		if (clicked_index === root_index) {
+			return {
+				target_host: root_segment,
+				target_path: "/",
+			};
+		}
+
+		const target_host =
+			current_subdomains.length > 0
+				? `${current_subdomains.join(".")}.${root_segment}`
+				: root_segment;
+
+		const target_path =
+			`/${segments.slice(root_index + 1, clicked_index + 1).join("/")}` || "/";
+
+		return {
+			target_host,
+			target_path,
+		};
+	}
+
 }
 
 if (!customElements.get("auto-breadcrumb")) {
