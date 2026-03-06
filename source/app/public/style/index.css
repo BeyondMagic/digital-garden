@@ -62,7 +62,7 @@ body {
 
 			>.tab {
 				display: flex;
-				padding: 0.4rem 0.75rem 0.25rem;
+				padding: 0.4rem 0.25rem 0.25rem;
 				justify-content: space-between;
 				align-items: center;
 
@@ -72,6 +72,42 @@ body {
 				z-index: 1;
 				margin-bottom: -1px;
 
+				>.block {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					width: 100%;
+					height: 1.2rem;
+					border-radius: 0.25rem;
+					padding: 0.1rem 0.5rem;
+				}
+
+			}
+		}
+	}
+
+	.buttons {
+		display: flex;
+
+		&.vertical {
+			flex-direction: column;
+			align-items: center;
+
+			padding: 0.5rem 0;
+
+			&.reverse {
+				align-items: flex-end;
+			}
+		}
+
+		&.horizontal {
+			align-items: center;
+			flex-direction: row;
+
+			padding: 0 0.2rem;
+
+			&.reverse {
+				flex-direction: row-reverse;
 			}
 		}
 	}
@@ -109,57 +145,87 @@ body {
 				}
 
 				>span,
-				>auto-breadcrumb>span {
-					color: var(--color-text-dim-0);
-					font-size: 0.875rem;
-					height: 100%;
+				>auto-breadcrumb {
 
 					display: flex;
 					justify-content: center;
 					align-items: center;
 
-					&.separator {
-						color: var(--color-text-dim-3);
-
-						&.arrow {
-							font-weight: 800;
-							font-size: 0.75rem;
-						}
-					}
-
-					&.slug {
-						color: var(--color-text-dim-1);
-						font-weight: 600;
-					}
-
-					&.active {
-						font-weight: 700;
+					>span {
 						color: var(--color-text-dim-0);
-					}
+						font-size: 0.875rem;
+						height: 100%;
 
-					&:not(.add):hover {
-						color: var(--color-primary-0);
-						cursor: pointer;
-					}
-
-					&.add {
 						display: flex;
 						justify-content: center;
 						align-items: center;
 
-						>span {
-							background-color: var(--color-text-dim-3);
-							height: 1rem;
-							width: 2px;
+						&.separator {
+							color: var(--color-text-dim-3);
 
-							&:hover {
-								background-color: var(--color-primary-0);
-								cursor: pointer;
+							&.arrow {
+								font-weight: 800;
+								font-size: 0.75rem;
 							}
 						}
 
+						&.slug {
+							color: var(--color-text-dim-1);
+							font-weight: 600;
+						}
+
+						&.active {
+							font-weight: 700;
+							color: var(--color-text-dim-0);
+						}
+
+						&:not(.add):hover {
+							color: var(--color-primary-0);
+							cursor: pointer;
+						}
+
+						&.add {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+
+							height: 1rem;
+							width: 1rem;
+
+							position: relative;
+
+							cursor: pointer;
+
+							&:hover>span {
+								background-color: var(--color-text-dim-0);
+
+								&::after {
+									background-color: var(--color-text-dim-0);
+								}
+							}
+
+							>span {
+								background-color: var(--color-text-dim-3);
+								height: 100%;
+								width: 2px;
+
+								&::after {
+									content: "";
+									position: absolute;
+									height: 2px;
+									width: 1rem;
+
+									left: 0;
+									top: calc(50% - 1px);
+								}
+							}
+
+						}
 					}
+
 				}
+
+
 			}
 
 			&.end {
@@ -282,11 +348,7 @@ p {
 
 /** Style: buttons */
 body {
-	>.buttons {
-		display: flex;
-		align-items: center;
-		padding: 0 0.2rem;
-
+	.buttons {
 		>.button {
 			display: flex;
 			justify-content: center;
@@ -299,9 +361,9 @@ body {
 			border-radius: 0.25rem;
 			opacity: 0.5;
 
-			&.account.icon>svg {
-				width: 1.25rem;
-				height: 1.25rem;
+			&.icon>svg {
+				width: 1.1rem;
+				height: 1.1rem;
 			}
 
 			&:hover {
@@ -325,31 +387,7 @@ body {
 			border-top-left-radius: 0.5rem;
 			border-top-right-radius: 0.5rem;
 
-			&:not(.active):hover {
-				background-color: rgb(0 0 0 / 5%);
-			}
-
-
-			>.slug {
-				color: var(--color-text-0);
-				font-weight: 400;
-				font-size: 0.875rem;
-			}
-
-			>.close {
-				color: var(--color-text-dim-2);
-				font-size: 1.5rem;
-				user-select: none;
-
-				&:hover {
-					color: var(--color-primary-0);
-					cursor: pointer;
-				}
-			}
-
 			&.active {
-
-
 				background-color: var(--backround);
 				border: 1px solid var(--color-border-0);
 				border-bottom: 1px solid var(--background);
@@ -374,6 +412,32 @@ body {
 					left: calc(-1 * var(--size));
 					border-top-left-radius: 100%;
 					border-left: 1px solid var(--color-border-0);
+				}
+			}
+
+			&:not(.active):hover {
+				>.block {
+					background-color: rgb(0 0 0 / 5%);
+				}
+			}
+
+			>.block {
+
+				>.slug {
+					color: var(--color-text-0);
+					font-weight: 400;
+					font-size: 0.875rem;
+				}
+
+				>.close {
+					color: var(--color-text-dim-2);
+					font-size: 1.5rem;
+					user-select: none;
+
+					&:hover {
+						color: var(--color-primary-0);
+						cursor: pointer;
+					}
 				}
 			}
 		}

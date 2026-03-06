@@ -3,6 +3,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import {
+	apply_navigation_payload,
+	render_navigation_error,
+	render_not_found_route,
+} from "/page-renderer.js";
+
 /**
  * @typedef {Object} NavigationInput
  * @property {string} target_host
@@ -52,39 +58,6 @@ function resolve_root_domain(root_domain) {
 function build_navigation_api_url(root_domain) {
 	const host_port = window.location.port ? `:${window.location.port}` : "";
 	return `${window.location.protocol}//api.${root_domain}${host_port}/navigation/resolve`;
-}
-
-/**
- * @param {{
- * content?: { title?: string, language?: string, body?: string, synopsis?: string },
- * garden?: { name?: string, description?: string }
- * }} information
- */
-function apply_information_to_document(information) {
-	const content = information.content || {};
-	const garden = information.garden || {};
-
-	if (typeof content.language === "string" && content.language.length > 0) {
-		document.documentElement.lang = content.language;
-	}
-
-	if (typeof content.title === "string" && typeof garden.name === "string") {
-		document.title = `${content.title} - ${garden.name}`;
-	}
-
-	const meta_description = document.querySelector('meta[name="description"]');
-	if (meta_description instanceof HTMLMetaElement) {
-		const garden_description =
-			typeof garden.description === "string" ? garden.description : "";
-		const content_synopsis =
-			typeof content.synopsis === "string" ? content.synopsis : "";
-		meta_description.content = `${garden_description} ${content_synopsis}`.trim();
-	}
-
-	const body_container = document.querySelector("body > .content > .body");
-	if (body_container instanceof HTMLDivElement && typeof content.body === "string") {
-		body_container.innerHTML = content.body;
-	}
 }
 
 /**
@@ -140,6 +113,12 @@ class auto_navigation extends HTMLElement {
 	 * @returns {Promise<boolean>}
 	 */
 	async navigate_to_location({ target_host, target_path, update_history }) {
+		const fallback_route = {
+			host: target_host,
+			path: target_path,
+			is_found: false,
+		};
+
 		try {
 			const response = await fetch(this.get_navigation_api_url(), {
 				method: "POST",
@@ -154,9 +133,35 @@ class auto_navigation extends HTMLElement {
 				}),
 			});
 
-			if (!response.ok) return false;
+			const payload = await response.json().catch(() => null);
 
-			const payload = await response.json();
+			if (!response.ok) {
+				if (response.status === 404) {
+					const route = payload?.route || fallback_route;
+					render_not_found_route(route);
+
+					if (update_history && target_path !== window.location.pathname) {
+						window.history.pushState({}, "", target_path);
+					}
+
+					this.dispatchEvent(
+						new CustomEvent(auto_navigation_updated_event_name, {
+							detail: {
+								information: null,
+								route,
+							},
+							bubbles: true,
+							composed: true,
+						}),
+					);
+
+					return true;
+				}
+
+				render_navigation_error(fallback_route);
+				return false;
+			}
+
 			const information = payload?.information;
 			const route = payload?.route || {
 				host: target_host,
@@ -166,7 +171,7 @@ class auto_navigation extends HTMLElement {
 
 			if (!information) return false;
 
-			apply_information_to_document(information);
+			apply_navigation_payload(information, route);
 
 			if (update_history && target_path !== window.location.pathname) {
 				window.history.pushState({}, "", target_path);

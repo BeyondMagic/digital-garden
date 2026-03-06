@@ -182,6 +182,22 @@ export async function tables() {
 
 		await insert.asset({
 			id_domain: domain_root,
+			slug: "page-renderer.js",
+			data: {
+				path: make_asset_path("../public/script/page-renderer.js"),
+			},
+		});
+
+		await insert.asset({
+			id_domain: domain_root,
+			slug: "index.js",
+			data: {
+				path: make_asset_path("../public/script/index.js"),
+			},
+		});
+
+		await insert.asset({
+			id_domain: domain_root,
 			slug: "auto-breadcrumb.js",
 			data: {
 				path: make_asset_path("../public/script/components/auto-breadcrumb.js"),

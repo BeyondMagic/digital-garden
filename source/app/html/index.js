@@ -137,8 +137,7 @@ export async function build(information) {
 		: "";
 
 	const scripts = /* html */ `
-		<script type="module" src="${root_asset("auto-navigation.js")}"></script>
-		<script type="module" src="${root_asset("auto-breadcrumb.js")}"></script>
+		<script type="module" src="${root_asset("index.js")}"></script>
 		${hot_reload_script}
 	`;
 

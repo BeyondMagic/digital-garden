@@ -11,6 +11,20 @@
 		// Web-components are shipped as native ESM.
 		"module": "ESNext",
 		"moduleResolution": "bundler",
+		"paths": {
+			"/index.js": [
+				"./index.js"
+			],
+			"/page-renderer.js": [
+				"./page-renderer.js"
+			],
+			"/auto-navigation.js": [
+				"./components/auto-navigation.js"
+			],
+			"/auto-breadcrumb.js": [
+				"./components/auto-breadcrumb.js"
+			]
+		},
 		"moduleDetection": "force",
 		"verbatimModuleSyntax": true,
 		"isolatedModules": true,
